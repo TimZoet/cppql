@@ -19,6 +19,6 @@ int main(int argc, char** argv)
         std::filesystem::current_path(p);
     }
 #endif
-    bt::run<test::Test01>(argc, argv, "common");
+    bt::run<test::Test01>(argc, argv, "cppql");
     return 0;
 }

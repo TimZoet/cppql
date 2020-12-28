@@ -28,7 +28,7 @@ include(MakeTarget)
 option(USE_CONAN "If you are using the Conan package manager, enable this option." OFF)
 if(USE_CONAN)
     include(ConanPkgUtils)
-    conan_pkg_utils(PROFILE gcc10.1 PACKAGES fmt/7.0.3 nlohmann_json/3.9.1)
+    conan_pkg_utils(PROFILE gcc11 PACKAGES fmt/7.0.3 nlohmann_json/3.9.1)
 endif()
 
 ################################################################################
