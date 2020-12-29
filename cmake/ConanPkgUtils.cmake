@@ -7,7 +7,7 @@ function(conan_pkg_utils)
         PARSED_ARGS
         ""
         "PROFILE"
-        "PACKAGES"
+        "PACKAGES;OPTIONS"
         ${ARGN}
     )
 
@@ -19,15 +19,20 @@ function(conan_pkg_utils)
     endif()
     include(${CMAKE_BINARY_DIR}/conan.cmake)
 
+    if(NOT ${PARSED_ARGS_OPTIONS})
+        set(PARSED_ARGS_OPTIONS "")
+    endif()
+
     # Run conan.
     conan_cmake_run(
         REQUIRES ${PARSED_ARGS_PACKAGES}
         BASIC_SETUP
         CMAKE_TARGETS
-        OPTIONS
+        OPTIONS ${PARSED_ARGS_OPTIONS}
         PROFILE ${PARSED_ARGS_PROFILE}
         BUILD missing
         GENERATORS cmake_find_package
+        CONANFILE conanfile.txt
     )
     
     # Append binary dir to module and prefix paths.
