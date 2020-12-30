@@ -8,6 +8,10 @@
 
 namespace test
 {
+    struct Foo
+    {
+    };
+
     void CreateTable::operator()()
     {
         // Create new database and create tables.
