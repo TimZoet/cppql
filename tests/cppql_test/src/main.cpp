@@ -1,7 +1,9 @@
 #include <iostream>
 
 #include "bettertest/run.h"
-#include "cppql_test/test01.h"
+#include "cppql_test/create_database.h"
+#include "cppql_test/create_table.h"
+#include "cppql_test/foreign_key.h"
 
 #ifdef WIN32
 #include "Windows.h"
@@ -19,6 +21,6 @@ int main(int argc, char** argv)
         std::filesystem::current_path(p);
     }
 #endif
-    bt::run<test::Test01>(argc, argv, "cppql");
+    bt::run<test::CreateDatabase, test::CreateTable, test::ForeignKey>(argc, argv, "cppql");
     return 0;
 }

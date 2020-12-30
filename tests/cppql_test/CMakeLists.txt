@@ -4,11 +4,15 @@ set(INCLUDE_DIR "include/cppql_test")
 set(SRC_DIR "src")
 
 set(HEADERS
-	${INCLUDE_DIR}/test01.h
+    ${INCLUDE_DIR}/create_database.h
+    ${INCLUDE_DIR}/create_table.h
+    ${INCLUDE_DIR}/foreign_key.h
 )
  
 set(SOURCES
-	${SRC_DIR}/test01.cpp
+    ${SRC_DIR}/create_database.cpp
+    ${SRC_DIR}/create_table.cpp
+    ${SRC_DIR}/foreign_key.cpp
 	${SRC_DIR}/main.cpp
 )
 

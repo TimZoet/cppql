@@ -10,7 +10,7 @@
 
 namespace test
 {
-    class Test01 : public bt::UnitTest<Test01, bt::CompareMixin, bt::ExceptionMixin>
+    class ForeignKey : public bt::UnitTest<ForeignKey, bt::CompareMixin, bt::ExceptionMixin>
     {
     public:
         void operator()() override;
