@@ -10,7 +10,7 @@
 
 namespace test
 {
-    class CreateTable : public bt::UnitTest<CreateTable, bt::CompareMixin, bt::ExceptionMixin>
+    class CreateColumnBlob : public bt::UnitTest<CreateColumnBlob, bt::CompareMixin, bt::ExceptionMixin>
     {
     public:
         void operator()() override;

@@ -14,15 +14,16 @@ namespace test
 
     void CreateTable::operator()()
     {
-        // Create new database and create tables.
-        testNew();
-
-        // Open previously created database and verify tables.
-        testExisting();
+        // Create database and table(s).
+        create();
+        // Open database and verify contents.
+        verify();
     }
 
-    void CreateTable::testNew()
+    void CreateTable::create()
     {
+        // Create database.
+        // TODO: Put these 4 lines in a utility function for all tests. Same for open.
         const auto cwd    = std::filesystem::current_path();
         const auto dbPath = cwd / "db.db";
         std::filesystem::remove(dbPath);
@@ -44,38 +45,13 @@ namespace test
         compareFalse(table2->isCommitted());
         compareFalse(table3->isCommitted());
 
-        // Create new columns of every type.
-        expectNoThrow([&table1]() { table1->createColumn("col1", sql::Column::Type::Int); });
-        expectNoThrow([&table1]() { table1->createColumn("col2", sql::Column::Type::Real); });
-        expectNoThrow([&table1]() { table1->createColumn("col3", sql::Column::Type::Text); });
-        expectNoThrow([&table1]() { table1->createColumn("col4", sql::Column::Type::Blob); });
-        expectNoThrow([&table1]() { table1->createColumn("col5", sql::Column::Type::Null); });
+        // Create column in all but last table.
+        expectNoThrow([&table1]() { table1->createColumn("col", sql::Column::Type::Int); });
+        expectNoThrow([&table2]() { table2->createColumn("col", sql::Column::Type::Int); });
+        expectNoThrow([&table3]() { table3->createColumn("col", sql::Column::Type::Int); });
 
-        // Second create should throw due to duplicate name.
-        expectNoThrow([&table2]() { table2->createColumn("col1", sql::Column::Type::Int); });
-        expectThrow([&table2]() { table2->createColumn("col1", sql::Column::Type::Int); });
-
-        // Create columns using template method.
-        auto& col1  = table3->createColumn<int32_t>("col1");
-        auto& col2  = table3->createColumn<uint8_t>("col2");
-        auto& col3  = table3->createColumn<size_t>("col3");
-        auto& col4  = table3->createColumn<float>("col4");
-        auto& col5  = table3->createColumn<double>("col5");
-        auto& col6  = table3->createColumn<float*>("col6");
-        auto& col7  = table3->createColumn<void*>("col7");
-        auto& col8  = table3->createColumn<Foo*>("col8");
-        auto& col9  = table3->createColumn<std::string>("col9");
-        auto& col10 = table3->createColumn<std::nullptr_t>("col10");
-        compareEQ(col1.getType(), sql::Column::Type::Int);
-        compareEQ(col2.getType(), sql::Column::Type::Int);
-        compareEQ(col3.getType(), sql::Column::Type::Int);
-        compareEQ(col4.getType(), sql::Column::Type::Real);
-        compareEQ(col5.getType(), sql::Column::Type::Real);
-        compareEQ(col6.getType(), sql::Column::Type::Blob);
-        compareEQ(col7.getType(), sql::Column::Type::Blob);
-        compareEQ(col8.getType(), sql::Column::Type::Blob);
-        compareEQ(col9.getType(), sql::Column::Type::Text);
-        compareEQ(col10.getType(), sql::Column::Type::Null);
+        // Creating a column with a duplicate name should throw.
+        expectThrow([&table1]() { table1->createColumn("col", sql::Column::Type::Int); });
 
         // Commit tables. Last commit should throw because there are no columns.
         expectNoThrow([&table1]() { table1->commit(); });
@@ -89,49 +65,24 @@ namespace test
 
         // Another commit should throw.
         expectThrow([&table1]() { table1->commit(); });
+        expectThrow([&table2]() { table2->commit(); });
+        expectThrow([&table3]() { table3->commit(); });
     }
 
-    void CreateTable::testExisting()
+    void CreateTable::verify()
     {
+        // Open database.
         const auto cwd    = std::filesystem::current_path();
         const auto dbPath = cwd / "db.db";
         auto       db     = sql::Database::open(dbPath);
 
         // Try to get tables.
-        sql::Table* table1;
-        expectNoThrow([&db, &table1]() { table1 = &db->getTable("table1"); });
+        expectNoThrow([&db]() { auto& t = db->getTable("table1"); });
         expectNoThrow([&db]() { auto& t = db->getTable("table2"); });
         expectNoThrow([&db]() { auto& t = db->getTable("table3"); });
         expectThrow([&db]() { auto& t = db->getTable("table4"); });
 
-        // Try to get columns.
-        const auto& cols = table1->getColumns();
-        compareEQ(cols.size(), 5);
-        const auto col1 = cols.find("col1");
-        const auto col2 = cols.find("col2");
-        const auto col3 = cols.find("col3");
-        const auto col4 = cols.find("col4");
-        const auto col5 = cols.find("col5");
-        compareNE(col1, cols.end());
-        compareNE(col2, cols.end());
-        compareNE(col3, cols.end());
-        compareNE(col4, cols.end());
-        compareNE(col5, cols.end());
-
-        // Check column names.
-        compareEQ(col1->second->getName(), "col1");
-        compareEQ(col2->second->getName(), "col2");
-        compareEQ(col3->second->getName(), "col3");
-        compareEQ(col4->second->getName(), "col4");
-        compareEQ(col5->second->getName(), "col5");
-
-        // Check column types.
-        compareEQ(col1->second->getType(), sql::Column::Type::Int);
-        compareEQ(col2->second->getType(), sql::Column::Type::Real);
-        compareEQ(col3->second->getType(), sql::Column::Type::Text);
-        compareEQ(col4->second->getType(), sql::Column::Type::Blob);
-        compareEQ(col5->second->getType(), sql::Column::Type::Null);
-
+        // Remove database.
         std::filesystem::remove(dbPath);
     }
 }  // namespace test

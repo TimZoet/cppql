@@ -10,9 +10,13 @@
 
 namespace test
 {
-    class ForeignKey : public bt::UnitTest<ForeignKey, bt::CompareMixin, bt::ExceptionMixin>
+    class CreateColumnForeignKey : public bt::UnitTest<CreateColumnForeignKey, bt::CompareMixin, bt::ExceptionMixin>
     {
     public:
         void operator()() override;
+
+        void create();
+
+        void verify();
     };
 }  // namespace test

@@ -1,9 +1,16 @@
 #include <iostream>
 
 #include "bettertest/run.h"
+#include "cppql_test/create_column_blob.h"
+#include "cppql_test/create_column_foreign_key.h"
+#include "cppql_test/create_column_int.h"
+#include "cppql_test/create_column_null.h"
+#include "cppql_test/create_column_primary_key.h"
+#include "cppql_test/create_column_primary_key_multiple.h"
+#include "cppql_test/create_column_real.h"
+#include "cppql_test/create_column_text.h"
 #include "cppql_test/create_database.h"
 #include "cppql_test/create_table.h"
-#include "cppql_test/foreign_key.h"
 
 #ifdef WIN32
 #include "Windows.h"
@@ -21,6 +28,15 @@ int main(int argc, char** argv)
         std::filesystem::current_path(p);
     }
 #endif
-    bt::run<test::CreateDatabase, test::CreateTable, test::ForeignKey>(argc, argv, "cppql");
+    bt::run<test::CreateColumnBlob,
+            test::CreateColumnForeignKey,
+            test::CreateColumnInt,
+            test::CreateColumnNull,
+            test::CreateColumnPrimaryKey,
+            test::CreateColumnPrimaryKeyMultiple,
+            test::CreateColumnReal,
+            test::CreateColumnText,
+            test::CreateDatabase,
+            test::CreateTable>(argc, argv, "cppql");
     return 0;
 }
