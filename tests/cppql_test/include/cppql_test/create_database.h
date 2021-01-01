@@ -8,11 +8,8 @@
 #include "bettertest/mixins/exception_mixin.h"
 #include "bettertest/tests/unit_test.h"
 
-namespace test
+class CreateDatabase : public bt::UnitTest<CreateDatabase, bt::CompareMixin, bt::ExceptionMixin>
 {
-    class CreateDatabase : public bt::UnitTest<CreateDatabase, bt::CompareMixin, bt::ExceptionMixin>
-    {
-    public:
-        void operator()() override;
-    };
-}  // namespace test
+public:
+    void operator()() override;
+};

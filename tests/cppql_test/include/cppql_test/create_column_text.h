@@ -8,15 +8,12 @@
 #include "bettertest/mixins/exception_mixin.h"
 #include "bettertest/tests/unit_test.h"
 
-namespace test
+class CreateColumnText : public bt::UnitTest<CreateColumnText, bt::CompareMixin, bt::ExceptionMixin>
 {
-    class CreateColumnText : public bt::UnitTest<CreateColumnText, bt::CompareMixin, bt::ExceptionMixin>
-    {
-    public:
-        void operator()() override;
+public:
+    void operator()() override;
 
-        void create();
+    void create();
 
-        void verify();
-    };
-}  // namespace test
+    void verify();
+};

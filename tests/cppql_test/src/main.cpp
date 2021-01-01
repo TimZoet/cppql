@@ -28,15 +28,15 @@ int main(int argc, char** argv)
         std::filesystem::current_path(p);
     }
 #endif
-    bt::run<test::CreateColumnBlob,
-            test::CreateColumnForeignKey,
-            test::CreateColumnInt,
-            test::CreateColumnNull,
-            test::CreateColumnPrimaryKey,
-            test::CreateColumnPrimaryKeyMultiple,
-            test::CreateColumnReal,
-            test::CreateColumnText,
-            test::CreateDatabase,
-            test::CreateTable>(argc, argv, "cppql");
+    bt::run<CreateColumnBlob,
+            CreateColumnForeignKey,
+            CreateColumnInt,
+            CreateColumnNull,
+            CreateColumnPrimaryKey,
+            CreateColumnPrimaryKeyMultiple,
+            CreateColumnReal,
+            CreateColumnText,
+            CreateDatabase,
+            CreateTable>(argc, argv, "cppql");
     return 0;
 }
