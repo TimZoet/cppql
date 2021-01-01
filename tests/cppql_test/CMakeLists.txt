@@ -4,6 +4,13 @@ set(INCLUDE_DIR "include/cppql_test")
 set(SRC_DIR "src")
 
 set(HEADERS
+    ${INCLUDE_DIR}/bind.h
+    ${INCLUDE_DIR}/bind_blob.h
+    ${INCLUDE_DIR}/bind_int.h
+    ${INCLUDE_DIR}/bind_null.h
+    ${INCLUDE_DIR}/bind_real.h
+    ${INCLUDE_DIR}/bind_template.h
+    ${INCLUDE_DIR}/bind_text.h
     ${INCLUDE_DIR}/create_column_blob.h
     ${INCLUDE_DIR}/create_column_foreign_key.h
     ${INCLUDE_DIR}/create_column_int.h
@@ -16,8 +23,15 @@ set(HEADERS
     ${INCLUDE_DIR}/create_table.h
     ${INCLUDE_DIR}/utils.h
 )
- 
+
 set(SOURCES
+    ${SRC_DIR}/bind.cpp
+    ${SRC_DIR}/bind_blob.cpp
+    ${SRC_DIR}/bind_int.cpp
+    ${SRC_DIR}/bind_null.cpp
+    ${SRC_DIR}/bind_real.cpp
+    ${SRC_DIR}/bind_template.cpp
+    ${SRC_DIR}/bind_text.cpp
     ${SRC_DIR}/create_column_blob.cpp
     ${SRC_DIR}/create_column_foreign_key.cpp
     ${SRC_DIR}/create_column_int.cpp
@@ -28,7 +42,6 @@ set(SOURCES
     ${SRC_DIR}/create_column_text.cpp
     ${SRC_DIR}/create_database.cpp
     ${SRC_DIR}/create_table.cpp
-    
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/utils.cpp
 )

@@ -1,6 +1,13 @@
 #include <iostream>
 
 #include "bettertest/run.h"
+#include "cppql_test/bind.h"
+#include "cppql_test/bind_blob.h"
+#include "cppql_test/bind_int.h"
+#include "cppql_test/bind_null.h"
+#include "cppql_test/bind_real.h"
+#include "cppql_test/bind_template.h"
+#include "cppql_test/bind_text.h"
 #include "cppql_test/create_column_blob.h"
 #include "cppql_test/create_column_foreign_key.h"
 #include "cppql_test/create_column_int.h"
@@ -28,7 +35,14 @@ int main(int argc, char** argv)
         std::filesystem::current_path(p);
     }
 #endif
-    bt::run<CreateColumnBlob,
+    bt::run<Bind,
+            BindBlob,
+            BindInt,
+            BindNull,
+            BindReal,
+            BindTemplate,
+            BindText,
+            CreateColumnBlob,
             CreateColumnForeignKey,
             CreateColumnInt,
             CreateColumnNull,
