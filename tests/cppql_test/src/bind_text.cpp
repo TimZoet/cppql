@@ -1,23 +1,9 @@
 #include "cppql_test/bind_text.h"
 
-////////////////////////////////////////////////////////////////
-// Module includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql/database.h"
-
-////////////////////////////////////////////////////////////////
-// Current target includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql_test/utils.h"
-
 void BindText::operator()()
 {
-    auto db = createDatabase();
-
     // Create simple table.
-    expectNoThrow([&db]() {
+    expectNoThrow([this]() {
         auto& table = db->createTable("myTable");
         table.createColumn("col1", sql::Column::Type::Text);
         table.createColumn("col2", sql::Column::Type::Text);
@@ -26,7 +12,7 @@ void BindText::operator()()
     });
 
     // Create insert statement.
-    auto stmt = db->createStatement("INSERT INTO myTable VALUES (?, ?, ?);", true);
+    const auto stmt = db->createStatement("INSERT INTO myTable VALUES (?, ?, ?);", true);
 
     // Allocate some data.
     const char* data1 = new char[10];
@@ -43,6 +29,4 @@ void BindText::operator()()
     // Delete data whose ownership was not passed to binds.
     delete[] data2;
     delete[] data3;
-
-    removeDatabase();
 }

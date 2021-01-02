@@ -1,23 +1,9 @@
 #include "cppql_test/bind.h"
 
-////////////////////////////////////////////////////////////////
-// Module includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql/database.h"
-
-////////////////////////////////////////////////////////////////
-// Current target includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql_test/utils.h"
-
 void Bind::operator()()
 {
-    auto db = createDatabase();
-
     // Create simple table.
-    expectNoThrow([&db]() {
+    expectNoThrow([this]() {
         auto& table = db->createTable("myTable");
         table.createColumn("col1", sql::Column::Type::Int);
         table.createColumn("col2", sql::Column::Type::Int);
@@ -48,6 +34,4 @@ void Bind::operator()()
     compareTrue(stmt.bindInt(1, 20));
     compareTrue(stmt.bindInt(2, 30));
     compareFalse(stmt.bindInt(3, 40));
-
-    removeDatabase();
 }

@@ -1,32 +1,19 @@
 #include "cppql_test/create_column_primary_key_multiple.h"
 
-////////////////////////////////////////////////////////////////
-// Module includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql/database.h"
-
-////////////////////////////////////////////////////////////////
-// Current target includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql_test/utils.h"
-
 void CreateColumnPrimaryKeyMultiple::operator()()
 {
     // Create database and table(s).
     create();
     // Open database and verify contents.
+    reopen();
     verify();
 }
 
 void CreateColumnPrimaryKeyMultiple::create()
 {
-    auto db = createDatabase();
-
     // Create table.
     sql::Table* table;
-    expectNoThrow([&db, &table] { table = &db->createTable("myTable"); });
+    expectNoThrow([&table, this] { table = &db->createTable("myTable"); });
 
     // Create columns.
     sql::Column *idCol1, *idCol2;
@@ -50,11 +37,9 @@ void CreateColumnPrimaryKeyMultiple::create()
 
 void CreateColumnPrimaryKeyMultiple::verify()
 {
-    auto db = openDatabase();
-
     // Try to get table.
     sql::Table* table;
-    expectNoThrow([&db, &table]() { table = &db->getTable("myTable"); });
+    expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
 
     // Check column types.
     const auto& idCol1 = table->getColumns().find("id1")->second;
@@ -65,6 +50,4 @@ void CreateColumnPrimaryKeyMultiple::verify()
     compareEQ(idCol2->getType(), sql::Column::Type::Int);
     compareTrue(idCol2->isPrimaryKey());
     compareTrue(idCol2->isNotNull());
-
-    removeDatabase();
 }

@@ -1,32 +1,19 @@
 #include "cppql_test/create_column_primary_key.h"
 
-////////////////////////////////////////////////////////////////
-// Module includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql/database.h"
-
-////////////////////////////////////////////////////////////////
-// Current target includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql_test/utils.h"
-
 void CreateColumnPrimaryKey::operator()()
 {
     // Create database and table(s).
     create();
     // Open database and verify contents.
+    reopen();
     verify();
 }
 
 void CreateColumnPrimaryKey::create()
 {
-    auto db = createDatabase();
-
     // Create table.
     sql::Table* table;
-    expectNoThrow([&db, &table] { table = &db->createTable("myTable"); });
+    expectNoThrow([&table, this] { table = &db->createTable("myTable"); });
 
     // Create column.
     sql::Column* idCol;
@@ -46,11 +33,9 @@ void CreateColumnPrimaryKey::create()
 
 void CreateColumnPrimaryKey::verify()
 {
-    auto db = openDatabase();
-
     // Try to get table.
     sql::Table* table;
-    expectNoThrow([&db, &table]() { table = &db->getTable("myTable"); });
+    expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
 
     // Check column types.
     const auto& idCol = table->getColumns().find("id")->second;
@@ -58,6 +43,4 @@ void CreateColumnPrimaryKey::verify()
     compareTrue(idCol->isAutoIncrement());
     compareTrue(idCol->isPrimaryKey());
     compareTrue(idCol->isNotNull());
-
-    removeDatabase();
 }

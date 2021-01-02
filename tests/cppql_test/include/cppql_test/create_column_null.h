@@ -8,7 +8,14 @@
 #include "bettertest/mixins/exception_mixin.h"
 #include "bettertest/tests/unit_test.h"
 
-class CreateColumnNull : public bt::UnitTest<CreateColumnNull, bt::CompareMixin, bt::ExceptionMixin>
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql_test/utils.h"
+
+class CreateColumnNull : public bt::UnitTest<CreateColumnNull, bt::CompareMixin, bt::ExceptionMixin>,
+                         utils::DatabaseMember
 {
 public:
     void operator()() override;

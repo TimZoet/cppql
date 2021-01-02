@@ -1,17 +1,5 @@
 #include "cppql_test/create_column_text.h"
 
-////////////////////////////////////////////////////////////////
-// Module includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql/database.h"
-
-////////////////////////////////////////////////////////////////
-// Current target includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql_test/utils.h"
-
 struct Foo
 {
 };
@@ -21,16 +9,15 @@ void CreateColumnText::operator()()
     // Create database and table(s).
     create();
     // Open database and verify contents.
+    reopen();
     verify();
 }
 
 void CreateColumnText::create()
 {
-    auto db = createDatabase();
-
     // Create table.
     sql::Table* table;
-    expectNoThrow([&db, &table]() { table = &db->createTable("myTable"); });
+    expectNoThrow([&table, this]() { table = &db->createTable("myTable"); });
 
     // Create columns.
     sql::Column *col1, *col2, *col3, *col4;
@@ -48,16 +35,12 @@ void CreateColumnText::create()
 
 void CreateColumnText::verify()
 {
-    auto db = openDatabase();
-
     // Try to get table.
     sql::Table* table;
-    expectNoThrow([&db, &table]() { table = &db->getTable("myTable"); });
+    expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
 
     // Check column types.
     const auto& cols = table->getColumns();
     compareEQ(cols.find("col1")->second->getType(), sql::Column::Type::Text);
     compareEQ(cols.find("col2")->second->getType(), sql::Column::Type::Text);
-
-    removeDatabase();
 }

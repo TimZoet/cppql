@@ -8,7 +8,13 @@
 #include "bettertest/mixins/exception_mixin.h"
 #include "bettertest/tests/unit_test.h"
 
-class BindTemplate : public bt::UnitTest<BindTemplate, bt::CompareMixin, bt::ExceptionMixin>
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql_test/utils.h"
+
+class BindTemplate : public bt::UnitTest<BindTemplate, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;

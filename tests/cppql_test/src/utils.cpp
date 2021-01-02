@@ -6,24 +6,35 @@
 
 #include <filesystem>
 
-sql::DatabasePtr createDatabase()
+namespace utils
 {
-    const auto cwd    = std::filesystem::current_path();
-    const auto dbPath = cwd / "db.db";
-    std::filesystem::remove(dbPath);
-    return sql::Database::create(dbPath);
-}
+    DatabaseMember::DatabaseMember()
+    {
+        const auto cwd    = std::filesystem::current_path();
+        const auto dbPath = cwd / "db.db";
+        db                = sql::Database::create(dbPath);
+    }
 
-sql::DatabasePtr openDatabase()
-{
-    const auto cwd    = std::filesystem::current_path();
-    const auto dbPath = cwd / "db.db";
-    return sql::Database::open(dbPath);
-}
+    DatabaseMember::~DatabaseMember() noexcept
+    {
+        try
+        {
+            db.reset();
+            const auto cwd    = std::filesystem::current_path();
+            const auto dbPath = cwd / "db.db";
+            std::filesystem::remove(dbPath);
+        }
+        catch (...)
+        {
+        }
+    }
 
-void removeDatabase()
-{
-    const auto cwd    = std::filesystem::current_path();
-    const auto dbPath = cwd / "db.db";
-    std::filesystem::remove(dbPath);
-}
+    void DatabaseMember::reopen()
+    {
+        db.reset();
+        const auto cwd    = std::filesystem::current_path();
+        const auto dbPath = cwd / "db.db";
+        db                = sql::Database::open(dbPath);
+    }
+
+}  // namespace utils

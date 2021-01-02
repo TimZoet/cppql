@@ -6,8 +6,18 @@
 
 #include "cppql/database.h"
 
-sql::DatabasePtr createDatabase();
+namespace utils
+{
+    class DatabaseMember
+    {
+    public:
+        DatabaseMember();
 
-sql::DatabasePtr openDatabase();
+        virtual ~DatabaseMember() noexcept;
 
-void removeDatabase();
+        void reopen();
+
+    protected:
+        sql::DatabasePtr db;
+    };
+}

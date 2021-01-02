@@ -1,17 +1,5 @@
 #include "cppql_test/create_column_blob.h"
 
-////////////////////////////////////////////////////////////////
-// Module includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql/database.h"
-
-////////////////////////////////////////////////////////////////
-// Current target includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql_test/utils.h"
-
 struct Foo
 {
 };
@@ -21,16 +9,15 @@ void CreateColumnBlob::operator()()
     // Create database and table(s).
     create();
     // Open database and verify contents.
+    reopen();
     verify();
 }
 
 void CreateColumnBlob::create()
 {
-    auto db = createDatabase();
-
     // Create table.
     sql::Table* table;
-    expectNoThrow([&db, &table]() { table = &db->createTable("myTable"); });
+    expectNoThrow([&table, this]() { table = &db->createTable("myTable"); });
 
     // Create columns.
     sql::Column *col1, *col2, *col3, *col4;
@@ -52,11 +39,9 @@ void CreateColumnBlob::create()
 
 void CreateColumnBlob::verify()
 {
-    auto db = openDatabase();
-
     // Try to get table.
     sql::Table* table;
-    expectNoThrow([&db, &table]() { table = &db->getTable("myTable"); });
+    expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
 
     // Check column types.
     const auto& cols = table->getColumns();
@@ -64,6 +49,4 @@ void CreateColumnBlob::verify()
     compareEQ(cols.find("col2")->second->getType(), sql::Column::Type::Blob);
     compareEQ(cols.find("col3")->second->getType(), sql::Column::Type::Blob);
     compareEQ(cols.find("col4")->second->getType(), sql::Column::Type::Blob);
-
-    removeDatabase();
 }

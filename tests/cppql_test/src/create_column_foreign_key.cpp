@@ -1,39 +1,26 @@
 #include "cppql_test/create_column_foreign_key.h"
 
-////////////////////////////////////////////////////////////////
-// Module includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql/database.h"
-
-////////////////////////////////////////////////////////////////
-// Current target includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql_test/utils.h"
-
 void CreateColumnForeignKey::operator()()
 {
     // Create database and table(s).
     create();
     // Open database and verify contents.
+    reopen();
     verify();
 }
 
 void CreateColumnForeignKey::create()
 {
-    auto db = createDatabase();
-
     // Create 1st table.
     sql::Table* table1;
-    expectNoThrow([&db, &table1] { table1 = &db->createTable("table1"); });
+    expectNoThrow([&table1, this] { table1 = &db->createTable("table1"); });
     sql::Column* idCol;
     expectNoThrow([&table1, &idCol]() { idCol = &table1->createColumn("id", sql::Column::Type::Int); });
     expectNoThrow([&idCol]() { idCol->setAutoIncrement(true).setPrimaryKey(true).setNotNull(true); });
 
     // Create 2nd table with reference to 1st.
     sql::Table* table2;
-    expectNoThrow([&db, &table2] { table2 = &db->createTable("table2"); });
+    expectNoThrow([&table2, this] { table2 = &db->createTable("table2"); });
     sql::Column* refCol;
     expectNoThrow([&idCol, &table2, &refCol]() { refCol = &table2->createColumn("ref", *idCol); });
 
@@ -56,12 +43,10 @@ void CreateColumnForeignKey::create()
 
 void CreateColumnForeignKey::verify()
 {
-    auto db = openDatabase();
-
     // Try to get tables.
     sql::Table *table1, *table2;
-    expectNoThrow([&db, &table1]() { table1 = &db->getTable("table1"); });
-    expectNoThrow([&db, &table2]() { table2 = &db->getTable("table2"); });
+    expectNoThrow([&table1, this]() { table1 = &db->getTable("table1"); });
+    expectNoThrow([&table2, this]() { table2 = &db->getTable("table2"); });
 
     // Check column types.
     const auto& cols1 = table1->getColumns();
@@ -70,6 +55,4 @@ void CreateColumnForeignKey::verify()
     compareEQ(cols2.find("ref")->second->getType(), sql::Column::Type::Int);
     compareTrue(cols2.find("ref")->second->isForeignKey());
     compareEQ(cols2.find("ref")->second->getForeignKey(), cols1.find("id")->second.get());
-
-    removeDatabase();
 }

@@ -1,17 +1,5 @@
 #include "cppql_test/create_table.h"
 
-////////////////////////////////////////////////////////////////
-// Module includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql/database.h"
-
-////////////////////////////////////////////////////////////////
-// Current target includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql_test/utils.h"
-
 struct Foo
 {
 };
@@ -21,20 +9,19 @@ void CreateTable::operator()()
     // Create database and table(s).
     create();
     // Open database and verify contents.
+    reopen();
     verify();
 }
 
 void CreateTable::create()
 {
-    auto db = createDatabase();
-
     // Create tables. Last create should throw due to duplicate name.
     sql::Table *table1, *table2, *table3, *table4;
-    expectNoThrow([&db, &table1]() { table1 = &db->createTable("table1"); });
-    expectNoThrow([&db, &table2]() { table2 = &db->createTable("table2"); });
-    expectNoThrow([&db, &table3]() { table3 = &db->createTable("table3"); });
-    expectNoThrow([&db, &table4]() { table4 = &db->createTable("table4"); });
-    expectThrow([&db]() { auto& x = db->createTable("table1"); });
+    expectNoThrow([this, &table1]() { table1 = &db->createTable("table1"); });
+    expectNoThrow([this, &table2]() { table2 = &db->createTable("table2"); });
+    expectNoThrow([this, &table3]() { table3 = &db->createTable("table3"); });
+    expectNoThrow([this, &table4]() { table4 = &db->createTable("table4"); });
+    expectThrow([this]() { auto& x = db->createTable("table1"); });
 
     // Verify names and uncommitted.
     compareEQ(table1->getName(), "table1");
@@ -70,13 +57,9 @@ void CreateTable::create()
 
 void CreateTable::verify()
 {
-    auto db = openDatabase();
-
     // Try to get tables.
-    expectNoThrow([&db]() { auto& t = db->getTable("table1"); });
-    expectNoThrow([&db]() { auto& t = db->getTable("table2"); });
-    expectNoThrow([&db]() { auto& t = db->getTable("table3"); });
-    expectThrow([&db]() { auto& t = db->getTable("table4"); });
-
-    removeDatabase();
+    expectNoThrow([this]() { auto& t = db->getTable("table1"); });
+    expectNoThrow([this]() { auto& t = db->getTable("table2"); });
+    expectNoThrow([this]() { auto& t = db->getTable("table3"); });
+    expectThrow([this]() { auto& t = db->getTable("table4"); });
 }

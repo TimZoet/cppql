@@ -8,8 +8,15 @@
 #include "bettertest/mixins/exception_mixin.h"
 #include "bettertest/tests/unit_test.h"
 
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql_test/utils.h"
+
 class CreateColumnPrimaryKeyMultiple
-    : public bt::UnitTest<CreateColumnPrimaryKeyMultiple, bt::CompareMixin, bt::ExceptionMixin>
+    : public bt::UnitTest<CreateColumnPrimaryKeyMultiple, bt::CompareMixin, bt::ExceptionMixin>,
+      utils::DatabaseMember
 {
 public:
     void operator()() override;
