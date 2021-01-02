@@ -51,4 +51,13 @@ set(DEPS_PRIVATE
 	cppql
 )
 
-make_target(TYPE ${TYPE} NAME ${NAME} OUTDIR "tests" STARTUP HEADERS "${HEADERS}" SOURCES "${SOURCES}" DEPS_PRIVATE "${DEPS_PRIVATE}")
+make_target(
+    TYPE ${TYPE}
+    NAME ${NAME}
+    OUTDIR "tests"
+    WARNINGS WERROR
+    STARTUP
+    HEADERS "${HEADERS}"
+    SOURCES "${SOURCES}"
+    DEPS_PRIVATE "${DEPS_PRIVATE}"
+)

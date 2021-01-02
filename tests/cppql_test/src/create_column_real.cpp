@@ -20,7 +20,7 @@ void CreateColumnReal::create()
     expectNoThrow([&table, this]() { table = &db->createTable("myTable"); });
 
     // Create columns.
-    sql::Column *col1, *col2, *col3, *col4;
+    sql::Column *col1, *col2, *col3;
     expectNoThrow([&table, &col1]() { col1 = &table->createColumn("col1", sql::Column::Type::Real); });
     expectNoThrow([&table, &col2]() { col2 = &table->createColumn<float>("col2"); });
     expectNoThrow([&table, &col3]() { col3 = &table->createColumn<double>("col3"); });

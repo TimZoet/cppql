@@ -21,7 +21,7 @@ void CreateTable::create()
     expectNoThrow([this, &table2]() { table2 = &db->createTable("table2"); });
     expectNoThrow([this, &table3]() { table3 = &db->createTable("table3"); });
     expectNoThrow([this, &table4]() { table4 = &db->createTable("table4"); });
-    expectThrow([this]() { auto& x = db->createTable("table1"); });
+    expectThrow([this]() { static_cast<void>(db->createTable("table1")); });
 
     // Verify names and uncommitted.
     compareEQ(table1->getName(), "table1");
@@ -58,8 +58,8 @@ void CreateTable::create()
 void CreateTable::verify()
 {
     // Try to get tables.
-    expectNoThrow([this]() { auto& t = db->getTable("table1"); });
-    expectNoThrow([this]() { auto& t = db->getTable("table2"); });
-    expectNoThrow([this]() { auto& t = db->getTable("table3"); });
-    expectThrow([this]() { auto& t = db->getTable("table4"); });
+    expectNoThrow([this]() { static_cast<void>(db->getTable("table1")); });
+    expectNoThrow([this]() { static_cast<void>(db->getTable("table2")); });
+    expectNoThrow([this]() { static_cast<void>(db->getTable("table3")); });
+    expectThrow([this]() { static_cast<void>(db->getTable("table4")); });
 }

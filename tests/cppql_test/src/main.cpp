@@ -29,9 +29,9 @@ int main(int argc, char** argv)
 #ifdef WIN32
     {
         WCHAR path[MAX_PATH];
-        GetModuleFileNameW(NULL, path, MAX_PATH);
-        std::filesystem::path workdir(path);
-        const auto            p = workdir.parent_path();
+        GetModuleFileNameW(nullptr, path, MAX_PATH);
+        const std::filesystem::path workdir(path);
+        const auto                  p = workdir.parent_path();
         std::filesystem::current_path(p);
     }
 #endif

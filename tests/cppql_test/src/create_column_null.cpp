@@ -20,7 +20,7 @@ void CreateColumnNull::create()
     expectNoThrow([&table, this]() { table = &db->createTable("myTable"); });
 
     // Create columns.
-    sql::Column *col1, *col2, *col3, *col4;
+    sql::Column *col1, *col2;
     expectNoThrow([&table, &col1]() { col1 = &table->createColumn("col1", sql::Column::Type::Null); });
     expectNoThrow([&table, &col2]() { col2 = &table->createColumn<std::nullptr_t>("col2"); });
 
