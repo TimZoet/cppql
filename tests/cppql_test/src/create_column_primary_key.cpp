@@ -38,9 +38,9 @@ void CreateColumnPrimaryKey::verify()
     expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
 
     // Check column types.
-    const auto& idCol = table->getColumns().find("id")->second;
-    compareEQ(idCol->getType(), sql::Column::Type::Int);
-    compareTrue(idCol->isAutoIncrement());
-    compareTrue(idCol->isPrimaryKey());
-    compareTrue(idCol->isNotNull());
+    const auto& idCol = table->getColumn("id");
+    compareEQ(idCol.getType(), sql::Column::Type::Int);
+    compareTrue(idCol.isAutoIncrement());
+    compareTrue(idCol.isPrimaryKey());
+    compareTrue(idCol.isNotNull());
 }

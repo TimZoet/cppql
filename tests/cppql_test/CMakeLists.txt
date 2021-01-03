@@ -21,6 +21,7 @@ set(HEADERS
     ${INCLUDE_DIR}/create_column_text.h
     ${INCLUDE_DIR}/create_database.h
     ${INCLUDE_DIR}/create_table.h
+    ${INCLUDE_DIR}/typed_table.h
     ${INCLUDE_DIR}/utils.h
 )
 
@@ -43,6 +44,7 @@ set(SOURCES
     ${SRC_DIR}/create_database.cpp
     ${SRC_DIR}/create_table.cpp
     ${SRC_DIR}/main.cpp
+    ${SRC_DIR}/typed_table.cpp
     ${SRC_DIR}/utils.cpp
 )
 
@@ -55,7 +57,7 @@ make_target(
     TYPE ${TYPE}
     NAME ${NAME}
     OUTDIR "tests"
-    WARNINGS WERROR
+    # WARNINGS WERROR
     STARTUP
     HEADERS "${HEADERS}"
     SOURCES "${SOURCES}"

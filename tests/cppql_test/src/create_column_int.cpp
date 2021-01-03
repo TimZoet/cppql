@@ -44,9 +44,8 @@ void CreateColumnInt::verify()
     expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
 
     // Check column types.
-    const auto& cols = table->getColumns();
-    compareEQ(cols.find("col1")->second->getType(), sql::Column::Type::Int);
-    compareEQ(cols.find("col2")->second->getType(), sql::Column::Type::Int);
-    compareEQ(cols.find("col3")->second->getType(), sql::Column::Type::Int);
-    compareEQ(cols.find("col4")->second->getType(), sql::Column::Type::Int);
+    compareEQ(table->getColumn("col1").getType(), sql::Column::Type::Int);
+    compareEQ(table->getColumn("col2").getType(), sql::Column::Type::Int);
+    compareEQ(table->getColumn("col3").getType(), sql::Column::Type::Int);
+    compareEQ(table->getColumn("col4").getType(), sql::Column::Type::Int);
 }

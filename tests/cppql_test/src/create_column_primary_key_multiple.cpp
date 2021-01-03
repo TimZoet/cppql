@@ -42,12 +42,12 @@ void CreateColumnPrimaryKeyMultiple::verify()
     expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
 
     // Check column types.
-    const auto& idCol1 = table->getColumns().find("id1")->second;
-    compareEQ(idCol1->getType(), sql::Column::Type::Int);
-    compareTrue(idCol1->isPrimaryKey());
-    compareTrue(idCol1->isNotNull());
-    const auto& idCol2 = table->getColumns().find("id2")->second;
-    compareEQ(idCol2->getType(), sql::Column::Type::Int);
-    compareTrue(idCol2->isPrimaryKey());
-    compareTrue(idCol2->isNotNull());
+    const auto& idCol1 = table->getColumn("id1");
+    compareEQ(idCol1.getType(), sql::Column::Type::Int);
+    compareTrue(idCol1.isPrimaryKey());
+    compareTrue(idCol1.isNotNull());
+    const auto& idCol2 = table->getColumn("id2");
+    compareEQ(idCol2.getType(), sql::Column::Type::Int);
+    compareTrue(idCol2.isPrimaryKey());
+    compareTrue(idCol2.isNotNull());
 }

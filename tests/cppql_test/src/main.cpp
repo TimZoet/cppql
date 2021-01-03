@@ -1,6 +1,15 @@
 #include <iostream>
 
+////////////////////////////////////////////////////////////////
+// Module includes.
+////////////////////////////////////////////////////////////////
+
 #include "bettertest/run.h"
+
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
 #include "cppql_test/bind.h"
 #include "cppql_test/bind_blob.h"
 #include "cppql_test/bind_int.h"
@@ -18,6 +27,7 @@
 #include "cppql_test/create_column_text.h"
 #include "cppql_test/create_database.h"
 #include "cppql_test/create_table.h"
+#include "cppql_test/typed_table.h"
 
 #ifdef WIN32
 #include "Windows.h"
@@ -35,6 +45,7 @@ int main(int argc, char** argv)
         std::filesystem::current_path(p);
     }
 #endif
+
     bt::run<Bind,
             BindBlob,
             BindInt,
@@ -51,6 +62,7 @@ int main(int argc, char** argv)
             CreateColumnReal,
             CreateColumnText,
             CreateDatabase,
-            CreateTable>(argc, argv, "cppql");
+            CreateTable,
+            TypedTable>(argc, argv, "cppql");
     return 0;
 }

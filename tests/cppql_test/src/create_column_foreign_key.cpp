@@ -49,10 +49,8 @@ void CreateColumnForeignKey::verify()
     expectNoThrow([&table2, this]() { table2 = &db->getTable("table2"); });
 
     // Check column types.
-    const auto& cols1 = table1->getColumns();
-    compareEQ(cols1.find("id")->second->getType(), sql::Column::Type::Int);
-    const auto& cols2 = table2->getColumns();
-    compareEQ(cols2.find("ref")->second->getType(), sql::Column::Type::Int);
-    compareTrue(cols2.find("ref")->second->isForeignKey());
-    compareEQ(cols2.find("ref")->second->getForeignKey(), cols1.find("id")->second.get());
+    compareEQ(table1->getColumn("id").getType(), sql::Column::Type::Int);
+    compareEQ(table2->getColumn("ref").getType(), sql::Column::Type::Int);
+    compareTrue(table2->getColumn("ref").isForeignKey());
+    compareEQ(table2->getColumn("ref").getForeignKey(), &table1->getColumn("id"));
 }

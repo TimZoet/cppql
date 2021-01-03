@@ -40,7 +40,6 @@ void CreateColumnNull::verify()
     expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
 
     // Check column types.
-    const auto& cols = table->getColumns();
-    compareEQ(cols.find("col1")->second->getType(), sql::Column::Type::Null);
-    compareEQ(cols.find("col2")->second->getType(), sql::Column::Type::Null);
+    compareEQ(table->getColumn("col1").getType(), sql::Column::Type::Null);
+    compareEQ(table->getColumn("col2").getType(), sql::Column::Type::Null);
 }
