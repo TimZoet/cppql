@@ -27,7 +27,10 @@
 #include "cppql_test/create_column_text.h"
 #include "cppql_test/create_database.h"
 #include "cppql_test/create_table.h"
-#include "cppql_test/typed_table.h"
+#include "cppql_test/create_typed_table_blob.h"
+#include "cppql_test/create_typed_table_int.h"
+#include "cppql_test/create_typed_table_real.h"
+#include "cppql_test/create_typed_table_text.h"
 
 #ifdef WIN32
 #include "Windows.h"
@@ -63,6 +66,9 @@ int main(int argc, char** argv)
             CreateColumnText,
             CreateDatabase,
             CreateTable,
-            TypedTable>(argc, argv, "cppql");
+            CreateTypedTableBlob,
+            CreateTypedTableInt,
+            CreateTypedTableReal,
+            CreateTypedTableText>(argc, argv, "cppql");
     return 0;
 }

@@ -14,7 +14,8 @@
 
 #include "cppql_test/utils.h"
 
-class TypedTable : public bt::UnitTest<TypedTable, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class CreateTypedTableBlob : public bt::UnitTest<CreateTypedTableBlob, bt::CompareMixin, bt::ExceptionMixin>,
+                             utils::DatabaseMember
 {
 public:
     void operator()() override;
