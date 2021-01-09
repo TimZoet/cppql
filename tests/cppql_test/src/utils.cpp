@@ -12,7 +12,8 @@ namespace utils
     {
         const auto cwd    = std::filesystem::current_path();
         const auto dbPath = cwd / "db.db";
-        db                = sql::Database::create(dbPath);
+        std::filesystem::remove(dbPath);
+        db = sql::Database::create(dbPath);
     }
 
     DatabaseMember::~DatabaseMember() noexcept

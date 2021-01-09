@@ -25,6 +25,10 @@ set(HEADERS
     ${INCLUDE_DIR}/create_typed_table_int.h
     ${INCLUDE_DIR}/create_typed_table_real.h
     ${INCLUDE_DIR}/create_typed_table_text.h
+    ${INCLUDE_DIR}/get_column_blob.h
+    ${INCLUDE_DIR}/get_column_int.h
+    ${INCLUDE_DIR}/get_column_real.h
+    ${INCLUDE_DIR}/get_column_text.h
     ${INCLUDE_DIR}/utils.h
 )
 
@@ -50,6 +54,10 @@ set(SOURCES
     ${SRC_DIR}/create_typed_table_int.cpp
     ${SRC_DIR}/create_typed_table_real.cpp
     ${SRC_DIR}/create_typed_table_text.cpp
+    ${SRC_DIR}/get_column_blob.cpp
+    ${SRC_DIR}/get_column_int.cpp
+    ${SRC_DIR}/get_column_real.cpp
+    ${SRC_DIR}/get_column_text.cpp
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/utils.cpp
 )
