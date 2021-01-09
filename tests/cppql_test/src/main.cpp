@@ -35,6 +35,8 @@
 #include "cppql_test/get_column_int.h"
 #include "cppql_test/get_column_real.h"
 #include "cppql_test/get_column_text.h"
+#include "cppql_test/statement_prepare.h"
+#include "cppql_test/statement_step.h"
 
 #ifdef WIN32
 #include "Windows.h"
@@ -77,6 +79,8 @@ int main(int argc, char** argv)
             GetColumnBlob,
             GetColumnInt,
             GetColumnReal,
-            GetColumnText>(argc, argv, "cppql");
+            GetColumnText,
+            StatementPrepare,
+            StatementStep>(argc, argv, "cppql");
     return 0;
 }
