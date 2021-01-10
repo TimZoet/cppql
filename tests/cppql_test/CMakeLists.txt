@@ -75,7 +75,7 @@ make_target(
     TYPE ${TYPE}
     NAME ${NAME}
     OUTDIR "tests"
-    # WARNINGS WERROR
+    WARNINGS WERROR
     STARTUP
     HEADERS "${HEADERS}"
     SOURCES "${SOURCES}"

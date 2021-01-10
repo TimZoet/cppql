@@ -48,6 +48,6 @@ void GetColumnInt::operator()()
 
     // Get row.
     compareTrue(stmt.step());
-    compareEQ(stmt.column<uint32_t>(0), 50);
+    compareEQ(stmt.column<uint32_t>(0), static_cast<uint32_t>(50));
     compareEQ(stmt.column<uint64_t>(1), static_cast<uint64_t>(-50));
 }
