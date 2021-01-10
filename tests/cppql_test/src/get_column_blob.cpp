@@ -41,7 +41,7 @@ void GetColumnBlob::operator()()
     // Get row.
     compareTrue(stmt.step());
     stmt.column(0, values);
-    compareEQ(values.size(), 3);
+    compareEQ(values.size(), static_cast<size_t>(3));
     compareEQ(values[0], 10.5f);
     compareEQ(values[1], 20.5f);
     compareEQ(values[2], 30.5f);
@@ -49,7 +49,7 @@ void GetColumnBlob::operator()()
     // Get row.
     compareTrue(stmt.step());
     values = stmt.column<float*>(0);
-    compareEQ(values.size(), 3);
+    compareEQ(values.size(), static_cast<size_t>(3));
     compareEQ(values[0], 40.5f);
     compareEQ(values[1], 50.5f);
     compareEQ(values[2], 60.5f);
@@ -57,7 +57,7 @@ void GetColumnBlob::operator()()
     // Get row.
     compareTrue(stmt.step());
     auto values2 = stmt.column<Foo*>(0);
-    compareEQ(values2.size(), 2);
+    compareEQ(values2.size(), static_cast<size_t>(2));
     compareEQ(values2[0].a, 100);
     compareEQ(values2[0].b, 42);
     compareEQ(values2[0].c, 3);
