@@ -35,6 +35,9 @@
 #include "cppql_test/get_column_int.h"
 #include "cppql_test/get_column_real.h"
 #include "cppql_test/get_column_text.h"
+#include "cppql_test/insert.h"
+#include "cppql_test/insert_default.h"
+#include "cppql_test/insert_tuple.h"
 #include "cppql_test/statement_prepare.h"
 #include "cppql_test/statement_step.h"
 
@@ -80,6 +83,9 @@ int main(int argc, char** argv)
             GetColumnInt,
             GetColumnReal,
             GetColumnText,
+            Insert,
+            InsertDefault,
+            InsertTuple,
             StatementPrepare,
             StatementStep>(argc, argv, "cppql");
     return 0;

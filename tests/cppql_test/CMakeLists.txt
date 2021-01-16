@@ -29,6 +29,9 @@ set(HEADERS
     ${INCLUDE_DIR}/get_column_int.h
     ${INCLUDE_DIR}/get_column_real.h
     ${INCLUDE_DIR}/get_column_text.h
+    ${INCLUDE_DIR}/insert.h
+    ${INCLUDE_DIR}/insert_default.h
+    ${INCLUDE_DIR}/insert_tuple.h
     ${INCLUDE_DIR}/statement_prepare.h
     ${INCLUDE_DIR}/statement_step.h
     ${INCLUDE_DIR}/utils.h
@@ -60,6 +63,9 @@ set(SOURCES
     ${SRC_DIR}/get_column_int.cpp
     ${SRC_DIR}/get_column_real.cpp
     ${SRC_DIR}/get_column_text.cpp
+    ${SRC_DIR}/insert.cpp
+    ${SRC_DIR}/insert_default.cpp
+    ${SRC_DIR}/insert_tuple.cpp
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/statement_prepare.cpp
     ${SRC_DIR}/statement_step.cpp
