@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include "cppql/ext/delete.h"
 #include "cppql/ext/insert.h"
 #include "cppql/ext/select.h"
 #include "cppql/ext/typed_table.h"
@@ -36,20 +37,32 @@ int main(int, char**)
     auto& table = db->createTable("myTable");
     table.createColumn<int32_t>("col1").setAutoIncrement(true).setPrimaryKey(true).setNotNull(true);
     table.createColumn<std::string>("col2");
-    /*table.createColumn<std::string>("col3");
-    table.createColumn<uint8_t>("col4");*/
     table.commit();
 
     sql::ext::TypedTable<int32_t, std::string> typedTable(table);
 
+    auto col1 = typedTable.col<0>();
+    auto col2 = typedTable.col<1>();
+
+    //
     auto insert = typedTable.insert();
-    insert(nullptr);
-    insert(nullptr, std::string("def"));
-    insert(nullptr, std::string("ghi"));
-    /*insert(nullptr, sql::TransientText{.data = "abc", .size = 3});
-    insert(nullptr, sql::TransientText{.data = "def", .size = 3});
-    insert(nullptr, sql::TransientText{.data = "ghi", .size = 3});
-    const auto row = std::make_tuple<std::nullptr_t, sql::TransientText>(nullptr, sql::TransientText{.data = "abc", .size = 3});
-    insert(row);*/
+    insert(nullptr, "abc"s);
+    insert(nullptr, "def"s);
+    insert(nullptr, "ghi"s);
+
+    auto select = typedTable.select<0, 1>(col1 > 0);
+    auto vec    = std::vector<decltype(typedTable)::row_t>(select.begin(), select.end());
+
+    //
+    int32_t    id   = 1;
+    const auto expr = col1 == &id;
+
+    const auto del = typedTable.del(expr, true);
+    for (const auto& row : vec)
+    {
+        id = std::get<0>(row);
+        del();
+    }
+
     return 0;
 }
