@@ -7,8 +7,6 @@ using namespace std::string_literals;
 
 void Insert::operator()()
 {
-    // TODO: Extend these tests to cover all column types. Same for InsertTuple and InsertDefault.
-    
     // Create table.
     sql::Table* t;
     expectNoThrow([&t, this]() {
