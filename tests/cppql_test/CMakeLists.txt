@@ -35,6 +35,8 @@ set(HEADERS
     ${INCLUDE_DIR}/insert_blob.h
     ${INCLUDE_DIR}/insert_default.h
     ${INCLUDE_DIR}/insert_tuple.h
+    ${INCLUDE_DIR}/select.h
+    ${INCLUDE_DIR}/select_custom_return_type.h
     ${INCLUDE_DIR}/statement_prepare.h
     ${INCLUDE_DIR}/statement_step.h
     ${INCLUDE_DIR}/utils.h
@@ -73,6 +75,8 @@ set(SOURCES
     ${SRC_DIR}/insert_default.cpp
     ${SRC_DIR}/insert_tuple.cpp
     ${SRC_DIR}/main.cpp
+    ${SRC_DIR}/select.cpp
+    ${SRC_DIR}/select_custom_return_type.cpp
     ${SRC_DIR}/statement_prepare.cpp
     ${SRC_DIR}/statement_step.cpp
     ${SRC_DIR}/utils.cpp

@@ -50,7 +50,7 @@ int main(int, char**)
     insert(nullptr, "def"s);
     insert(nullptr, "ghi"s);
 
-    auto select = typedTable.select<0, 1>(col1 > 0);
+    auto select = typedTable.select<0, 1>(col1 > 0, true);
     auto vec    = std::vector<decltype(typedTable)::row_t>(select.begin(), select.end());
 
     //

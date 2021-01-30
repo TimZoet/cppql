@@ -41,6 +41,8 @@
 #include "cppql_test/insert_blob.h"
 #include "cppql_test/insert_default.h"
 #include "cppql_test/insert_tuple.h"
+#include "cppql_test/select.h"
+#include "cppql_test/select_custom_return_type.h"
 #include "cppql_test/statement_prepare.h"
 #include "cppql_test/statement_step.h"
 
@@ -92,6 +94,8 @@ int main(int argc, char** argv)
             InsertBlob,
             InsertDefault,
             InsertTuple,
+            Select,
+            SelectCustomReturnType,
             StatementPrepare,
             StatementStep>(argc, argv, "cppql");
     return 0;
