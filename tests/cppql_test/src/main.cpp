@@ -38,6 +38,7 @@
 #include "cppql_test/get_column_real.h"
 #include "cppql_test/get_column_text.h"
 #include "cppql_test/insert.h"
+#include "cppql_test/insert_blob.h"
 #include "cppql_test/insert_default.h"
 #include "cppql_test/insert_tuple.h"
 #include "cppql_test/statement_prepare.h"
@@ -88,6 +89,7 @@ int main(int argc, char** argv)
             GetColumnReal,
             GetColumnText,
             Insert,
+            InsertBlob,
             InsertDefault,
             InsertTuple,
             StatementPrepare,
