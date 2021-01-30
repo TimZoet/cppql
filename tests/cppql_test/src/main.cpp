@@ -31,6 +31,8 @@
 #include "cppql_test/create_typed_table_int.h"
 #include "cppql_test/create_typed_table_real.h"
 #include "cppql_test/create_typed_table_text.h"
+#include "cppql_test/delete_rows.h"
+#include "cppql_test/delete_rows_all.h"
 #include "cppql_test/get_column_blob.h"
 #include "cppql_test/get_column_int.h"
 #include "cppql_test/get_column_real.h"
@@ -79,6 +81,8 @@ int main(int argc, char** argv)
             CreateTypedTableInt,
             CreateTypedTableReal,
             CreateTypedTableText,
+            DeleteRows,
+            DeleteRowsAll,
             GetColumnBlob,
             GetColumnInt,
             GetColumnReal,
