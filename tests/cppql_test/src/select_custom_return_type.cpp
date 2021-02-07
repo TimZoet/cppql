@@ -40,7 +40,7 @@ void SelectCustomReturnType::operator()()
 
     // Select with unbound id.
     std::vector<Row> vals(sel.begin(), sel.end());
-    compareEQ(vals.size(), 2);
+    compareEQ(vals.size(), static_cast<size_t>(2));
     compareEQ(vals[0].c0, 10);
     compareEQ(vals[0].c1, 20.0f);
     compareEQ(vals[0].c2, "abc"s);

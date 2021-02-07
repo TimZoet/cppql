@@ -8,6 +8,8 @@ using namespace std::string_literals;
 
 void Select::operator()()
 {
+    // TODO: Create tests (here or in separate unit) that do not just select all columns but also leave out, duplicate and reorder columns.
+
     // Create table.
     sql::Table* t;
     expectNoThrow([&t, this]() {
@@ -33,31 +35,31 @@ void Select::operator()()
 
     // Select with unbound id.
     std::vector<std::tuple<int64_t, float, std::string>> vals(sel.begin(), sel.end());
-    compareEQ(vals.size(), 0);
+    compareEQ(vals.size(), static_cast<size_t>(0));
 
     // Select with bound id 20.
     sel(true);
     vals.assign(sel.begin(), sel.end());
-    compareEQ(vals.size(), 1);
+    compareEQ(vals.size(), static_cast<size_t>(1));
     compareEQ(vals[0], std::make_tuple<int64_t, float, std::string>(20, 40.5f, "def"s));
 
     // Select with bound id 20.
     id = 30;
     vals.assign(sel.begin(), sel.end());
-    compareEQ(vals.size(), 1);
+    compareEQ(vals.size(), static_cast<size_t>(1));
     compareEQ(vals[0], std::make_tuple<int64_t, float, std::string>(20, 40.5f, "def"s));
 
     // Select with bound id 40.
     id = 40;
     sel(true);
     vals.assign(sel.begin(), sel.end());
-    compareEQ(vals.size(), 2);
+    compareEQ(vals.size(), static_cast<size_t>(2));
     compareEQ(vals[0], std::make_tuple<int64_t, float, std::string>(40, 100.0f, "aaaa"s));
     compareEQ(vals[1], std::make_tuple<int64_t, float, std::string>(40, 200.0f, "bbbb"s));
 
     // Create select query and immediately bind.
     auto    sel2 = table.select<0, 1, 2>(table.col<0>() == 30, true);
     vals.assign(sel2.begin(), sel2.end());
-    compareEQ(vals.size(), 1);
+    compareEQ(vals.size(), static_cast<size_t>(1));
     compareEQ(vals[0], std::make_tuple<int64_t, float, std::string>(30, 80.2f, "ghij"s));
 }
