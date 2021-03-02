@@ -10,3 +10,6 @@
 [submodule "modules/parsertongue"]
 	path = modules/parsertongue
 	url = https://github.com/TimZoet/parsertongue-module.git
+[submodule "cmake"]
+	path = cmake
+	url = http://github.com/TimZoet/cmake-module.git
