@@ -1,4 +1,4 @@
-#include "cppql_test/bind_blob.h"
+#include "cppql_test/binding/bind_blob.h"
 
 void BindBlob::operator()()
 {

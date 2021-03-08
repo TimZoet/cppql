@@ -4,21 +4,21 @@ set(INCLUDE_DIR "include/cppql_test")
 set(SRC_DIR "src")
 
 set(HEADERS
-    ${INCLUDE_DIR}/bind.h
-    ${INCLUDE_DIR}/bind_blob.h
-    ${INCLUDE_DIR}/bind_int.h
-    ${INCLUDE_DIR}/bind_null.h
-    ${INCLUDE_DIR}/bind_real.h
-    ${INCLUDE_DIR}/bind_template.h
-    ${INCLUDE_DIR}/bind_text.h
-    ${INCLUDE_DIR}/create_column_blob.h
-    ${INCLUDE_DIR}/create_column_foreign_key.h
-    ${INCLUDE_DIR}/create_column_int.h
-    ${INCLUDE_DIR}/create_column_null.h
-    ${INCLUDE_DIR}/create_column_primary_key.h
-    ${INCLUDE_DIR}/create_column_primary_key_multiple.h
-    ${INCLUDE_DIR}/create_column_real.h
-    ${INCLUDE_DIR}/create_column_text.h
+    ${INCLUDE_DIR}/binding/bind.h
+    ${INCLUDE_DIR}/binding/bind_blob.h
+    ${INCLUDE_DIR}/binding/bind_int.h
+    ${INCLUDE_DIR}/binding/bind_null.h
+    ${INCLUDE_DIR}/binding/bind_real.h
+    ${INCLUDE_DIR}/binding/bind_template.h
+    ${INCLUDE_DIR}/binding/bind_text.h
+    ${INCLUDE_DIR}/create_column/create_column_blob.h
+    ${INCLUDE_DIR}/create_column/create_column_foreign_key.h
+    ${INCLUDE_DIR}/create_column/create_column_int.h
+    ${INCLUDE_DIR}/create_column/create_column_null.h
+    ${INCLUDE_DIR}/create_column/create_column_primary_key.h
+    ${INCLUDE_DIR}/create_column/create_column_primary_key_multiple.h
+    ${INCLUDE_DIR}/create_column/create_column_real.h
+    ${INCLUDE_DIR}/create_column/create_column_text.h
     ${INCLUDE_DIR}/create_database.h
     ${INCLUDE_DIR}/create_table.h
     ${INCLUDE_DIR}/create_typed_table_blob.h
@@ -27,10 +27,12 @@ set(HEADERS
     ${INCLUDE_DIR}/create_typed_table_text.h
     ${INCLUDE_DIR}/delete_rows.h
     ${INCLUDE_DIR}/delete_rows_all.h
-    ${INCLUDE_DIR}/get_column_blob.h
-    ${INCLUDE_DIR}/get_column_int.h
-    ${INCLUDE_DIR}/get_column_real.h
-    ${INCLUDE_DIR}/get_column_text.h
+    ${INCLUDE_DIR}/get_column/get_column_blob.h
+    ${INCLUDE_DIR}/get_column/get_column_int.h
+    ${INCLUDE_DIR}/get_column/get_column_real.h
+    ${INCLUDE_DIR}/get_column/get_column_template.h
+    ${INCLUDE_DIR}/get_column/get_column_text.h
+    ${INCLUDE_DIR}/get_column/get_column_type.h
     ${INCLUDE_DIR}/insert.h
     ${INCLUDE_DIR}/insert_blob.h
     ${INCLUDE_DIR}/insert_default.h
@@ -43,21 +45,21 @@ set(HEADERS
 )
 
 set(SOURCES
-    ${SRC_DIR}/bind.cpp
-    ${SRC_DIR}/bind_blob.cpp
-    ${SRC_DIR}/bind_int.cpp
-    ${SRC_DIR}/bind_null.cpp
-    ${SRC_DIR}/bind_real.cpp
-    ${SRC_DIR}/bind_template.cpp
-    ${SRC_DIR}/bind_text.cpp
-    ${SRC_DIR}/create_column_blob.cpp
-    ${SRC_DIR}/create_column_foreign_key.cpp
-    ${SRC_DIR}/create_column_int.cpp
-    ${SRC_DIR}/create_column_null.cpp
-    ${SRC_DIR}/create_column_primary_key.cpp
-    ${SRC_DIR}/create_column_primary_key_multiple.cpp
-    ${SRC_DIR}/create_column_real.cpp
-    ${SRC_DIR}/create_column_text.cpp
+    ${SRC_DIR}/binding/bind.cpp
+    ${SRC_DIR}/binding/bind_blob.cpp
+    ${SRC_DIR}/binding/bind_int.cpp
+    ${SRC_DIR}/binding/bind_null.cpp
+    ${SRC_DIR}/binding/bind_real.cpp
+    ${SRC_DIR}/binding/bind_template.cpp
+    ${SRC_DIR}/binding/bind_text.cpp
+    ${SRC_DIR}/create_column/create_column_blob.cpp
+    ${SRC_DIR}/create_column/create_column_foreign_key.cpp
+    ${SRC_DIR}/create_column/create_column_int.cpp
+    ${SRC_DIR}/create_column/create_column_null.cpp
+    ${SRC_DIR}/create_column/create_column_primary_key.cpp
+    ${SRC_DIR}/create_column/create_column_primary_key_multiple.cpp
+    ${SRC_DIR}/create_column/create_column_real.cpp
+    ${SRC_DIR}/create_column/create_column_text.cpp
     ${SRC_DIR}/create_database.cpp
     ${SRC_DIR}/create_table.cpp
     ${SRC_DIR}/create_typed_table_blob.cpp
@@ -66,10 +68,10 @@ set(SOURCES
     ${SRC_DIR}/create_typed_table_text.cpp
     ${SRC_DIR}/delete_rows.cpp
     ${SRC_DIR}/delete_rows_all.cpp
-    ${SRC_DIR}/get_column_blob.cpp
-    ${SRC_DIR}/get_column_int.cpp
-    ${SRC_DIR}/get_column_real.cpp
-    ${SRC_DIR}/get_column_text.cpp
+    ${SRC_DIR}/get_column/get_column_blob.cpp
+    ${SRC_DIR}/get_column/get_column_int.cpp
+    ${SRC_DIR}/get_column/get_column_real.cpp
+    ${SRC_DIR}/get_column/get_column_text.cpp
     ${SRC_DIR}/insert.cpp
     ${SRC_DIR}/insert_blob.cpp
     ${SRC_DIR}/insert_default.cpp

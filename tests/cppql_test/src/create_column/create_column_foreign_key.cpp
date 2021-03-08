@@ -1,4 +1,4 @@
-#include "cppql_test/create_column_foreign_key.h"
+#include "cppql_test/create_column/create_column_foreign_key.h"
 
 void CreateColumnForeignKey::operator()()
 {

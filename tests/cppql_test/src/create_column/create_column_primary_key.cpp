@@ -1,4 +1,4 @@
-#include "cppql_test/create_column_primary_key.h"
+#include "cppql_test/create_column/create_column_primary_key.h"
 
 void CreateColumnPrimaryKey::operator()()
 {

@@ -1,4 +1,4 @@
-#include "cppql_test/bind_template.h"
+#include "cppql_test/binding/bind_template.h"
 
 void BindTemplate::operator()()
 {

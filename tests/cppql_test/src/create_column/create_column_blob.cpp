@@ -1,4 +1,4 @@
-#include "cppql_test/create_column_blob.h"
+#include "cppql_test/create_column/create_column_blob.h"
 
 struct Foo
 {

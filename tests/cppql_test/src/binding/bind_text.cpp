@@ -1,4 +1,4 @@
-#include "cppql_test/bind_text.h"
+#include "cppql_test/binding/bind_text.h"
 
 void BindText::operator()()
 {
@@ -18,13 +18,18 @@ void BindText::operator()()
     const char* data1 = new char[10];
     const char* data2 = new char[10];
     const char* data3 = new char[10];
+    const std::string data4 = "abc";
 
     // Do some valid and invalid binds.
     compareTrue(stmt.bindText(0, data1, 10, [](void* p) { delete[] static_cast<const char*>(p); }));
     compareTrue(stmt.bindStaticText(1, data2, 10));
+    compareTrue(stmt.bindStaticText(1, data4));
     compareTrue(stmt.bindTransientText(2, data3, 10));
+    compareTrue(stmt.bindTransientText(2, data4));
     compareFalse(stmt.bindStaticText(3, data2, 10));
+    compareFalse(stmt.bindStaticText(3, data4));
     compareFalse(stmt.bindTransientText(3, data2, 10));
+    compareFalse(stmt.bindTransientText(3, data4));
 
     // Delete data whose ownership was not passed to binds.
     delete[] data2;

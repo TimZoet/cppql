@@ -1,4 +1,4 @@
-#include "cppql_test/get_column_real.h"
+#include "cppql_test/get_column/get_column_real.h"
 
 void GetColumnReal::operator()()
 {

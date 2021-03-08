@@ -23,9 +23,15 @@ void CreateDatabase::operator()()
     compareTrue(std::filesystem::exists(dbPath));
     compareTrue(std::filesystem::remove(dbPath));
     compareFalse(std::filesystem::exists(dbPath));
-    expectNoThrow([dbPath]() { auto db = sql::Database::openOrCreate(dbPath); });
+    expectNoThrow([dbPath, this]() {
+        auto [db, created] = sql::Database::openOrCreate(dbPath);
+        compareTrue(created);
+    });
     compareTrue(std::filesystem::exists(dbPath));
-    expectNoThrow([dbPath]() { auto db = sql::Database::openOrCreate(dbPath); });
+    expectNoThrow([dbPath, this]() {
+        auto [db, created] = sql::Database::openOrCreate(dbPath);
+        compareFalse(created);
+    });
     compareTrue(std::filesystem::exists(dbPath));
     compareTrue(std::filesystem::remove(dbPath));
 }

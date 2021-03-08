@@ -1,4 +1,4 @@
-#include "cppql_test/get_column_int.h"
+#include "cppql_test/get_column/get_column_int.h"
 
 void GetColumnInt::operator()()
 {

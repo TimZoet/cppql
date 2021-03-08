@@ -1,4 +1,4 @@
-#include "cppql_test/bind_int.h"
+#include "cppql_test/binding/bind_int.h"
 
 void BindInt::operator()()
 {

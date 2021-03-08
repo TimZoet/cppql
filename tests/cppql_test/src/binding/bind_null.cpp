@@ -1,6 +1,6 @@
-#include "cppql_test/bind_real.h"
+#include "cppql_test/binding/bind_null.h"
 
-void BindReal::operator()()
+void BindNull::operator()()
 {
     // Create simple table.
     expectNoThrow([this]() {
@@ -15,9 +15,9 @@ void BindReal::operator()()
     const auto stmt = db->createStatement("INSERT INTO myTable VALUES (?, ?, ?);", true);
     
     // Do some valid and invalid binds.
-    compareTrue(stmt.bindFloat(0, 10));
-    compareTrue(stmt.bindFloat(1, 20));
-    compareTrue(stmt.bindDouble(2, 30));
-    compareFalse(stmt.bindFloat(3, 30));
-    compareFalse(stmt.bindDouble(3, 30));
+    compareTrue(stmt.bindNull(0));
+    compareTrue(stmt.bindNull(1));
+    compareTrue(stmt.bindNull(2));
+    compareFalse(stmt.bindNull(3));
+    compareFalse(stmt.bindNull(3));
 }
