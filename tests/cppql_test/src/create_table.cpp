@@ -1,9 +1,5 @@
 #include "cppql_test/create_table.h"
 
-struct Foo
-{
-};
-
 void CreateTable::operator()()
 {
     // Create database and table(s).

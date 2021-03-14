@@ -1,9 +1,5 @@
 #include "cppql_test/create_column/create_column_text.h"
 
-struct Foo
-{
-};
-
 void CreateColumnText::operator()()
 {
     // Create database and table(s).

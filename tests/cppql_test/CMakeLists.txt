@@ -71,6 +71,7 @@ set(SOURCES
     ${SRC_DIR}/get_column/get_column_blob.cpp
     ${SRC_DIR}/get_column/get_column_int.cpp
     ${SRC_DIR}/get_column/get_column_real.cpp
+    ${SRC_DIR}/get_column/get_column_template.cpp
     ${SRC_DIR}/get_column/get_column_text.cpp
     ${SRC_DIR}/insert.cpp
     ${SRC_DIR}/insert_blob.cpp

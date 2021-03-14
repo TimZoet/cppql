@@ -36,6 +36,7 @@
 #include "cppql_test/get_column/get_column_blob.h"
 #include "cppql_test/get_column/get_column_int.h"
 #include "cppql_test/get_column/get_column_real.h"
+#include "cppql_test/get_column/get_column_template.h"
 #include "cppql_test/get_column/get_column_text.h"
 #include "cppql_test/insert.h"
 #include "cppql_test/insert_blob.h"
@@ -89,6 +90,7 @@ int main(int argc, char** argv)
             GetColumnBlob,
             GetColumnInt,
             GetColumnReal,
+            GetColumnTemplate,
             GetColumnText,
             Insert,
             InsertBlob,
