@@ -1,4 +1,4 @@
-#include "cppql_test/create_table.h"
+#include "cppql_test/table/create_table.h"
 
 void CreateTable::operator()()
 {

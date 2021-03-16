@@ -19,8 +19,11 @@ set(HEADERS
     ${INCLUDE_DIR}/create_column/create_column_primary_key_multiple.h
     ${INCLUDE_DIR}/create_column/create_column_real.h
     ${INCLUDE_DIR}/create_column/create_column_text.h
+    ${INCLUDE_DIR}/table/create_table.h
+    ${INCLUDE_DIR}/table/drop_table.h
+    ${INCLUDE_DIR}/table/register_table.h
+
     ${INCLUDE_DIR}/create_database.h
-    ${INCLUDE_DIR}/create_table.h
     ${INCLUDE_DIR}/create_typed_table_blob.h
     ${INCLUDE_DIR}/create_typed_table_int.h
     ${INCLUDE_DIR}/create_typed_table_real.h
@@ -60,8 +63,11 @@ set(SOURCES
     ${SRC_DIR}/create_column/create_column_primary_key_multiple.cpp
     ${SRC_DIR}/create_column/create_column_real.cpp
     ${SRC_DIR}/create_column/create_column_text.cpp
+    ${SRC_DIR}/table/create_table.cpp
+    ${SRC_DIR}/table/drop_table.cpp
+    ${SRC_DIR}/table/register_table.cpp
+
     ${SRC_DIR}/create_database.cpp
-    ${SRC_DIR}/create_table.cpp
     ${SRC_DIR}/create_typed_table_blob.cpp
     ${SRC_DIR}/create_typed_table_int.cpp
     ${SRC_DIR}/create_typed_table_real.cpp
