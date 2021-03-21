@@ -1,17 +1,17 @@
-#include "cppql_test/insert_default.h"
+#include "cppql_test/insert/insert.h"
 
 #include "cppql/ext/insert.h"
 #include "cppql/ext/typed_table.h"
 
 using namespace std::string_literals;
 
-void InsertDefault::operator()()
+void Insert::operator()()
 {
     // Create table.
     sql::Table* t;
     expectNoThrow([&t, this]() {
         t = &db->createTable("myTable");
-        t->createColumn("col1", sql::Column::Type::Int).setAutoIncrement(true).setPrimaryKey(true).setNotNull(true);
+        t->createColumn("col1", sql::Column::Type::Int);
         t->createColumn("col2", sql::Column::Type::Real);
         t->createColumn("col3", sql::Column::Type::Text);
         t->commit();
@@ -20,10 +20,10 @@ void InsertDefault::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(nullptr, 20.0f, nullptr); });
-    expectNoThrow([&insert]() { insert(nullptr, 40.5f, "abc"s); });
-    expectNoThrow([&insert]() { insert(nullptr, nullptr, "def"s); });
-    expectNoThrow([&insert]() { insert(nullptr, nullptr, "ghij"s); });
+    expectNoThrow([&insert]() { insert(10, 20.0f, "abc"s); });
+    expectNoThrow([&insert]() { insert(20, 40.5f, "def"s); });
+    expectNoThrow([&insert]() { insert(30, 80.2f, "ghij"s); });
+    expectNoThrow([&insert]() { insert(40, 133.3f, "gh\0ij"s); });
 
     // Create select statement to select all data.
     const auto stmt = db->createStatement("SELECT * FROM myTable;", true);
@@ -31,22 +31,22 @@ void InsertDefault::operator()()
     // Check rows.
 
     compareTrue(stmt.step());
-    compareEQ(stmt.column<int64_t>(0), 1);
+    compareEQ(stmt.column<int64_t>(0), 10);
     compareEQ(stmt.column<float>(1), 20.0f);
-    compareEQ(stmt.column<std::string>(2), ""s);
-
-    compareTrue(stmt.step());
-    compareEQ(stmt.column<int64_t>(0), 2);
-    compareEQ(stmt.column<float>(1), 40.5f);
     compareEQ(stmt.column<std::string>(2), "abc"s);
 
     compareTrue(stmt.step());
-    compareEQ(stmt.column<int64_t>(0), 3);
-    compareEQ(stmt.column<float>(1), 0.0f);
+    compareEQ(stmt.column<int64_t>(0), 20);
+    compareEQ(stmt.column<float>(1), 40.5f);
     compareEQ(stmt.column<std::string>(2), "def"s);
 
     compareTrue(stmt.step());
-    compareEQ(stmt.column<int64_t>(0), 4);
-    compareEQ(stmt.column<float>(1), 0.0f);
+    compareEQ(stmt.column<int64_t>(0), 30);
+    compareEQ(stmt.column<float>(1), 80.2f);
     compareEQ(stmt.column<std::string>(2), "ghij"s);
+
+    compareTrue(stmt.step());
+    compareEQ(stmt.column<int64_t>(0), 40);
+    compareEQ(stmt.column<float>(1), 133.3f);
+    compareEQ(stmt.column<std::string>(2), "gh\0ij"s);
 }

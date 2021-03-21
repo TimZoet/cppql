@@ -19,6 +19,16 @@ set(HEADERS
     ${INCLUDE_DIR}/create_column/create_column_primary_key_multiple.h
     ${INCLUDE_DIR}/create_column/create_column_real.h
     ${INCLUDE_DIR}/create_column/create_column_text.h
+    ${INCLUDE_DIR}/get_column/get_column_blob.h
+    ${INCLUDE_DIR}/get_column/get_column_int.h
+    ${INCLUDE_DIR}/get_column/get_column_real.h
+    ${INCLUDE_DIR}/get_column/get_column_template.h
+    ${INCLUDE_DIR}/get_column/get_column_text.h
+    ${INCLUDE_DIR}/get_column/get_column_type.h
+    ${INCLUDE_DIR}/insert/insert.h
+    ${INCLUDE_DIR}/insert/insert_blob.h
+    ${INCLUDE_DIR}/insert/insert_default.h
+    ${INCLUDE_DIR}/insert/insert_tuple.h
     ${INCLUDE_DIR}/table/create_table.h
     ${INCLUDE_DIR}/table/drop_table.h
     ${INCLUDE_DIR}/table/register_table.h
@@ -31,16 +41,7 @@ set(HEADERS
     ${INCLUDE_DIR}/create_database.h
     ${INCLUDE_DIR}/delete_rows.h
     ${INCLUDE_DIR}/delete_rows_all.h
-    ${INCLUDE_DIR}/get_column/get_column_blob.h
-    ${INCLUDE_DIR}/get_column/get_column_int.h
-    ${INCLUDE_DIR}/get_column/get_column_real.h
-    ${INCLUDE_DIR}/get_column/get_column_template.h
-    ${INCLUDE_DIR}/get_column/get_column_text.h
-    ${INCLUDE_DIR}/get_column/get_column_type.h
-    ${INCLUDE_DIR}/insert.h
-    ${INCLUDE_DIR}/insert_blob.h
-    ${INCLUDE_DIR}/insert_default.h
-    ${INCLUDE_DIR}/insert_tuple.h
+    
     ${INCLUDE_DIR}/select.h
     ${INCLUDE_DIR}/select_custom_return_type.h
     ${INCLUDE_DIR}/statement_prepare.h
@@ -64,6 +65,15 @@ set(SOURCES
     ${SRC_DIR}/create_column/create_column_primary_key_multiple.cpp
     ${SRC_DIR}/create_column/create_column_real.cpp
     ${SRC_DIR}/create_column/create_column_text.cpp
+    ${SRC_DIR}/get_column/get_column_blob.cpp
+    ${SRC_DIR}/get_column/get_column_int.cpp
+    ${SRC_DIR}/get_column/get_column_real.cpp
+    ${SRC_DIR}/get_column/get_column_template.cpp
+    ${SRC_DIR}/get_column/get_column_text.cpp
+    ${SRC_DIR}/insert/insert.cpp
+    ${SRC_DIR}/insert/insert_blob.cpp
+    ${SRC_DIR}/insert/insert_default.cpp
+    ${SRC_DIR}/insert/insert_tuple.cpp
     ${SRC_DIR}/table/create_table.cpp
     ${SRC_DIR}/table/drop_table.cpp
     ${SRC_DIR}/table/register_table.cpp
@@ -76,15 +86,6 @@ set(SOURCES
     ${SRC_DIR}/create_database.cpp
     ${SRC_DIR}/delete_rows.cpp
     ${SRC_DIR}/delete_rows_all.cpp
-    ${SRC_DIR}/get_column/get_column_blob.cpp
-    ${SRC_DIR}/get_column/get_column_int.cpp
-    ${SRC_DIR}/get_column/get_column_real.cpp
-    ${SRC_DIR}/get_column/get_column_template.cpp
-    ${SRC_DIR}/get_column/get_column_text.cpp
-    ${SRC_DIR}/insert.cpp
-    ${SRC_DIR}/insert_blob.cpp
-    ${SRC_DIR}/insert_default.cpp
-    ${SRC_DIR}/insert_tuple.cpp
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/select.cpp
     ${SRC_DIR}/select_custom_return_type.cpp

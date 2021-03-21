@@ -1,9 +1,13 @@
-#include "cppql_test/insert_blob.h"
+#include "cppql_test/insert/insert_blob.h"
 
 #include "cppql/ext/insert.h"
 #include "cppql/ext/typed_table.h"
 
-using namespace std::string_literals;
+struct Foo
+{
+    float x;
+    int64_t y;
+};
 
 void InsertBlob::operator()()
 {
@@ -21,18 +25,14 @@ void InsertBlob::operator()()
     std::vector<uint32_t> blob1{1, 2, 3, 4, 5};
     std::vector<uint32_t> blob2{11, 22, 33, 44, 55};
     std::vector<uint32_t> blob3{1'000, 10'000, 100'000, 1'000'000, 10'000'000};
+    Foo                   blob4{.x = 4.5f, .y = -10};
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert, &blob1]() {
-        insert(nullptr, sql::StaticBlob{.data = blob1.data(), .size = blob1.size() * sizeof(uint32_t)});
-    });
-    expectNoThrow([&insert, &blob2]() {
-        insert(nullptr, sql::StaticBlob{.data = blob2.data(), .size = blob2.size() * sizeof(uint32_t)});
-    });
-    expectNoThrow([&insert, &blob3]() {
-        insert(nullptr, sql::StaticBlob{.data = blob3.data(), .size = blob3.size() * sizeof(uint32_t)});
-    });
+    expectNoThrow([&insert, &blob1]() { insert(nullptr, sql::toStaticBlob(blob1)); });
+    expectNoThrow([&insert, &blob2]() { insert(nullptr, sql::toStaticBlob(blob2)); });
+    expectNoThrow([&insert, &blob3]() { insert(nullptr, sql::toStaticBlob(blob3)); });
+    expectNoThrow([&insert, &blob4]() { insert(nullptr, sql::toStaticBlob(blob4)); });
 
     // Create select statement to select all data.
     const auto stmt = db->createStatement("SELECT * FROM myTable;", true);
@@ -60,4 +60,11 @@ void InsertBlob::operator()()
     stmt.column(1, res3);
     compareEQ(blob3.size(), res3.size());
     for (size_t i = 0; i < blob3.size(); i++) compareEQ(blob3[i], res3[i]);
+
+    compareTrue(stmt.step());
+    compareEQ(stmt.column<int64_t>(0), 4);
+    Foo res4;
+    stmt.column(1, res4);
+    compareEQ(res4.x, blob4.x);
+    compareEQ(res4.y, blob4.y);
 }

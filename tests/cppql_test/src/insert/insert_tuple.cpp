@@ -1,4 +1,4 @@
-#include "cppql_test/insert_tuple.h"
+#include "cppql_test/insert/insert_tuple.h"
 
 #include "cppql/ext/insert.h"
 #include "cppql/ext/typed_table.h"
