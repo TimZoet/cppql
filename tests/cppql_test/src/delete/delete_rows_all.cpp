@@ -1,4 +1,4 @@
-#include "cppql_test/delete_rows_all.h"
+#include "cppql_test/delete/delete_rows_all.h"
 
 #include "cppql/ext/delete.h"
 #include "cppql/ext/insert.h"

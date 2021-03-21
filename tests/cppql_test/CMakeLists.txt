@@ -19,6 +19,8 @@ set(HEADERS
     ${INCLUDE_DIR}/create_column/create_column_primary_key_multiple.h
     ${INCLUDE_DIR}/create_column/create_column_real.h
     ${INCLUDE_DIR}/create_column/create_column_text.h
+    ${INCLUDE_DIR}/delete/delete_rows.h
+    ${INCLUDE_DIR}/delete/delete_rows_all.h
     ${INCLUDE_DIR}/get_column/get_column_blob.h
     ${INCLUDE_DIR}/get_column/get_column_int.h
     ${INCLUDE_DIR}/get_column/get_column_real.h
@@ -39,9 +41,6 @@ set(HEADERS
     ${INCLUDE_DIR}/typed_table/create_typed_table_text.h
 
     ${INCLUDE_DIR}/create_database.h
-    ${INCLUDE_DIR}/delete_rows.h
-    ${INCLUDE_DIR}/delete_rows_all.h
-    
     ${INCLUDE_DIR}/select.h
     ${INCLUDE_DIR}/select_custom_return_type.h
     ${INCLUDE_DIR}/statement_prepare.h
@@ -65,6 +64,8 @@ set(SOURCES
     ${SRC_DIR}/create_column/create_column_primary_key_multiple.cpp
     ${SRC_DIR}/create_column/create_column_real.cpp
     ${SRC_DIR}/create_column/create_column_text.cpp
+    ${SRC_DIR}/delete/delete_rows.cpp
+    ${SRC_DIR}/delete/delete_rows_all.cpp
     ${SRC_DIR}/get_column/get_column_blob.cpp
     ${SRC_DIR}/get_column/get_column_int.cpp
     ${SRC_DIR}/get_column/get_column_real.cpp
@@ -84,8 +85,6 @@ set(SOURCES
     ${SRC_DIR}/typed_table/create_typed_table_text.cpp
 
     ${SRC_DIR}/create_database.cpp
-    ${SRC_DIR}/delete_rows.cpp
-    ${SRC_DIR}/delete_rows_all.cpp
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/select.cpp
     ${SRC_DIR}/select_custom_return_type.cpp

@@ -25,6 +25,8 @@
 #include "cppql_test/create_column/create_column_primary_key_multiple.h"
 #include "cppql_test/create_column/create_column_real.h"
 #include "cppql_test/create_column/create_column_text.h"
+#include "cppql_test/delete/delete_rows.h"
+#include "cppql_test/delete/delete_rows_all.h"
 #include "cppql_test/get_column/get_column_blob.h"
 #include "cppql_test/get_column/get_column_int.h"
 #include "cppql_test/get_column/get_column_real.h"
@@ -44,8 +46,6 @@
 #include "cppql_test/typed_table/create_typed_table_text.h"
 
 #include "cppql_test/create_database.h"
-#include "cppql_test/delete_rows.h"
-#include "cppql_test/delete_rows_all.h"
 #include "cppql_test/select.h"
 #include "cppql_test/select_custom_return_type.h"
 #include "cppql_test/statement_prepare.h"
