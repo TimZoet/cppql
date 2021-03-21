@@ -22,12 +22,13 @@ set(HEADERS
     ${INCLUDE_DIR}/table/create_table.h
     ${INCLUDE_DIR}/table/drop_table.h
     ${INCLUDE_DIR}/table/register_table.h
+    ${INCLUDE_DIR}/typed_table/create_typed_table.h
+    ${INCLUDE_DIR}/typed_table/create_typed_table_blob.h
+    ${INCLUDE_DIR}/typed_table/create_typed_table_int.h
+    ${INCLUDE_DIR}/typed_table/create_typed_table_real.h
+    ${INCLUDE_DIR}/typed_table/create_typed_table_text.h
 
     ${INCLUDE_DIR}/create_database.h
-    ${INCLUDE_DIR}/create_typed_table_blob.h
-    ${INCLUDE_DIR}/create_typed_table_int.h
-    ${INCLUDE_DIR}/create_typed_table_real.h
-    ${INCLUDE_DIR}/create_typed_table_text.h
     ${INCLUDE_DIR}/delete_rows.h
     ${INCLUDE_DIR}/delete_rows_all.h
     ${INCLUDE_DIR}/get_column/get_column_blob.h
@@ -66,12 +67,13 @@ set(SOURCES
     ${SRC_DIR}/table/create_table.cpp
     ${SRC_DIR}/table/drop_table.cpp
     ${SRC_DIR}/table/register_table.cpp
+    ${SRC_DIR}/typed_table/create_typed_table.cpp
+    ${SRC_DIR}/typed_table/create_typed_table_blob.cpp
+    ${SRC_DIR}/typed_table/create_typed_table_int.cpp
+    ${SRC_DIR}/typed_table/create_typed_table_real.cpp
+    ${SRC_DIR}/typed_table/create_typed_table_text.cpp
 
     ${SRC_DIR}/create_database.cpp
-    ${SRC_DIR}/create_typed_table_blob.cpp
-    ${SRC_DIR}/create_typed_table_int.cpp
-    ${SRC_DIR}/create_typed_table_real.cpp
-    ${SRC_DIR}/create_typed_table_text.cpp
     ${SRC_DIR}/delete_rows.cpp
     ${SRC_DIR}/delete_rows_all.cpp
     ${SRC_DIR}/get_column/get_column_blob.cpp

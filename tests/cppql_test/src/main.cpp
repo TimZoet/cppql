@@ -28,12 +28,13 @@
 #include "cppql_test/table/create_table.h"
 #include "cppql_test/table/drop_table.h"
 #include "cppql_test/table/register_table.h"
+#include "cppql_test/typed_table/create_typed_table.h"
+#include "cppql_test/typed_table/create_typed_table_blob.h"
+#include "cppql_test/typed_table/create_typed_table_int.h"
+#include "cppql_test/typed_table/create_typed_table_real.h"
+#include "cppql_test/typed_table/create_typed_table_text.h"
 
 #include "cppql_test/create_database.h"
-#include "cppql_test/create_typed_table_blob.h"
-#include "cppql_test/create_typed_table_int.h"
-#include "cppql_test/create_typed_table_real.h"
-#include "cppql_test/create_typed_table_text.h"
 #include "cppql_test/delete_rows.h"
 #include "cppql_test/delete_rows_all.h"
 #include "cppql_test/get_column/get_column_blob.h"
@@ -86,6 +87,7 @@ int main(int argc, char** argv)
             CreateTable,
             DropTable,
             RegisterTable,
+            CreateTypedTable,
             CreateTypedTableBlob,
             CreateTypedTableInt,
             CreateTypedTableReal,
