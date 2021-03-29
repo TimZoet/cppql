@@ -1,13 +1,13 @@
 #include "cppql_test/get_column/get_column_template.h"
 
-// When running in debug mode in MSVC, for whatever reason the Statement::column<T> method will complain
-// about the size of this struct being 16, not 8... but only in debug mode, and only in the column method
-// where the data is copied, and only when this struct is called Foo.
-struct FooBar
+namespace
 {
-    int32_t x;
-    float   y;
-};
+    struct Foo
+    {
+        int32_t x;
+        float   y;
+    };
+}  // namespace
 
 void GetColumnTemplate::operator()()
 {
@@ -32,8 +32,8 @@ void GetColumnTemplate::operator()()
         compareTrue(insert.bindInt(0, 10));
         compareTrue(insert.bindFloat(1, 4.0f));
         compareTrue(insert.bindTransientText(2, std::string("abc")));
-        FooBar foo{.x = 20, .y = 8.0f};
-        compareTrue(insert.bindStaticBlob(3, &foo, sizeof(FooBar)));
+        Foo foo{.x = 20, .y = 8.0f};
+        compareTrue(insert.bindStaticBlob(3, &foo, sizeof(Foo)));
 
         compareTrue(insert.bindInt(4, -10));
         compareTrue(insert.bindFloat(5, -4.0f));
@@ -52,8 +52,8 @@ void GetColumnTemplate::operator()()
     compareEQ(stmt.column<int32_t>(0), 10);
     compareEQ(stmt.column<float>(1), 4.0f);
     compareEQ(stmt.column<std::string>(2), "abc");
-    compareEQ(stmt.column<FooBar>(3).x, 20);
-    compareEQ(stmt.column<FooBar>(3).y, 8.0f);
+    compareEQ(stmt.column<Foo>(3).x, 20);
+    compareEQ(stmt.column<Foo>(3).y, 8.0f);
 
     compareEQ(stmt.column<int32_t>(4), -10);
     compareEQ(stmt.column<float>(5), -4.0f);

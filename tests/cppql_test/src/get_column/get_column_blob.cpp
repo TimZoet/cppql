@@ -1,16 +1,19 @@
 #include "cppql_test/get_column/get_column_blob.h"
 
-struct Foo
+namespace
 {
-    int64_t a = 0;
-    float   b = 0;
-    int8_t  c = 0;
-};
+    struct Foo
+    {
+        int64_t a = 0;
+        float   b = 0;
+        int8_t  c = 0;
+    };
 
-struct Bar
-{
-    int32_t a;
-};
+    struct Bar
+    {
+        int32_t a;
+    };
+}  // namespace
 
 void GetColumnBlob::operator()()
 {
@@ -47,7 +50,7 @@ void GetColumnBlob::operator()()
         compareTrue(stmt.step());
         compareTrue(stmt.reset());
 
-         Foo value6 = {.a = 200, .b = 242, .c = 23};
+        Foo value6 = {.a = 200, .b = 242, .c = 23};
         compareTrue(stmt.bindTransientBlob(0, &value6, sizeof(Foo)));
         compareTrue(stmt.step());
         compareTrue(stmt.reset());

@@ -3,11 +3,14 @@
 #include "cppql/ext/insert.h"
 #include "cppql/ext/typed_table.h"
 
-struct Foo
+namespace
 {
-    float x;
-    int64_t y;
-};
+    struct Foo
+    {
+        float   x;
+        int64_t y;
+    };
+}  // namespace
 
 void InsertBlob::operator()()
 {

@@ -2,12 +2,15 @@
 
 #include "cppql/ext/typed_table.h"
 
-struct Foo
+namespace
 {
-};
-struct Bar
-{
-};
+    struct Foo
+    {
+    };
+    struct Bar
+    {
+    };
+}  // namespace
 
 void CreateTypedTable::operator()()
 {

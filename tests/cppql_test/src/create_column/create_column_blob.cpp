@@ -1,8 +1,11 @@
 #include "cppql_test/create_column/create_column_blob.h"
 
-struct Foo
+namespace
 {
-};
+    struct Foo
+    {
+    };
+}  // namespace
 
 void CreateColumnBlob::operator()()
 {

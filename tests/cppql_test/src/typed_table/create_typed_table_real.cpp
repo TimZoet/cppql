@@ -2,7 +2,12 @@
 
 #include "cppql/ext/typed_table.h"
 
-struct Foo{};
+namespace
+{
+    struct Foo
+    {
+    };
+}  // namespace
 
 void CreateTypedTableReal::operator()()
 {
@@ -20,7 +25,7 @@ void CreateTypedTableReal::operator()()
         sql::ext::TypedTable<double> t(table);
         static_cast<void>(t);
     });
-    
+
     // Create several invalid tables.
     expectThrow([&table]() {
         sql::ext::TypedTable<int32_t> t(table);

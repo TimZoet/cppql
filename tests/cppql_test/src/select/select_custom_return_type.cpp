@@ -1,4 +1,4 @@
-#include "cppql_test/select_custom_return_type.h"
+#include "cppql_test/select/select_custom_return_type.h"
 
 #include "cppql/ext/insert.h"
 #include "cppql/ext/select.h"
@@ -6,14 +6,17 @@
 
 using namespace std::string_literals;
 
-struct Row
+namespace
 {
-    Row(int64_t cc0, float cc1, std::string cc2) : c0(cc0), c1(cc1), c2(std::move(cc2)) {}
+    struct Row
+    {
+        Row(int64_t cc0, float cc1, std::string cc2) : c0(cc0), c1(cc1), c2(std::move(cc2)) {}
 
-    int64_t     c0;
-    float       c1;
-    std::string c2;
-};
+        int64_t     c0;
+        float       c1;
+        std::string c2;
+    };
+}  // namespace
 
 void SelectCustomReturnType::operator()()
 {
@@ -43,8 +46,8 @@ void SelectCustomReturnType::operator()()
     compareEQ(vals.size(), static_cast<size_t>(2));
     compareEQ(vals[0].c0, 10);
     compareEQ(vals[0].c1, 20.0f);
-    compareEQ(vals[0].c2, "abc"s);
+    compareEQ(vals[0].c2, "abc");
     compareEQ(vals[1].c0, 20);
     compareEQ(vals[1].c1, 40.5f);
-    compareEQ(vals[1].c2, "def"s);
+    compareEQ(vals[1].c2, "def");
 }

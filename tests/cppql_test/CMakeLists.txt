@@ -31,6 +31,12 @@ set(HEADERS
     ${INCLUDE_DIR}/insert/insert_blob.h
     ${INCLUDE_DIR}/insert/insert_default.h
     ${INCLUDE_DIR}/insert/insert_tuple.h
+    ${INCLUDE_DIR}/select/select.h
+    ${INCLUDE_DIR}/select/select_blob.h
+    ${INCLUDE_DIR}/select/select_custom_return_type.h
+    ${INCLUDE_DIR}/select/select_one.h
+    ${INCLUDE_DIR}/select/select_reorder.h
+    ${INCLUDE_DIR}/select/select_to_vector.h
     ${INCLUDE_DIR}/table/create_table.h
     ${INCLUDE_DIR}/table/drop_table.h
     ${INCLUDE_DIR}/table/register_table.h
@@ -41,8 +47,6 @@ set(HEADERS
     ${INCLUDE_DIR}/typed_table/create_typed_table_text.h
 
     ${INCLUDE_DIR}/create_database.h
-    ${INCLUDE_DIR}/select.h
-    ${INCLUDE_DIR}/select_custom_return_type.h
     ${INCLUDE_DIR}/statement_prepare.h
     ${INCLUDE_DIR}/statement_step.h
     ${INCLUDE_DIR}/utils.h
@@ -75,6 +79,12 @@ set(SOURCES
     ${SRC_DIR}/insert/insert_blob.cpp
     ${SRC_DIR}/insert/insert_default.cpp
     ${SRC_DIR}/insert/insert_tuple.cpp
+    ${SRC_DIR}/select/select.cpp
+    ${SRC_DIR}/select/select_blob.cpp
+    ${SRC_DIR}/select/select_custom_return_type.cpp
+    ${SRC_DIR}/select/select_one.cpp
+    ${SRC_DIR}/select/select_reorder.cpp
+    ${SRC_DIR}/select/select_to_vector.cpp
     ${SRC_DIR}/table/create_table.cpp
     ${SRC_DIR}/table/drop_table.cpp
     ${SRC_DIR}/table/register_table.cpp
@@ -86,8 +96,7 @@ set(SOURCES
 
     ${SRC_DIR}/create_database.cpp
     ${SRC_DIR}/main.cpp
-    ${SRC_DIR}/select.cpp
-    ${SRC_DIR}/select_custom_return_type.cpp
+    
     ${SRC_DIR}/statement_prepare.cpp
     ${SRC_DIR}/statement_step.cpp
     ${SRC_DIR}/utils.cpp

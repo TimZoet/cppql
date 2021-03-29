@@ -36,6 +36,12 @@
 #include "cppql_test/insert/insert_blob.h"
 #include "cppql_test/insert/insert_default.h"
 #include "cppql_test/insert/insert_tuple.h"
+#include "cppql_test/select/select.h"
+#include "cppql_test/select/select_blob.h"
+#include "cppql_test/select/select_custom_return_type.h"
+#include "cppql_test/select/select_one.h"
+#include "cppql_test/select/select_reorder.h"
+#include "cppql_test/select/select_to_vector.h"
 #include "cppql_test/table/create_table.h"
 #include "cppql_test/table/drop_table.h"
 #include "cppql_test/table/register_table.h"
@@ -46,8 +52,7 @@
 #include "cppql_test/typed_table/create_typed_table_text.h"
 
 #include "cppql_test/create_database.h"
-#include "cppql_test/select.h"
-#include "cppql_test/select_custom_return_type.h"
+
 #include "cppql_test/statement_prepare.h"
 #include "cppql_test/statement_step.h"
 
@@ -104,7 +109,11 @@ int main(int argc, char** argv)
             InsertDefault,
             InsertTuple,
             Select,
+            SelectBlob,
             SelectCustomReturnType,
+            SelectOne,
+            SelectReorder,
+            SelectToVector,
             StatementPrepare,
             StatementStep>(argc, argv, "cppql");
     return 0;
