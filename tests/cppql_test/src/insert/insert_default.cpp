@@ -7,6 +7,11 @@ using namespace std::string_literals;
 
 void InsertDefault::operator()()
 {
+    // TODO: This test doesn't really insert default values but nulls. CreateColumnDefaultValue creates a table with default values
+    // and also tests insertion. The insertion part should be moved to this test. Binding nullptrs should be tested separately to
+    // verify that retrieving nulls works properly. Also, inserting default values should be tested more extensively with different
+    // combinations of indices.
+    //
     // Create table.
     sql::Table* t;
     expectNoThrow([&t, this]() {

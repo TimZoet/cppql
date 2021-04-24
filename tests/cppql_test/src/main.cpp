@@ -18,6 +18,7 @@
 #include "cppql_test/binding/bind_template.h"
 #include "cppql_test/binding/bind_text.h"
 #include "cppql_test/create_column/create_column_blob.h"
+#include "cppql_test/create_column/create_column_default_value.h"
 #include "cppql_test/create_column/create_column_foreign_key.h"
 #include "cppql_test/create_column/create_column_int.h"
 #include "cppql_test/create_column/create_column_null.h"
@@ -81,6 +82,7 @@ int main(int argc, char** argv)
             BindTemplate,
             BindText,
             CreateColumnBlob,
+            CreateColumnDefaultValue,
             CreateColumnForeignKey,
             CreateColumnInt,
             CreateColumnNull,

@@ -12,6 +12,7 @@ set(HEADERS
     ${INCLUDE_DIR}/binding/bind_template.h
     ${INCLUDE_DIR}/binding/bind_text.h
     ${INCLUDE_DIR}/create_column/create_column_blob.h
+    ${INCLUDE_DIR}/create_column/create_column_default_value.h
     ${INCLUDE_DIR}/create_column/create_column_foreign_key.h
     ${INCLUDE_DIR}/create_column/create_column_int.h
     ${INCLUDE_DIR}/create_column/create_column_null.h
@@ -61,6 +62,7 @@ set(SOURCES
     ${SRC_DIR}/binding/bind_template.cpp
     ${SRC_DIR}/binding/bind_text.cpp
     ${SRC_DIR}/create_column/create_column_blob.cpp
+    ${SRC_DIR}/create_column/create_column_default_value.cpp
     ${SRC_DIR}/create_column/create_column_foreign_key.cpp
     ${SRC_DIR}/create_column/create_column_int.cpp
     ${SRC_DIR}/create_column/create_column_null.cpp
