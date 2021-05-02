@@ -1,7 +1,5 @@
 #include "cppql_test/create_column/create_column_default_value.h"
 
-#include "cppql/ext/insert.h"
-#include "cppql/ext/select_one.h"
 #include "cppql/ext/typed_table.h"
 
 void CreateColumnDefaultValue::operator()()
@@ -25,20 +23,4 @@ void CreateColumnDefaultValue::operator()()
     // Commit table.
     expectNoThrow([&table]() { table->commit(); });
     compareTrue(table->isCommitted());
-
-    sql::ext::TypedTable<int32_t, float, std::string, std::vector<uint8_t>> typedTable(*table);
-
-    // Insert all default values.
-    auto insert = typedTable.insert<>();
-    insert();
-
-    // Get row.
-    auto                       row   = typedTable.selectOne(typedTable.col<0>() > 0, true)(false);
-    const std::vector<uint8_t> bytes = {255, 170, 85, 0};
-
-    // Compare.
-    compareEQ(static_cast<int32_t>(10), std::get<0>(row));
-    compareEQ(4.5f, std::get<1>(row));
-    compareEQ(std::string("abc"), std::get<2>(row));
-    compareEQ(bytes, std::get<3>(row));
 }

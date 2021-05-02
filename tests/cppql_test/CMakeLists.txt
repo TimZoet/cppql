@@ -31,6 +31,7 @@ set(HEADERS
     ${INCLUDE_DIR}/insert/insert.h
     ${INCLUDE_DIR}/insert/insert_blob.h
     ${INCLUDE_DIR}/insert/insert_default.h
+    ${INCLUDE_DIR}/insert/insert_null.h
     ${INCLUDE_DIR}/insert/insert_tuple.h
     ${INCLUDE_DIR}/select/select.h
     ${INCLUDE_DIR}/select/select_blob.h
@@ -80,6 +81,7 @@ set(SOURCES
     ${SRC_DIR}/insert/insert.cpp
     ${SRC_DIR}/insert/insert_blob.cpp
     ${SRC_DIR}/insert/insert_default.cpp
+    ${SRC_DIR}/insert/insert_null.cpp
     ${SRC_DIR}/insert/insert_tuple.cpp
     ${SRC_DIR}/select/select.cpp
     ${SRC_DIR}/select/select_blob.cpp

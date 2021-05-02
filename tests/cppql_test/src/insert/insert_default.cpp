@@ -1,57 +1,46 @@
 #include "cppql_test/insert/insert_default.h"
 
 #include "cppql/ext/insert.h"
+#include "cppql/ext/select_one.h"
 #include "cppql/ext/typed_table.h"
 
 using namespace std::string_literals;
 
 void InsertDefault::operator()()
 {
-    // TODO: This test doesn't really insert default values but nulls. CreateColumnDefaultValue creates a table with default values
-    // and also tests insertion. The insertion part should be moved to this test. Binding nullptrs should be tested separately to
-    // verify that retrieving nulls works properly. Also, inserting default values should be tested more extensively with different
-    // combinations of indices.
-    //
     // Create table.
-    sql::Table* t;
-    expectNoThrow([&t, this]() {
-        t = &db->createTable("myTable");
-        t->createColumn("col1", sql::Column::Type::Int).setAutoIncrement(true).setPrimaryKey(true).setNotNull(true);
-        t->createColumn("col2", sql::Column::Type::Real);
-        t->createColumn("col3", sql::Column::Type::Text);
-        t->commit();
+    sql::Table* table;
+    expectNoThrow([&table, this]() { table = &db->createTable("myTable"); });
+
+    // Create columns with default values.
+    sql::Column *col1, *col2, *col3, *col4;
+    expectNoThrow(
+      [&table, &col1]() { col1 = &table->createColumn("col1", sql::Column::Type::Int).setDefaultValue(10); });
+    expectNoThrow(
+      [&table, &col2]() { col2 = &table->createColumn("col2", sql::Column::Type::Real).setDefaultValue(4.5f); });
+    expectNoThrow(
+      [&table, &col3]() { col3 = &table->createColumn("col3", sql::Column::Type::Text).setDefaultValue("'abc'"); });
+    expectNoThrow([&table, &col4]() {
+        col4 = &table->createColumn("col4", sql::Column::Type::Blob).setDefaultValue("X'FFAA5500'");
     });
-    sql::ext::TypedTable<int64_t, float, std::string> table(*t);
 
-    // Insert several rows.
-    auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(nullptr, 20.0f, nullptr); });
-    expectNoThrow([&insert]() { insert(nullptr, 40.5f, "abc"s); });
-    expectNoThrow([&insert]() { insert(nullptr, nullptr, "def"s); });
-    expectNoThrow([&insert]() { insert(nullptr, nullptr, "ghij"s); });
+    // Commit table.
+    expectNoThrow([&table]() { table->commit(); });
+    compareTrue(table->isCommitted());
 
-    // Create select statement to select all data.
-    const auto stmt = db->createStatement("SELECT * FROM myTable;", true);
+    sql::ext::TypedTable<int32_t, float, std::string, std::vector<uint8_t>> typedTable(*table);
 
-    // Check rows.
+    // Insert all default values.
+    auto insert = typedTable.insert<>();
+    insert();
 
-    compareTrue(stmt.step());
-    compareEQ(stmt.column<int64_t>(0), 1);
-    compareEQ(stmt.column<float>(1), 20.0f);
-    compareEQ(stmt.column<std::string>(2), ""s);
+    // Get row.
+    auto                       row   = typedTable.selectOne(typedTable.col<0>() > 0, true)(false);
+    const std::vector<uint8_t> bytes = {255, 170, 85, 0};
 
-    compareTrue(stmt.step());
-    compareEQ(stmt.column<int64_t>(0), 2);
-    compareEQ(stmt.column<float>(1), 40.5f);
-    compareEQ(stmt.column<std::string>(2), "abc"s);
-
-    compareTrue(stmt.step());
-    compareEQ(stmt.column<int64_t>(0), 3);
-    compareEQ(stmt.column<float>(1), 0.0f);
-    compareEQ(stmt.column<std::string>(2), "def"s);
-
-    compareTrue(stmt.step());
-    compareEQ(stmt.column<int64_t>(0), 4);
-    compareEQ(stmt.column<float>(1), 0.0f);
-    compareEQ(stmt.column<std::string>(2), "ghij"s);
+    // Compare.
+    compareEQ(static_cast<int32_t>(10), std::get<0>(row));
+    compareEQ(4.5f, std::get<1>(row));
+    compareEQ(std::string("abc"), std::get<2>(row));
+    compareEQ(bytes, std::get<3>(row));
 }

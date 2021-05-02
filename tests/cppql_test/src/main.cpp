@@ -36,6 +36,7 @@
 #include "cppql_test/insert/insert.h"
 #include "cppql_test/insert/insert_blob.h"
 #include "cppql_test/insert/insert_default.h"
+#include "cppql_test/insert/insert_null.h"
 #include "cppql_test/insert/insert_tuple.h"
 #include "cppql_test/select/select.h"
 #include "cppql_test/select/select_blob.h"
@@ -109,6 +110,7 @@ int main(int argc, char** argv)
             Insert,
             InsertBlob,
             InsertDefault,
+            InsertNull,
             InsertTuple,
             Select,
             SelectBlob,
