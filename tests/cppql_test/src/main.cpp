@@ -39,6 +39,7 @@
 #include "cppql_test/insert/insert_null.h"
 #include "cppql_test/insert/insert_tuple.h"
 #include "cppql_test/select/select.h"
+#include "cppql_test/select/select_all.h"
 #include "cppql_test/select/select_blob.h"
 #include "cppql_test/select/select_custom_return_type.h"
 #include "cppql_test/select/select_one.h"
@@ -113,6 +114,7 @@ int main(int argc, char** argv)
             InsertNull,
             InsertTuple,
             Select,
+            SelectAll,
             SelectBlob,
             SelectCustomReturnType,
             SelectOne,
