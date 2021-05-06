@@ -43,6 +43,7 @@
 #include "cppql_test/select/select_blob.h"
 #include "cppql_test/select/select_custom_return_type.h"
 #include "cppql_test/select/select_one.h"
+#include "cppql_test/select/select_order_by.h"
 #include "cppql_test/select/select_reorder.h"
 #include "cppql_test/select/select_to_vector.h"
 #include "cppql_test/table/create_table.h"
@@ -118,6 +119,7 @@ int main(int argc, char** argv)
             SelectBlob,
             SelectCustomReturnType,
             SelectOne,
+            SelectOrderBy,
             SelectReorder,
             SelectToVector,
             StatementPrepare,

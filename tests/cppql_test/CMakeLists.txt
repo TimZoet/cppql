@@ -38,6 +38,7 @@ set(HEADERS
     ${INCLUDE_DIR}/select/select_blob.h
     ${INCLUDE_DIR}/select/select_custom_return_type.h
     ${INCLUDE_DIR}/select/select_one.h
+    ${INCLUDE_DIR}/select/select_order_by.h
     ${INCLUDE_DIR}/select/select_reorder.h
     ${INCLUDE_DIR}/select/select_to_vector.h
     ${INCLUDE_DIR}/table/create_table.h
@@ -89,6 +90,7 @@ set(SOURCES
     ${SRC_DIR}/select/select_blob.cpp
     ${SRC_DIR}/select/select_custom_return_type.cpp
     ${SRC_DIR}/select/select_one.cpp
+    ${SRC_DIR}/select/select_order_by.cpp
     ${SRC_DIR}/select/select_reorder.cpp
     ${SRC_DIR}/select/select_to_vector.cpp
     ${SRC_DIR}/table/create_table.cpp
