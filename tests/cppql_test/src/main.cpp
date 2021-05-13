@@ -55,6 +55,7 @@
 #include "cppql_test/typed_table/create_typed_table_int.h"
 #include "cppql_test/typed_table/create_typed_table_real.h"
 #include "cppql_test/typed_table/create_typed_table_text.h"
+#include "cppql_test/update/update.h"
 
 #include "cppql_test/create_database.h"
 
@@ -125,6 +126,7 @@ int main(int argc, char** argv)
             SelectReorder,
             SelectToVector,
             StatementPrepare,
-            StatementStep>(argc, argv, "cppql");
+            StatementStep,
+            Update>(argc, argv, "cppql");
     return 0;
 }
