@@ -37,6 +37,7 @@ set(HEADERS
     ${INCLUDE_DIR}/select/select_all.h
     ${INCLUDE_DIR}/select/select_blob.h
     ${INCLUDE_DIR}/select/select_custom_return_type.h
+    ${INCLUDE_DIR}/select/select_limit.h
     ${INCLUDE_DIR}/select/select_one.h
     ${INCLUDE_DIR}/select/select_order_by.h
     ${INCLUDE_DIR}/select/select_reorder.h
@@ -89,6 +90,7 @@ set(SOURCES
     ${SRC_DIR}/select/select_all.cpp
     ${SRC_DIR}/select/select_blob.cpp
     ${SRC_DIR}/select/select_custom_return_type.cpp
+    ${SRC_DIR}/select/select_limit.cpp
     ${SRC_DIR}/select/select_one.cpp
     ${SRC_DIR}/select/select_order_by.cpp
     ${SRC_DIR}/select/select_reorder.cpp

@@ -1,7 +1,7 @@
 #include "cppql_test/insert/insert_blob.h"
 
-#include "cppql/ext/insert.h"
 #include "cppql/ext/typed_table.h"
+#include "cppql/ext/queries/insert.h"
 
 namespace
 {

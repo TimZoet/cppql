@@ -1,8 +1,8 @@
 #include "cppql_test/select/select_one.h"
 
-#include "cppql/ext/insert.h"
-#include "cppql/ext/select_one.h"
 #include "cppql/ext/typed_table.h"
+#include "cppql/ext/queries/insert.h"
+#include "cppql/ext/queries/select_one.h"
 
 using namespace std::string_literals;
 

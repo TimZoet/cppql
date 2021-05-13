@@ -1,8 +1,8 @@
 #include "cppql_test/select/select_reorder.h"
 
-#include "cppql/ext/insert.h"
-#include "cppql/ext/select.h"
 #include "cppql/ext/typed_table.h"
+#include "cppql/ext/queries/insert.h"
+#include "cppql/ext/queries/select.h"
 
 using namespace std::string_literals;
 

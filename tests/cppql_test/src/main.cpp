@@ -42,6 +42,7 @@
 #include "cppql_test/select/select_all.h"
 #include "cppql_test/select/select_blob.h"
 #include "cppql_test/select/select_custom_return_type.h"
+#include "cppql_test/select/select_limit.h"
 #include "cppql_test/select/select_one.h"
 #include "cppql_test/select/select_order_by.h"
 #include "cppql_test/select/select_reorder.h"
@@ -118,6 +119,7 @@ int main(int argc, char** argv)
             SelectAll,
             SelectBlob,
             SelectCustomReturnType,
+            SelectLimit,
             SelectOne,
             SelectOrderBy,
             SelectReorder,
