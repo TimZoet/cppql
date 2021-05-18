@@ -35,7 +35,6 @@ endif()
 # Add subdirectories.
 ################################################################################
 
-add_subdirectory(applications)
 add_subdirectory(external)
 add_subdirectory(modules)
 add_subdirectory(tests)

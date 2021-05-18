@@ -26,6 +26,8 @@
 #include "cppql_test/create_column/create_column_primary_key_multiple.h"
 #include "cppql_test/create_column/create_column_real.h"
 #include "cppql_test/create_column/create_column_text.h"
+#include "cppql_test/database/database_create.h"
+#include "cppql_test/database/database_vacuum.h"
 #include "cppql_test/delete/delete_rows.h"
 #include "cppql_test/delete/delete_rows_all.h"
 #include "cppql_test/get_column/get_column_blob.h"
@@ -56,8 +58,6 @@
 #include "cppql_test/typed_table/create_typed_table_real.h"
 #include "cppql_test/typed_table/create_typed_table_text.h"
 #include "cppql_test/update/update.h"
-
-#include "cppql_test/create_database.h"
 
 #include "cppql_test/statement_prepare.h"
 #include "cppql_test/statement_step.h"
@@ -95,8 +95,9 @@ int main(int argc, char** argv)
             CreateColumnPrimaryKeyMultiple,
             CreateColumnReal,
             CreateColumnText,
-            CreateDatabase,
             CreateTable,
+            DatabaseCreate,
+            DatabaseVacuum,
             DropTable,
             RegisterTable,
             CreateTypedTable,

@@ -1,4 +1,4 @@
-#include "cppql_test/create_database.h"
+#include "cppql_test/database/database_create.h"
 
 ////////////////////////////////////////////////////////////////
 // Module includes.
@@ -6,7 +6,7 @@
 
 #include "cppql/database.h"
 
-void CreateDatabase::operator()()
+void DatabaseCreate::operator()()
 {
     const auto cwd    = std::filesystem::current_path();
     const auto dbPath = cwd / ".db";

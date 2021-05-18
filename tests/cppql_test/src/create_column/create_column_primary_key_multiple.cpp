@@ -30,6 +30,18 @@ void CreateColumnPrimaryKeyMultiple::create()
     compareTrue(idCol2->isPrimaryKey());
     compareTrue(idCol2->isNotNull());
 
+    // Having two auto increment primary keys is not allowed. Make sure that committing throws and then reset autoinc to false.
+    expectNoThrow([&] {
+        idCol1->setAutoIncrement(true);
+        idCol2->setAutoIncrement(true);
+    });
+    expectThrow([&table]() { table->commit(); });
+    compareFalse(table->isCommitted());
+    expectNoThrow([&] {
+        idCol1->setAutoIncrement(false);
+        idCol2->setAutoIncrement(false);
+    });
+
     // Commit table.
     expectNoThrow([&table]() { table->commit(); });
     compareTrue(table->isCommitted());

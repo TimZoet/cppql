@@ -8,7 +8,13 @@
 #include "bettertest/mixins/exception_mixin.h"
 #include "bettertest/tests/unit_test.h"
 
-class CreateDatabase : public bt::UnitTest<CreateDatabase, bt::CompareMixin, bt::ExceptionMixin>
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql_test/utils.h"
+
+class DatabaseVacuum : public bt::UnitTest<DatabaseVacuum, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;
