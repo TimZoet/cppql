@@ -36,6 +36,10 @@ void Update::operator()()
         expectNoThrow([&] { update(true, 5.0f); });
         compareEQ(5.0f, select(true));
 
+        param = 10;
+        expectNoThrow([&] { update(true, nullptr); });
+        compareEQ(0.0f, select(true));
+
         param = 20;
         expectNoThrow([&] { update(true, 15.0f); });
         compareEQ(15.0f, select(true));
@@ -43,6 +47,11 @@ void Update::operator()()
         param = 30;
         expectNoThrow([&] { update(true, -10.0f); });
         compareEQ(-10.0f, select(true));
+
+        param = 30;
+        std::optional<float> f;
+        expectNoThrow([&] { update(true, f); });
+        compareEQ(0.0f, select(true));
     }
 
     // Update multiple columns at a time.
@@ -68,5 +77,12 @@ void Update::operator()()
         row = select(true);
         compareEQ(-555.0f, std::get<0>(row));
         compareEQ("val2"s, std::get<1>(row));
+
+        param = 30;
+        std::optional<std::string> s;
+        expectNoThrow([&] { update(true, nullptr, s); });
+        row = select(true);
+        compareEQ(0.0f, std::get<0>(row));
+        compareEQ(""s, std::get<1>(row));
     }
 }

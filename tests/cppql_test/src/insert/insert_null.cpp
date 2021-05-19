@@ -27,6 +27,12 @@ void InsertNull::operator()()
     expectNoThrow([&]() { table.insert<>()(); });
     expectNoThrow([&]() { table.insert<3, 2, 1>()(40, "jkl"s, 14.0f); });
     expectNoThrow([&]() { table.insert<1, 3>()(15.0f, 50); });
+    expectNoThrow([&]() {
+        const std::optional<float>       f;
+        const std::optional<std::string> s;
+        const std::optional<int32_t>     i;
+        table.insert()(nullptr, f, i, s);
+    });
 
     // Create select statement to select all data.
     const auto stmt = db->createStatement("SELECT * FROM myTable;", true);
@@ -81,4 +87,13 @@ void InsertNull::operator()()
     compareEQ(stmt.column<std::string>(2), ""s);
     compareEQ(stmt.column<int32_t>(3), 50);
     compareEQ(stmt.columnType(2), sql::Column::Type::Null);
+
+    compareTrue(stmt.step());
+    compareEQ(stmt.column<int64_t>(0), 8);
+    compareEQ(stmt.column<float>(1), 0.0f);
+    compareEQ(stmt.column<std::string>(2), ""s);
+    compareEQ(stmt.column<int32_t>(3), 0);
+    compareEQ(stmt.columnType(1), sql::Column::Type::Null);
+    compareEQ(stmt.columnType(2), sql::Column::Type::Null);
+    compareEQ(stmt.columnType(3), sql::Column::Type::Null);
 }

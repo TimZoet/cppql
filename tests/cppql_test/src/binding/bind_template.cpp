@@ -47,6 +47,14 @@ void BindTemplate::operator()()
     compareFalse(stmt.bind<int32_t>(-1, 10));
     compareFalse(stmt.bind(1, 10, 20.0f, sql::TransientText{str3.c_str(), 6}));
 
+    // Optional binds.
+    compareTrue(stmt.bind<std::optional<int32_t>>(0, 10));
+    compareTrue(stmt.bind<std::optional<int32_t>>(0, {}));
+    compareTrue(stmt.bind<std::optional<int32_t>, std::optional<float>>(0, 10, 20.f));
+    compareTrue(stmt.bind<std::optional<int32_t>, std::optional<float>>(0, 10, {}));
+    compareTrue(stmt.bind<std::optional<int32_t>, std::optional<float>>(0, {}, 20.0f));
+    compareTrue(stmt.bind<std::optional<int32_t>, std::optional<float>>(0, {}, {}));
+
     // Delete data whose ownership was not passed to binds.
     delete[] static_cast<const uint8_t*>(data2);
     delete[] static_cast<const uint8_t*>(data3);
