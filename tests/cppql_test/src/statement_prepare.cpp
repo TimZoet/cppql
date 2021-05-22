@@ -1,6 +1,6 @@
 #include "cppql_test/statement_prepare.h"
 
-#include "sqlite3/sqlite3.h"
+#include "sqlite3.h"
 
 void StatementPrepare::operator()()
 {

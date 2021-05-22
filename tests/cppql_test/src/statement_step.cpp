@@ -1,6 +1,6 @@
 #include "cppql_test/statement_step.h"
 
-#include "sqlite3/sqlite3.h"
+#include "sqlite3.h"
 
 void StatementStep::operator()()
 {
