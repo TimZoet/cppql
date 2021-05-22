@@ -21,7 +21,7 @@ void RegisterTable::operator()()
 
     // Verify integrity of first table.
     compareEQ(table1.getName(), "table1");
-    compareEQ(table1.getColumnCount(), 2);
+    compareEQ(table1.getColumnCount(), static_cast<size_t>(2));
     auto& col1 = table1.getColumn("col1");
     auto& col2 = table1.getColumn("col2");
     compareEQ(col1.isAutoIncrement(), true);
@@ -35,7 +35,7 @@ void RegisterTable::operator()()
 
      // Verify integrity of second table.
     compareEQ(table2.getName(), "table2");
-    compareEQ(table2.getColumnCount(), 1);
+    compareEQ(table2.getColumnCount(), static_cast<size_t>(1));
     auto& refCol = table2.getColumn("ref");
     compareEQ(refCol.isAutoIncrement(), false);
     compareEQ(refCol.isForeignKey(), true);

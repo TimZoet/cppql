@@ -45,8 +45,8 @@ void SelectToVector::operator()()
     const std::vector<Foo>                                     vals1(sel1.begin(), sel1.end());
     // TODO: Use vector comparison methods.
     // Check result length.
-    compareEQ(vals0.size(), 3);
-    compareEQ(vals1.size(), 3);
+    compareEQ(vals0.size(), static_cast<size_t>(3));
+    compareEQ(vals1.size(), static_cast<size_t>(3));
 
     // Check vector of tuples.
     compareEQ(std::get<0>(vals0[0]), 20);
