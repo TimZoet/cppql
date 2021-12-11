@@ -1,15 +1,6 @@
-[submodule "modules/common"]
-	path = modules/common
-	url = https://github.com/TimZoet/common-module.git
-[submodule "modules/bettertest"]
-	path = modules/bettertest
-	url = https://github.com/TimZoet/bettertest-module.git
 [submodule "modules/cppql"]
 	path = modules/cppql
 	url = https://github.com/TimZoet/cppql-module.git
-[submodule "modules/parsertongue"]
-	path = modules/parsertongue
-	url = https://github.com/TimZoet/parsertongue-module.git
 [submodule "cmake"]
 	path = cmake
 	url = http://github.com/TimZoet/cmake-module.git
