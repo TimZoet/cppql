@@ -1,3 +1,5 @@
+find_package(bettertest REQUIRED)
+
 set(NAME cppql_test)
 set(TYPE test)
 set(INCLUDE_DIR "include/cppql_test")
@@ -117,7 +119,7 @@ set(SOURCES
 )
 
 set(DEPS_PRIVATE
-    bettertest
+    bettertest::bettertest
 	cppql
 )
 
@@ -129,5 +131,5 @@ make_target(
     STARTUP
     HEADERS "${HEADERS}"
     SOURCES "${SOURCES}"
-    DEPS_PRIVATE "${DEPS_PRIVATE}"
+    DEPS_PUBLIC "${DEPS_PRIVATE}"
 )

@@ -1,1 +1,0 @@
-// This file is here to make sure that VS outputs a LIB file; this does not happen when there is no .cpp file.

@@ -1,9 +1,0 @@
-[requires]
-fmt/7.0.3
-nlohmann_json/3.9.1
-
-[generators]
-cmake
-
-[options]
-fmt:header_only=True
