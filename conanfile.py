@@ -19,9 +19,6 @@ class CppqlConan(ConanFile):
     
     python_requires_extend = "pyreq.BaseConan"
     
-    # Need this generator because sqlite doesn't work without it.
-    generators = "cmake_find_package",
-    
     ############################################################################
     ## Base methods.                                                          ##
     ############################################################################
