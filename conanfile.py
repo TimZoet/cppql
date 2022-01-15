@@ -56,7 +56,6 @@ class CppqlConan(ConanFile):
         base.requirements(self)
         
         self.requires("common/1.0.0@timzoet/stable")
-        self.requires("fmt/7.0.3")
         self.requires("sqlite3/3.37.0")
         
         if self.options.build_tests:
