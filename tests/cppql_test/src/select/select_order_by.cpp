@@ -1,8 +1,8 @@
 #include "cppql_test/select/select_order_by.h"
 
-#include "cppql/ext/typed_table.h"
-#include "cppql/ext/queries/insert.h"
-#include "cppql/ext/queries/select.h"
+#include "cppql-typed/typed_table.h"
+#include "cppql-typed/queries/insert.h"
+#include "cppql-typed/queries/select.h"
 
 using namespace std::string_literals;
 
@@ -17,7 +17,7 @@ void SelectOrderBy::operator()()
         t->createColumn("col2", sql::Column::Type::Int);
         t->commit();
     });
-    sql::ext::TypedTable<int64_t, int64_t, int64_t> table(*t);
+    sql::TypedTable<int64_t, int64_t, int64_t> table(*t);
 
     // Generate and insert a bunch of vals.
     std::vector<std::tuple<int64_t, int64_t, int64_t>> vals;

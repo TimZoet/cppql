@@ -1,7 +1,7 @@
 #include "cppql_test/insert/insert_null.h"
 
-#include "cppql/ext/typed_table.h"
-#include "cppql/ext/queries/insert.h"
+#include "cppql-typed/typed_table.h"
+#include "cppql-typed/queries/insert.h"
 
 using namespace std::string_literals;
 
@@ -17,7 +17,7 @@ void InsertNull::operator()()
         t->createColumn("col4", sql::Column::Type::Int);
         t->commit();
     });
-    sql::ext::TypedTable<int64_t, float, std::string, int32_t> table(*t);
+    sql::TypedTable<int64_t, float, std::string, int32_t> table(*t);
 
     // Insert several rows.
     expectNoThrow([&]() { table.insert()(nullptr, 11.0f, "abc"s, nullptr); });

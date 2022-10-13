@@ -1,8 +1,8 @@
 #include "cppql_test/select/select_to_vector.h"
 
-#include "cppql/ext/typed_table.h"
-#include "cppql/ext/queries/insert.h"
-#include "cppql/ext/queries/select.h"
+#include "cppql-typed/typed_table.h"
+#include "cppql-typed/queries/insert.h"
+#include "cppql-typed/queries/select.h"
 
 using namespace std::string_literals;
 
@@ -27,7 +27,7 @@ void SelectToVector::operator()()
         t->createColumn("col3", sql::Column::Type::Text);
         t->commit();
     });
-    sql::ext::TypedTable<int64_t, float, std::string> table(*t);
+    sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
     auto insert = table.insert();

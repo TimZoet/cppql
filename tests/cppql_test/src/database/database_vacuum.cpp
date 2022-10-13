@@ -4,10 +4,10 @@
 // Module includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql/database.h"
+#include "cppql-core/database.h"
 
-#include "cppql/ext/typed_table.h"
-#include "cppql/ext/queries/insert.h"
+#include "cppql-typed/typed_table.h"
+#include "cppql-typed/queries/insert.h"
 
 using namespace std::string_literals;
 
@@ -22,7 +22,7 @@ void DatabaseVacuum::operator()()
         t->createColumn("col3", sql::Column::Type::Text);
         t->commit();
     });
-    sql::ext::TypedTable<int64_t, float, std::string> table(*t);
+    sql::TypedTable<int64_t, float, std::string> table(*t);
     auto                                              insert = table.insert();
     expectNoThrow([&insert]() { insert(10, 20.0f, "abc"s); });
     expectNoThrow([&insert]() { insert(20, 40.5f, "def"s); });

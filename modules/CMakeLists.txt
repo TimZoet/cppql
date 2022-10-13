@@ -1,1 +1,2 @@
-add_subdirectory(cppql)
+add_subdirectory(cppql-core)
+add_subdirectory(cppql-typed)

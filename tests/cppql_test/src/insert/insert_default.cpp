@@ -1,8 +1,8 @@
 #include "cppql_test/insert/insert_default.h"
 
-#include "cppql/ext/typed_table.h"
-#include "cppql/ext/queries/insert.h"
-#include "cppql/ext/queries/select_one.h"
+#include "cppql-typed/typed_table.h"
+#include "cppql-typed/queries/insert.h"
+#include "cppql-typed/queries/select_one.h"
 
 using namespace std::string_literals;
 
@@ -28,7 +28,7 @@ void InsertDefault::operator()()
     expectNoThrow([&table]() { table->commit(); });
     compareTrue(table->isCommitted());
 
-    sql::ext::TypedTable<int32_t, float, std::string, std::vector<uint8_t>> typedTable(*table);
+    sql::TypedTable<int32_t, float, std::string, std::vector<uint8_t>> typedTable(*table);
 
     // Insert all default values.
     auto insert = typedTable.insert<>();

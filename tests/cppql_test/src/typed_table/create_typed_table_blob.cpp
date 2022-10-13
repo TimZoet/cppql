@@ -1,6 +1,6 @@
 #include "cppql_test/typed_table/create_typed_table_blob.h"
 
-#include "cppql/ext/typed_table.h"
+#include "cppql-typed/typed_table.h"
 
 namespace
 {
@@ -18,33 +18,33 @@ void CreateTypedTableBlob::operator()()
 
     // Create several valid tables.
     expectNoThrow([&table]() {
-        sql::ext::TypedTable<std::vector<float>> t(table);
+        sql::TypedTable<std::vector<float>> t(table);
         static_cast<void>(t);
     });
     expectNoThrow([&table]() {
-        sql::ext::TypedTable<std::vector<int64_t>> t(table);
+        sql::TypedTable<std::vector<int64_t>> t(table);
         static_cast<void>(t);
     });
     expectNoThrow([&table]() {
-        sql::ext::TypedTable<std::vector<Foo>> t(table);
+        sql::TypedTable<std::vector<Foo>> t(table);
         static_cast<void>(t);
     });
     expectNoThrow([&table]() {
-        sql::ext::TypedTable<Foo> t(table);
+        sql::TypedTable<Foo> t(table);
         static_cast<void>(t);
     });
 
     // Create several invalid tables.
     expectThrow([&table]() {
-        sql::ext::TypedTable<float> t(table);
+        sql::TypedTable<float> t(table);
         static_cast<void>(t);
     });
     expectThrow([&table]() {
-        sql::ext::TypedTable<std::string> t(table);
+        sql::TypedTable<std::string> t(table);
         static_cast<void>(t);
     });
     expectThrow([&table]() {
-        sql::ext::TypedTable<uint8_t> t(table);
+        sql::TypedTable<uint8_t> t(table);
         static_cast<void>(t);
     });
 }

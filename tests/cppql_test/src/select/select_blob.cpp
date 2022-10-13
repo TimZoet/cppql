@@ -1,8 +1,8 @@
 #include "cppql_test/select/select_blob.h"
 
-#include "cppql/ext/typed_table.h"
-#include "cppql/ext/queries/insert.h"
-#include "cppql/ext/queries/select_one.h"
+#include "cppql-typed/typed_table.h"
+#include "cppql-typed/queries/insert.h"
+#include "cppql-typed/queries/select_one.h"
 
 using namespace std::string_literals;
 
@@ -24,7 +24,7 @@ void SelectBlob::operator()()
         t->createColumn("col4", sql::Column::Type::Blob);
         t->commit();
     });
-    sql::ext::TypedTable<int64_t, std::vector<int32_t>, Foo, std::vector<Foo>> table(*t);
+    sql::TypedTable<int64_t, std::vector<int32_t>, Foo, std::vector<Foo>> table(*t);
 
     // Insert several rows.
     auto insert = table.insert();

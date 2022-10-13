@@ -1,8 +1,8 @@
 #include "cppql_test/delete/delete_rows.h"
 
-#include "cppql/ext/typed_table.h"
-#include "cppql/ext/queries/delete.h"
-#include "cppql/ext/queries/insert.h"
+#include "cppql-typed/typed_table.h"
+#include "cppql-typed/queries/delete.h"
+#include "cppql-typed/queries/insert.h"
 
 using namespace std::string_literals;
 
@@ -17,7 +17,7 @@ void DeleteRows::operator()()
         t->createColumn("col3", sql::Column::Type::Text);
         t->commit();
     });
-    sql::ext::TypedTable<int64_t, float, std::string> table(*t);
+    sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
     auto insert = table.insert();

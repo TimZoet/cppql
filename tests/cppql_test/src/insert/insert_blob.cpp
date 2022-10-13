@@ -1,7 +1,7 @@
 #include "cppql_test/insert/insert_blob.h"
 
-#include "cppql/ext/typed_table.h"
-#include "cppql/ext/queries/insert.h"
+#include "cppql-typed/typed_table.h"
+#include "cppql-typed/queries/insert.h"
 
 namespace
 {
@@ -22,7 +22,7 @@ void InsertBlob::operator()()
         t->createColumn("col2", sql::Column::Type::Blob);
         t->commit();
     });
-    sql::ext::TypedTable<int64_t, uint32_t*> table(*t);
+    sql::TypedTable<int64_t, uint32_t*> table(*t);
 
     // Generate some data.
     std::vector<uint32_t> blob1{1, 2, 3, 4, 5};

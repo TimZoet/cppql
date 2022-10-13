@@ -25,7 +25,7 @@ class CppqlConan(ConanFile):
     
     def set_version(self):
         base = self.python_requires["pyreq"].module.BaseConan
-        base.set_version(self, "modules/cppql/cppqlVersionString.cmake", "CPPQL_VERSION")
+        base.set_version(self, "modules/cppql-core/cppql_version_string.cmake", "CPPQL_VERSION")
     
     def init(self):
         base = self.python_requires["pyreq"].module.BaseConan
@@ -62,7 +62,11 @@ class CppqlConan(ConanFile):
             self.requires("bettertest/1.0.0@timzoet/stable")
     
     def package_info(self):
-        self.cpp_info.libs = ["cppql"]
+        self.cpp_info.components["core"].libs = ["cppql-core"]
+        self.cpp_info.components["core"].requires = ["common::common", "SQLite::SQLite3"]
+        
+        self.cpp_info.components["typed"].libs = ["cppql-typed"]
+        self.cpp_info.components["typed"].requires = ["core"]
     
     def generate(self):
         base = self.python_requires["pyreq"].module.BaseConan

@@ -4,7 +4,7 @@
 // Module includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql/database.h"
+#include "cppql-core/database.h"
 
 namespace utils
 {
