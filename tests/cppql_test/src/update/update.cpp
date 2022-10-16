@@ -22,9 +22,9 @@ void Update::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, "abc"s); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, "def"s); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, "ghij"s); });
+    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
 
     // Update one column at a time.
     {
@@ -61,26 +61,26 @@ void Update::operator()()
         auto    select = table.selectOne<1, 2>(table.col<0>() == &param, false);
 
         param = 10;
-        expectNoThrow([&] { update(true, 1000.0f, "val0"s); });
+        expectNoThrow([&] { update(true, 1000.0f, sql::toText("val0")); });
         auto row = select(true);
         compareEQ(1000.0f, std::get<0>(row));
         compareEQ("val0"s, std::get<1>(row));
 
         param = 20;
-        expectNoThrow([&] { update(true, 444.0f, "val1"s); });
+        expectNoThrow([&] { update(true, 444.0f, sql::toText("val1")); });
         row = select(true);
         compareEQ(444.0f, std::get<0>(row));
         compareEQ("val1"s, std::get<1>(row));
 
         param = 30;
-        expectNoThrow([&] { update(true, -555.0f, "val2"s); });
+        expectNoThrow([&] { update(true, -555.0f, sql::toText("val2")); });
         row = select(true);
         compareEQ(-555.0f, std::get<0>(row));
         compareEQ("val2"s, std::get<1>(row));
 
         param = 30;
         std::optional<std::string> s;
-        expectNoThrow([&] { update(true, nullptr, s); });
+        expectNoThrow([&] { update(true, nullptr, sql::toStaticText(s)); });
         row = select(true);
         compareEQ(0.0f, std::get<0>(row));
         compareEQ(""s, std::get<1>(row));

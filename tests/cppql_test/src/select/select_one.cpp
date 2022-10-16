@@ -21,11 +21,11 @@ void SelectOne::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, "abc"s); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, "def"s); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, "ghij"s); });
-    expectNoThrow([&insert]() { insert(40, 100.0f, "aaaa"s); });
-    expectNoThrow([&insert]() { insert(40, 200.0f, "bbbb"s); });
+    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert]() { insert(40, 100.0f, sql::toText("aaaa")); });
+    expectNoThrow([&insert]() { insert(40, 200.0f, sql::toText("bbbb")); });
 
     // Create select one.
     int64_t id  = 0;

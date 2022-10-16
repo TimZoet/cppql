@@ -21,7 +21,7 @@ void SelectReorder::operator()()
 
     // Insert single row.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, "abc"s); });
+    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
 
     // Select columns in different orders.
     auto sel0 = table.select<0, 1, 2>(table.col<0>() == 10, true);
@@ -51,9 +51,9 @@ void SelectReorder::operator()()
 
     compareEQ(std::get<0>(val0), 10);
     compareEQ(std::get<1>(val0), 20.0f);
-    compareEQ(std::get<2>(val0), "abc");
+    compareEQ(std::get<2>(val0), "abc"s);
 
-    compareEQ(std::get<0>(val1), "abc");
+    compareEQ(std::get<0>(val1), "abc"s);
     compareEQ(std::get<1>(val1), 20.0f);
     compareEQ(std::get<2>(val1), 10);
 
@@ -65,25 +65,25 @@ void SelectReorder::operator()()
     compareEQ(std::get<1>(val3), 20.0f);
     compareEQ(std::get<2>(val3), 20.0f);
 
-    compareEQ(std::get<0>(val4), "abc");
-    compareEQ(std::get<1>(val4), "abc");
-    compareEQ(std::get<2>(val4), "abc");
+    compareEQ(std::get<0>(val4), "abc"s);
+    compareEQ(std::get<1>(val4), "abc"s);
+    compareEQ(std::get<2>(val4), "abc"s);
 
     compareEQ(std::get<0>(val5), 10);
     compareEQ(std::get<1>(val5), 20.0f);
     compareEQ(std::get<2>(val5), 10);
     compareEQ(std::get<3>(val5), 20.0f);
 
-    compareEQ(std::get<0>(val6), "abc");
+    compareEQ(std::get<0>(val6), "abc"s);
     compareEQ(std::get<1>(val6), 20.0f);
     compareEQ(std::get<2>(val6), 10);
     compareEQ(std::get<3>(val6), 10);
     compareEQ(std::get<4>(val6), 20.0f);
-    compareEQ(std::get<5>(val6), "abc");
+    compareEQ(std::get<5>(val6), "abc"s);
 
     compareEQ(std::get<0>(val7), 10);
 
     compareEQ(std::get<0>(val8), 20.0f);
 
-    compareEQ(std::get<0>(val9), "abc");
+    compareEQ(std::get<0>(val9), "abc"s);
 }

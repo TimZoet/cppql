@@ -23,11 +23,11 @@ void DatabaseVacuum::operator()()
         t->commit();
     });
     sql::TypedTable<int64_t, float, std::string> table(*t);
-    auto                                              insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, "abc"s); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, "def"s); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, "ghij"s); });
-    expectNoThrow([&insert]() { insert(40, 133.3f, "gh\0ij"s); });
+    auto                                         insert = table.insert();
+    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert]() { insert(40, 133.3f, sql::toText("gh\0ij")); });
 
     // Run VACUUM command.
     expectNoThrow([&] { db->vacuum(); });

@@ -11,15 +11,15 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/type_traits.h"
 #include "cppql-typed/queries/select.h"
 
 namespace sql
 {
-    // TODO: Constrain indices to be valid columns in table.
-    // Also prevent duplicates.
     /**
      * \brief The Insert class wraps a INSERT INTO <table> VALUES <vals> statement. When invoked, it adds a row to the table.
      * \tparam T Table type.
+     * \tparam Indices 0-based indices of the columns to insert.
      */
     template<typename T, size_t... Indices>
     class Insert
@@ -32,7 +32,7 @@ namespace sql
 
         Insert() = default;
 
-        Insert(StatementPtr statement) : stmt(std::move(statement)) {}
+        explicit Insert(StatementPtr statement) : stmt(std::move(statement)) {}
 
         Insert(const Insert&) = delete;
 

@@ -19,6 +19,16 @@ class CppqlConan(ConanFile):
     
     python_requires_extend = "pyreq.BaseConan"
     
+    options = {
+        "zero_based_indices": [True, False],
+        "shutdown_default_off": [True, False]
+    }
+    
+    default_options = {
+        "zero_based_indices": True,
+        "shutdown_default_off": False
+    }
+    
     ############################################################################
     ## Base methods.                                                          ##
     ############################################################################
@@ -43,8 +53,7 @@ class CppqlConan(ConanFile):
         self.copy("license")
         self.copy("readme.md")
         self.copy("cmake/*")
-        self.copy("modules/CMakeLists.txt")
-        self.copy("modules/cppql/*")
+        self.copy("modules/*")
     
     def config_options(self):
         base = self.python_requires["pyreq"].module.BaseConan
@@ -72,20 +81,35 @@ class CppqlConan(ConanFile):
         base = self.python_requires["pyreq"].module.BaseConan
         
         tc = base.generate_toolchain(self)
+        
+        if self.options.zero_based_indices:
+            tc.variables["CPPQL_BIND_ZERO_BASED_INDICES"] = True
+        if self.options.shutdown_default_off:
+            tc.variables["CPPQL_SHUTDOWN_DEFAULT_OFF"] = True
+        
         tc.generate()
         
         deps = base.generate_deps(self)
         deps.generate()
-
-    def build(self):
+    
+    def configure_cmake(self):
         base = self.python_requires["pyreq"].module.BaseConan
         cmake = base.configure_cmake(self)
+        
+        if self.options.zero_based_indices:
+            cmake.definitions["CPPQL_BIND_ZERO_BASED_INDICES"] = True
+        if self.options.shutdown_default_off:
+            cmake.definitions["CPPQL_SHUTDOWN_DEFAULT_OFF"] = True
+        
+        return cmake
+
+    def build(self):
+        cmake = self.configure_cmake()
         cmake.configure()
         cmake.build()
 
     def package(self):
-        base = self.python_requires["pyreq"].module.BaseConan
-        cmake = base.configure_cmake(self)
+        cmake = self.configure_cmake()
         cmake.install()
 
 

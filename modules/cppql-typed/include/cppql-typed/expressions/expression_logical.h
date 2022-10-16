@@ -13,7 +13,6 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql-typed/expressions/expression.h"
 #include "cppql-typed/expressions/expression_filter.h"
 
 namespace sql

@@ -4,6 +4,7 @@
 // Standard includes.
 ////////////////////////////////////////////////////////////////
 
+#include <cassert>
 #include <format>
 
 ////////////////////////////////////////////////////////////////
@@ -18,9 +19,17 @@ namespace sql
 
     Database::~Database()
     {
-        // TODO: Is this the correct way to close a connection?
-        if (db) sqlite3_close(db);
-        sqlite3_shutdown();
+        if (db)
+        {
+            switch (close)
+            {
+            case Close::Off: break;
+            case Close::V1: assert(sqlite3_close(db) == SQLITE_OK); break;
+            case Close::V2: assert(sqlite3_close_v2(db) == SQLITE_OK); break;
+            }
+        }
+
+        if (shutdown == Shutdown::On) assert(sqlite3_shutdown() == SQLITE_OK);
     }
 
     ////////////////////////////////////////////////////////////////
@@ -71,6 +80,10 @@ namespace sql
 
     struct sqlite3* Database::get() const noexcept { return db; }
 
+    Database::Close Database::getClose() const noexcept { return close; }
+
+    Database::Shutdown Database::getShutdown() const noexcept { return shutdown; }
+
     Table& Database::getTable(const std::string& name)
     {
         const auto it = tables.find(name);
@@ -81,6 +94,14 @@ namespace sql
     int64_t Database::getLastInsertRowId() const noexcept { return sqlite3_last_insert_rowid(db); }
 
     std::string Database::getErrorMessage() const { return std::string(sqlite3_errmsg(db)); }
+
+    ////////////////////////////////////////////////////////////////
+    // Setters.
+    ////////////////////////////////////////////////////////////////
+
+    void Database::setClose(const Close value) noexcept { close = value; }
+
+    void Database::setShutdown(const Shutdown value) noexcept { shutdown = value; }
 
     ////////////////////////////////////////////////////////////////
     // ...

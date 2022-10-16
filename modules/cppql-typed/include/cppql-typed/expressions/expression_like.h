@@ -13,7 +13,7 @@
 // Module includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql-typed/expressions/expression.h"
+#include "cppql-typed/type_traits.h"
 #include "cppql-typed/expressions/expression_column.h"
 #include "cppql-typed/expressions/expression_filter.h"
 

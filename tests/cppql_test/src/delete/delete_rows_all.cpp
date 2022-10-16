@@ -21,10 +21,10 @@ void DeleteRowsAll::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 11.0f, "abc"s); });
-    expectNoThrow([&insert]() { insert(20, 12.0f, "def"s); });
-    expectNoThrow([&insert]() { insert(30, 13.0f, "ghi"s); });
-    expectNoThrow([&insert]() { insert(40, 14.0f, "jkl"s); });
+    expectNoThrow([&insert]() { insert(10, 11.0f, sql::toText("abc")); });
+    expectNoThrow([&insert]() { insert(20, 12.0f, sql::toText("def")); });
+    expectNoThrow([&insert]() { insert(30, 13.0f, sql::toText("ghi")); });
+    expectNoThrow([&insert]() { insert(40, 14.0f, sql::toText("jkl")); });
 
     // Delete all rows.
     const auto del = table.del();

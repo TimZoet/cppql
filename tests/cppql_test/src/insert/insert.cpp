@@ -3,6 +3,8 @@
 #include "cppql-typed/typed_table.h"
 #include "cppql-typed/queries/insert.h"
 
+#include "cppql_test/binding/bind.h"
+
 using namespace std::string_literals;
 
 void Insert::operator()()
@@ -20,10 +22,11 @@ void Insert::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, "abc"s); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, "def"s); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, "ghij"s); });
-    expectNoThrow([&insert]() { insert(40, 133.3f, "gh\0ij"s); });
+    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert]() { insert(40, 133.3f, sql::toText("gh\0ij")); });
+    expectNoThrow([&insert]() { insert(50, 99.9f, sql::toText("")); });
 
     // Create select statement to select all data.
     const auto stmt = db->createStatement("SELECT * FROM myTable;", true);
@@ -49,4 +52,9 @@ void Insert::operator()()
     compareEQ(stmt.column<int64_t>(0), 40);
     compareEQ(stmt.column<float>(1), 133.3f);
     compareEQ(stmt.column<std::string>(2), "gh\0ij"s);
+
+    compareTrue(stmt.step());
+    compareEQ(stmt.column<int64_t>(0), 50);
+    compareEQ(stmt.column<float>(1), 99.9f);
+    compareEQ(stmt.column<std::string>(2), ""s);
 }

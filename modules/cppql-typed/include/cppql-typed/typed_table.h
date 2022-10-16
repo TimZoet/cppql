@@ -22,7 +22,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql-typed/expressions/expression.h"
+#include "cppql-typed/type_traits.h"
 #include "cppql-typed/expressions/expression_column.h"
 #include "cppql-typed/expressions/expression_comparison.h"
 #include "cppql-typed/expressions/expression_filter.h"
@@ -39,7 +39,6 @@ namespace sql
         for (auto index : columns) s += (s.empty() ? "" : ",") + table.getColumn(index).getName();
         return s;
     }
-
 
     ////////////////////////////////////////////////////////////////
     // Forward declarations.
@@ -64,22 +63,17 @@ namespace sql
     class Update;
 
     ////////////////////////////////////////////////////////////////
-    // Type traits.
-    ////////////////////////////////////////////////////////////////
-
-    template<size_t Count, size_t... Indices>
-    concept in_column_range = sizeof...(Indices) > 0 && ((Indices < Count) && ...);
-
-    ////////////////////////////////////////////////////////////////
     // TypedTable class.
     ////////////////////////////////////////////////////////////////
-
-    // TODO: Move implementations out of class?
 
     template<typename C, typename... Cs>
     class TypedTable
     {
     public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
         /**
          * \brief Type of this table.
          */
@@ -94,6 +88,10 @@ namespace sql
          * \brief Number of columns.
          */
         static constexpr size_t column_count = 1 + sizeof...(Cs);
+
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
 
         TypedTable() = default;
 
@@ -123,7 +121,7 @@ namespace sql
          * \return Column expression.
          */
         template<size_t Index>
-        requires(Index < column_count) ColumnExpression<table_t, Index> col()
+        requires(in_column_range<column_count, Index>) ColumnExpression<table_t, Index> col()
         const noexcept { return ColumnExpression<table_t, Index>(); }
 
         ////////////////////////////////////////////////////////////////
@@ -914,7 +912,7 @@ namespace sql
     template<template<typename, typename...> class Tuple, typename... Cs>
     struct tuple_to_table<Tuple<Cs...>>
     {
-        using type = sql::TypedTable<Cs...>;
+        using type = TypedTable<Cs...>;
     };
 
     /**

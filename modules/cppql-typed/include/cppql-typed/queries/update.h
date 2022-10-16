@@ -15,8 +15,6 @@
 
 namespace sql
 {
-    // TODO: Constrain indices to be valid columns in table.
-    // Also prevent duplicates.
     /**
      * \brief The Update class wraps an UPDATE <table> SET <cols> = <vals> statement. When invoked, it updates the rows in the table.
      * \tparam T Table type.

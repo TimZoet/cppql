@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <concepts>
+#include <format>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -165,13 +166,6 @@ namespace sql
                     const TransientText& text = b.get();
                     res |= bindTransientText(index, text.data, text.size);
                 }
-                else if constexpr (std::same_as<return_t, const std::string&>)
-                {
-                    // TODO: Remove the feature to directly bind strings and force user to always use wrappers to indicate ownership?
-                    // Currently, two copies are made. Once when passing by value to this method, and then another time in the bindTransient function.
-                    const std::string& text = b.get();
-                    res |= bindTransientText(index, text);
-                }
                 else if constexpr (std::same_as<return_t, const Blob&>)
                 {
                     const Blob& blob = b.get();
@@ -187,10 +181,7 @@ namespace sql
                     const TransientBlob& blob = b.get();
                     res |= bindTransientBlob(index, blob.data, blob.size);
                 }
-                else
-                {
-                    constexpr_static_assert();
-                }
+                else { constexpr_static_assert(); }
             }
 
             // Recurse.
@@ -340,7 +331,7 @@ namespace sql
         {
             using param_t  = get_column_parameter_t<T>;
             using return_t = get_column_return_t<T>;
-            
+
             // Get column value.
             param_t value;
             column(index, value);
@@ -361,10 +352,7 @@ namespace sql
                 else
                     return static_cast<return_t>(value);
             }
-            else
-            {
-                return static_cast<return_t>(value);
-            }
+            else { return static_cast<return_t>(value); }
         }
 
         /**
@@ -414,12 +402,12 @@ namespace sql
             const auto [data, size] = columnBlob(index);
             if (sizeof(T) != size)
                 throw std::runtime_error(
-                  "Size of data does not match size of object");  //TODO: Format and print out data size.
+                  std::format("Size of data ({}) does not match size of object ({})", size, sizeof(T)));
             std::memcpy(&value, data, sizeof(T));
         }
 
         /**
-         * \brief Retrieve a blob column of the current result row as a vector. If size of blob is not a multiple of sizeof(T), excess bytes are discarded. Internally calls sqlite3_column_blob.
+         * \brief Retrieve a blob column of the current result row as a vector. If size of blob is not a multiple of sizeof(T), an exception is thrown. Internally calls sqlite3_column_blob.
          * \param index Column index.
          * \param values Vector to which data is written. Any data inside of vector is discarded/overwritten.
          */
@@ -428,10 +416,14 @@ namespace sql
         {
             // Get raw result data.
             const auto [data, size] = columnBlob(index);
+            if (size == 0) return;
+
             // Copy to vector. If size of blob is not a multiple of sizeof(T), excess data is discarded.
-            // TODO: Throw if not a multiple?
+            if (size % sizeof(T))
+                throw std::runtime_error(
+                  std::format("Size of data ({}) is not a multiple of size of object ({})", size, sizeof(T)));
             values.resize(size / sizeof(T));
-            std::memcpy(values.data(), data, sizeof(T) * values.size());
+            std::memcpy(values.data(), data, size);
         }
 
     private:

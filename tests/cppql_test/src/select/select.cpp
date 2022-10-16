@@ -21,11 +21,11 @@ void Select::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, "abc"s); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, "def"s); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, "ghij"s); });
-    expectNoThrow([&insert]() { insert(40, 100.0f, "aaaa"s); });
-    expectNoThrow([&insert]() { insert(40, 200.0f, "bbbb"s); });
+    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert]() { insert(40, 100.0f, sql::toText("aaaa")); });
+    expectNoThrow([&insert]() { insert(40, 200.0f, sql::toText("bbbb")); });
 
     // Create select query.
     int64_t id  = 20;
@@ -56,7 +56,7 @@ void Select::operator()()
     compareEQ(vals[1], std::make_tuple<int64_t, float, std::string>(40, 200.0f, "bbbb"));
 
     // Create select query and immediately bind.
-    auto    sel2 = table.select<0, 1, 2>(table.col<0>() == 30, true);
+    auto sel2 = table.select<0, 1, 2>(table.col<0>() == 30, true);
     vals.assign(sel2.begin(), sel2.end());
     compareEQ(vals.size(), static_cast<size_t>(1));
     compareEQ(vals[0], std::make_tuple<int64_t, float, std::string>(30, 80.2f, "ghij"));

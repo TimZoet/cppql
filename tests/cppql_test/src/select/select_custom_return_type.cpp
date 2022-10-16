@@ -33,10 +33,10 @@ void SelectCustomReturnType::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, "abc"s); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, "def"s); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, "ghij"s); });
-    expectNoThrow([&insert]() { insert(40, 100.0f, "aaaa"s); });
+    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert]() { insert(40, 100.0f, sql::toText("aaaa")); });
 
     // Create select query with custom return type.
     auto sel = table.select<Row, 0, 1, 2>(table.col<0>() <= 20, true);
@@ -46,8 +46,8 @@ void SelectCustomReturnType::operator()()
     compareEQ(vals.size(), static_cast<size_t>(2));
     compareEQ(vals[0].c0, 10);
     compareEQ(vals[0].c1, 20.0f);
-    compareEQ(vals[0].c2, "abc");
+    compareEQ(vals[0].c2, "abc"s);
     compareEQ(vals[1].c0, 20);
     compareEQ(vals[1].c1, 40.5f);
-    compareEQ(vals[1].c2, "def");
+    compareEQ(vals[1].c2, "def"s);
 }

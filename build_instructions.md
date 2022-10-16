@@ -23,6 +23,10 @@ There are several CMake configuration variables. Below an overview.
 methods this library provides as wrappers around the C functions become 0-based. Note that this of course does not apply
 to any of the C functions, should you still use those.
 
+`CPPQL_SHUTDOWN_DEFAULT_OFF` can be set to `ON` or `OFF`. When enabled, the database connection wrapper will no longer
+call `sqlite3_shutdown` on destruction. This can be useful when opening multiple databases, both for performance reasons
+and because `sqlite3_shutdown` is not thread safe.
+
 `BUILD_TESTS` can be set to `ON` or `OFF`. When enabled, an application containing tests is created.
 
 Windows

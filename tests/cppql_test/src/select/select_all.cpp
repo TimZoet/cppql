@@ -21,13 +21,13 @@ void SelectAll::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, "abc"s); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, "def"s); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, "ghij"s); });
-    expectNoThrow([&insert]() { insert(40, 100.0f, "aaaa"s); });
+    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert]() { insert(40, 100.0f, sql::toText("aaaa")); });
 
     // Check rows.
-    auto select = table.selectAll();
+    auto                                                 select = table.selectAll();
     std::vector<std::tuple<int64_t, float, std::string>> rows(select.begin(), select.end());
     compareEQ(rows.size(), static_cast<size_t>(4)).fatal("");
     compareEQ(10, std::get<0>(rows[0]));
