@@ -9,7 +9,7 @@ void InsertNull::operator()()
 {
     // Create table.
     sql::Table* t;
-    expectNoThrow([&t, this]() {
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col1", sql::Column::Type::Int).setAutoIncrement(true).setPrimaryKey(true).setNotNull(true);
         t->createColumn("col2", sql::Column::Type::Real);
@@ -20,17 +20,17 @@ void InsertNull::operator()()
     sql::TypedTable<int64_t, float, std::string, int32_t> table(*t);
 
     // Insert several rows.
-    expectNoThrow([&]() { table.insert()(nullptr, 11.0f, sql::toText("abc"), nullptr); });
-    expectNoThrow([&]() { table.insert()(nullptr, 12.0f, nullptr, 10); });
-    expectNoThrow([&]() { table.insert()(nullptr, nullptr, sql::toText("def"), 20); });
-    expectNoThrow([&]() { table.insert<1, 2, 3>()(13.0f, sql::toText("ghi"), 30); });
-    expectNoThrow([&]() { table.insert<>()(); });
-    expectNoThrow([&]() { table.insert<3, 2, 1>()(40, sql::toText("jkl"), 14.0f); });
-    expectNoThrow([&]() { table.insert<1, 3>()(15.0f, 50); });
-    expectNoThrow([&]() {
-        const std::optional<float>       f;
-        const std::optional<std::string> s;
-        const std::optional<int32_t>     i;
+    expectNoThrow([&] { table.insert()(nullptr, 11.0f, sql::toText("abc"), nullptr); });
+    expectNoThrow([&] { table.insert()(nullptr, 12.0f, nullptr, 10); });
+    expectNoThrow([&] { table.insert()(nullptr, nullptr, sql::toText("def"), 20); });
+    expectNoThrow([&] { table.insert<1, 2, 3>()(13.0f, sql::toText("ghi"), 30); });
+    expectNoThrow([&] { table.insert<>()(); });
+    expectNoThrow([&] { table.insert<3, 2, 1>()(40, sql::toText("jkl"), 14.0f); });
+    expectNoThrow([&] { table.insert<1, 3>()(15.0f, 50); });
+    expectNoThrow([&] {
+        constexpr std::optional<float>       f;
+        constexpr std::optional<std::string> s;
+        constexpr std::optional<int32_t>     i;
         table.insert()(nullptr, f, i, sql::toStaticText(s));
     });
 

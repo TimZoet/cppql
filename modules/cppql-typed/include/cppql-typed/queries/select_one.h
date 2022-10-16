@@ -65,7 +65,7 @@ namespace sql
         }
 
     private:
-        SelectOne(select_t&& select) : stmt(std::move(select)) {}
+        explicit SelectOne(select_t&& select) : stmt(std::move(select)) {}
 
         /**
          * \brief Select statement.

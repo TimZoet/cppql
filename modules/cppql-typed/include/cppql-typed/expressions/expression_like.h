@@ -100,7 +100,7 @@ namespace sql
 
     template<typename T>
     LikeExpression<T>::LikeExpression(BaseColumnExpressionPtr<T> col, std::string* p) :
-        column(std::move(col)), value(), ptr(p)
+        column(std::move(col)), ptr(p)
     {
     }
 

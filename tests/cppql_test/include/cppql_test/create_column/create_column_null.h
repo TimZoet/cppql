@@ -14,8 +14,8 @@
 
 #include "cppql_test/utils.h"
 
-class CreateColumnNull : public bt::UnitTest<CreateColumnNull, bt::CompareMixin, bt::ExceptionMixin>,
-                         utils::DatabaseMember
+class CreateColumnNull final : public bt::UnitTest<CreateColumnNull, bt::CompareMixin, bt::ExceptionMixin>,
+                               utils::DatabaseMember
 {
 public:
     void operator()() override;

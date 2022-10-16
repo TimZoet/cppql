@@ -14,7 +14,7 @@ namespace
 void GetColumnTemplate::operator()()
 {
     // Create table with all column types.
-    expectNoThrow([this]() {
+    expectNoThrow([this] {
         auto& table = db->createTable("myTable");
 
         table.createColumn("col1", sql::Column::Type::Int);
@@ -40,7 +40,7 @@ void GetColumnTemplate::operator()()
         compareTrue(insert.bindInt(4, -10));
         compareTrue(insert.bindFloat(5, -4.0f));
         compareTrue(insert.bindTransientText(6, std::string("def")));
-        std::vector<uint8_t> vec{0, 1, 2, 3, 4, 5, 6, 7};
+        const std::vector<uint8_t> vec{0, 1, 2, 3, 4, 5, 6, 7};
         compareTrue(insert.bindStaticBlob(7, vec.data(), sizeof(uint8_t) * vec.size()));
 
         // Insert row.

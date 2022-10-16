@@ -11,46 +11,45 @@ namespace
 
     struct Bar
     {
-        int32_t a;
     };
 }  // namespace
 
 void GetColumnBlob::operator()()
 {
     // Create simple table.
-    expectNoThrow([this]() {
+    expectNoThrow([this] {
         auto& table = db->createTable("myTable");
         table.createColumn("col1", sql::Column::Type::Blob);
         table.commit();
 
         const auto stmt = db->createStatement("INSERT INTO myTable VALUES (?);", true);
 
-        std::vector<float> values1{10.5f, 20.5f, 30.5f};
+        const std::vector values1{10.5f, 20.5f, 30.5f};
         compareTrue(stmt.bindTransientBlob(0, values1.data(), values1.size() * sizeof(float)));
         compareTrue(stmt.step());
         compareTrue(stmt.reset());
 
-        std::vector<int64_t> values2{40, 50, 60};
+        const std::vector<int64_t> values2{40, 50, 60};
         compareTrue(stmt.bindTransientBlob(0, values2.data(), values2.size() * sizeof(int64_t)));
         compareTrue(stmt.step());
         compareTrue(stmt.reset());
 
-        Foo value3 = {.a = 100, .b = 42, .c = 3};
+        const Foo value3 = {.a = 100, .b = 42, .c = 3};
         compareTrue(stmt.bindTransientBlob(0, &value3, sizeof(Foo)));
         compareTrue(stmt.step());
         compareTrue(stmt.reset());
 
-        Foo value4 = {.a = 200, .b = 242, .c = 23};
+        const Foo value4 = {.a = 200, .b = 242, .c = 23};
         compareTrue(stmt.bindTransientBlob(0, &value4, sizeof(Foo)));
         compareTrue(stmt.step());
         compareTrue(stmt.reset());
 
-        std::vector<Foo> values5 = {Foo{.a = 10, .b = 4.4f, .c = -4}, Foo{.a = -20, .b = -8.8f, .c = 5}};
+        const std::vector values5 = {Foo{.a = 10, .b = 4.4f, .c = -4}, Foo{.a = -20, .b = -8.8f, .c = 5}};
         compareTrue(stmt.bindTransientBlob(0, values5.data(), values5.size() * sizeof(Foo)));
         compareTrue(stmt.step());
         compareTrue(stmt.reset());
 
-        Foo value6 = {.a = 200, .b = 242, .c = 23};
+        const Foo value6 = {.a = 200, .b = 242, .c = 23};
         compareTrue(stmt.bindTransientBlob(0, &value6, sizeof(Foo)));
         compareTrue(stmt.step());
         compareTrue(stmt.reset());
@@ -86,10 +85,10 @@ void GetColumnBlob::operator()()
 
     // Get row as struct.
     compareTrue(stmt.step());
-    const auto val4 = stmt.column<Foo>(0);
-    compareEQ(val4.a, 200);
-    compareEQ(val4.b, 242);
-    compareEQ(val4.c, 23);
+    const auto [a, b, c] = stmt.column<Foo>(0);
+    compareEQ(a, 200);
+    compareEQ(b, 242);
+    compareEQ(c, 23);
 
     // Get row as vector of structs.
     compareTrue(stmt.step());
@@ -104,7 +103,7 @@ void GetColumnBlob::operator()()
 
     // Get row with wrong size.
     compareTrue(stmt.step());
-    expectThrow([&stmt, this]() {
+    expectThrow([&stmt, this] {
         Bar val;
         stmt.column(0, val);
     });

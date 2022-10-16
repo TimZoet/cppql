@@ -82,11 +82,11 @@ namespace sql
     private:
         [[nodiscard]] std::string toString(const Table& table, std::string prev) const;
 
-        template<_is_order_by_expression O, is_column_expression C> requires(same_table<O, C>)
-        friend O operator+(O order, C&& col);
+        template<_is_order_by_expression O, is_column_expression C>
+        requires(same_table<O, C>) friend O operator+(O order, C&& col);
 
-        template<_is_order_by_expression O, is_column_expression C> requires(same_table<O, C>)
-        friend O operator-(O order, C&& col);
+        template<_is_order_by_expression O, is_column_expression C>
+        requires(same_table<O, C>) friend O operator-(O order, C&& col);
 
         template<_is_order_by_expression O>
         friend O operator+(O lhs, O&& rhs);
@@ -126,7 +126,7 @@ namespace sql
     }
 
     template<typename T>
-    OrderByExpression<T>::OrderByExpression(BaseColumnExpressionPtr<T> col, Order orderBy) :
+    OrderByExpression<T>::OrderByExpression(BaseColumnExpressionPtr<T> col, const Order orderBy) :
         column(std::move(col)), next(), order(orderBy)
     {
     }
@@ -134,7 +134,7 @@ namespace sql
     template<typename T>
     OrderByExpression<T>::OrderByExpression(BaseColumnExpressionPtr<T> col,
                                             OrderByExpressionPtr<T>    nxt,
-                                            Order                      orderBy) :
+                                            const Order                orderBy) :
         column(std::move(col)), next(std::move(nxt)), order(orderBy)
     {
     }

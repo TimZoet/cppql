@@ -16,7 +16,7 @@ void SelectBlob::operator()()
 {
     // Create table.
     sql::Table* t;
-    expectNoThrow([&t, this]() {
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col1", sql::Column::Type::Int);
         t->createColumn("col2", sql::Column::Type::Blob);
@@ -28,22 +28,22 @@ void SelectBlob::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() {
-        const std::vector<int32_t> a = {0, 1, 2, 3};
-        const Foo                  b{.a = 10, .b = 5};
-        const std::vector<Foo>     c = {{.a = 20, .b = 30}, {.a = 40, .b = 50}};
+    expectNoThrow([&insert] {
+        const std::vector      a = {0, 1, 2, 3};
+        const Foo              b{.a = 10, .b = 5};
+        const std::vector<Foo> c = {{.a = 20, .b = 30}, {.a = 40, .b = 50}};
         insert(1, sql::toStaticBlob(a), sql::toStaticBlob(b), sql::toStaticBlob(c));
     });
-    expectNoThrow([&insert]() {
-        const std::vector<int32_t> a = {-10, -11, -12, -13};
-        const Foo                  b{.a = -1000, .b = 0.5f};
-        const std::vector<Foo>     c = {{.a = 1000000, .b = 4.2f}, {.a = -100, .b = -1.0f}};
+    expectNoThrow([&insert] {
+        const std::vector      a = {-10, -11, -12, -13};
+        const Foo              b{.a = -1000, .b = 0.5f};
+        const std::vector<Foo> c = {{.a = 1000000, .b = 4.2f}, {.a = -100, .b = -1.0f}};
         insert(2, sql::toStaticBlob(a), sql::toStaticBlob(b), sql::toStaticBlob(c));
     });
 
     // Create select.
     auto sel = table.select<1, 2, 3>(table.col<0>() > 0, true);
-    std::vector<std::tuple<std::vector<int32_t>, Foo, std::vector<Foo>>> rows(sel.begin(), sel.end());
+    const std::vector<std::tuple<std::vector<int32_t>, Foo, std::vector<Foo>>> rows(sel.begin(), sel.end());
 
     // TODO: Use vector comparison methods.
     // Check first row.

@@ -10,7 +10,7 @@ void SelectLimit::operator()()
 {
     // Create table.
     sql::Table* t;
-    expectNoThrow([&t, this]() {
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col1", sql::Column::Type::Int);
         t->commit();
@@ -19,7 +19,7 @@ void SelectLimit::operator()()
 
     // Insert 100 rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() {
+    expectNoThrow([&insert] {
         for (int64_t i = 0; i < 100; i++) insert(i);
     });
 

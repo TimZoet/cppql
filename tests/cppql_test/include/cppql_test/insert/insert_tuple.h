@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class InsertTuple : public bt::UnitTest<InsertTuple, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class InsertTuple final : public bt::UnitTest<InsertTuple, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;

@@ -17,10 +17,10 @@ void CreateColumnPrimaryKeyMultiple::create()
 
     // Create columns.
     sql::Column *idCol1, *idCol2;
-    expectNoThrow([&table, &idCol1]() { idCol1 = &table->createColumn("id1", sql::Column::Type::Int); });
-    expectNoThrow([&idCol1]() { idCol1->setPrimaryKey(true).setNotNull(true); });
-    expectNoThrow([&table, &idCol2]() { idCol2 = &table->createColumn("id2", sql::Column::Type::Int); });
-    expectNoThrow([&idCol2]() { idCol2->setPrimaryKey(true).setNotNull(true); });
+    expectNoThrow([&table, &idCol1] { idCol1 = &table->createColumn("id1", sql::Column::Type::Int); });
+    expectNoThrow([&idCol1] { idCol1->setPrimaryKey(true).setNotNull(true); });
+    expectNoThrow([&table, &idCol2] { idCol2 = &table->createColumn("id2", sql::Column::Type::Int); });
+    expectNoThrow([&idCol2] { idCol2->setPrimaryKey(true).setNotNull(true); });
 
     // Check column types.
     compareEQ(idCol1->getType(), sql::Column::Type::Int);
@@ -35,7 +35,7 @@ void CreateColumnPrimaryKeyMultiple::create()
         idCol1->setAutoIncrement(true);
         idCol2->setAutoIncrement(true);
     });
-    expectThrow([&table]() { table->commit(); });
+    expectThrow([&table] { table->commit(); });
     compareFalse(table->isCommitted());
     expectNoThrow([&] {
         idCol1->setAutoIncrement(false);
@@ -43,7 +43,7 @@ void CreateColumnPrimaryKeyMultiple::create()
     });
 
     // Commit table.
-    expectNoThrow([&table]() { table->commit(); });
+    expectNoThrow([&table] { table->commit(); });
     compareTrue(table->isCommitted());
 }
 
@@ -51,7 +51,7 @@ void CreateColumnPrimaryKeyMultiple::verify()
 {
     // Try to get table.
     sql::Table* table;
-    expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
+    expectNoThrow([&table, this] { table = &db->getTable("myTable"); });
 
     // Check column types.
     const auto& idCol1 = table->getColumn("id1");

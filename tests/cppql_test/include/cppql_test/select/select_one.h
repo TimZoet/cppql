@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class SelectOne : public bt::UnitTest<SelectOne, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class SelectOne final : public bt::UnitTest<SelectOne, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;

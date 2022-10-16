@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class DeleteRows : public bt::UnitTest<DeleteRows, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class DeleteRows final : public bt::UnitTest<DeleteRows, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;

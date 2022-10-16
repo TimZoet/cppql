@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class BindReal : public bt::UnitTest<BindReal, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class BindReal final : public bt::UnitTest<BindReal, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;

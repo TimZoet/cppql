@@ -11,7 +11,7 @@ void Update::operator()()
 {
     // Create table.
     sql::Table* t;
-    expectNoThrow([&t, this]() {
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col1", sql::Column::Type::Int);
         t->createColumn("col2", sql::Column::Type::Real);
@@ -22,9 +22,9 @@ void Update::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
 
     // Update one column at a time.
     {
@@ -49,7 +49,7 @@ void Update::operator()()
         compareEQ(-10.0f, select(true));
 
         param = 30;
-        std::optional<float> f;
+        constexpr std::optional<float> f;
         expectNoThrow([&] { update(true, f); });
         compareEQ(0.0f, select(true));
     }
@@ -79,7 +79,7 @@ void Update::operator()()
         compareEQ("val2"s, std::get<1>(row));
 
         param = 30;
-        std::optional<std::string> s;
+        constexpr std::optional<std::string> s;
         expectNoThrow([&] { update(true, nullptr, sql::toStaticText(s)); });
         row = select(true);
         compareEQ(0.0f, std::get<0>(row));

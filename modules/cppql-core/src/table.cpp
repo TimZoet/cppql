@@ -34,8 +34,7 @@ namespace sql
         // Create and run CREATE TABLE statement.
         const auto sql  = generateSql();
         const auto stmt = Statement(*db, sql, true);
-        const auto res  = stmt.step();
-        if (!res) throw std::runtime_error(std::to_string(res.code));
+        if (const auto res = stmt.step(); !res) throw std::runtime_error(std::to_string(res.code));
 
         committed = true;
     }
@@ -45,7 +44,7 @@ namespace sql
         // Count number of primary key columns. If there is one, the constraint is added immediately after the column.
         // Otherwise, all primary keys are concatenated.
         const auto pkCount =
-          std::count_if(columns.begin(), columns.end(), [](const auto& col) { return col->isPrimaryKey(); });
+          std::ranges::count_if(columns.begin(), columns.end(), [](const auto& col) { return col->isPrimaryKey(); });
 
         // Concatenate columnns and primary key.
         std::string cols;
@@ -62,7 +61,7 @@ namespace sql
                                 col->isPrimaryKey() && pkCount == 1 ? "PRIMARY KEY" : "",
                                 col->isAutoIncrement() ? "AUTOINCREMENT" : "",
                                 col->isNotNull() ? "NOT NULL" : "",
-                                col->getDefaultValue().empty() ? "" : ("DEFAULT " + col->getDefaultValue()));
+                                col->getDefaultValue().empty() ? "" : "DEFAULT " + col->getDefaultValue());
 
             // If column is one of multiple primary keys, add to string.
             if (pkCount > 1 && col->isPrimaryKey())
@@ -111,16 +110,16 @@ namespace sql
     // Columns.
     ////////////////////////////////////////////////////////////////
 
-    Column& Table::createColumn(const std::string& columnName, sql::Column::Type type)
+    Column& Table::createColumn(const std::string& columnName, Column::Type type)
     {
         if (committed) throw std::runtime_error("");
 
         // Check for duplicate name.
-        const auto res = columnMap.try_emplace(columnName, columns.size());
-        if (!res.second) throw std::runtime_error("");
+        const auto [it, emplaced] = columnMap.try_emplace(columnName, columns.size());
+        if (!emplaced) throw std::runtime_error("");
 
         // Create a new column.
-        auto col = std::make_unique<Column>(this, static_cast<int32_t>(res.first->second), columnName, type);
+        auto col = std::make_unique<Column>(this, static_cast<int32_t>(it->second), columnName, type);
         return *columns.emplace_back(std::move(col));
     }
 
@@ -129,11 +128,11 @@ namespace sql
         if (committed) throw std::runtime_error("");
 
         // Check for duplicate name.
-        const auto res = columnMap.try_emplace(columnName, columns.size());
-        if (!res.second) throw std::runtime_error("");
+        const auto [it, emplaced] = columnMap.try_emplace(columnName, columns.size());
+        if (!emplaced) throw std::runtime_error("");
 
         // Create a new column.
-        auto col = std::make_unique<Column>(this, static_cast<int32_t>(res.first->second), columnName, foreignKey);
+        auto col = std::make_unique<Column>(this, static_cast<int32_t>(it->second), columnName, foreignKey);
         return *columns.emplace_back(std::move(col));
     }
 
@@ -144,9 +143,9 @@ namespace sql
     void Table::validate()
     {
         const auto pkCount =
-          std::count_if(columns.begin(), columns.end(), [](const auto& col) { return col->isPrimaryKey(); });
+          std::ranges::count_if(columns.begin(), columns.end(), [](const auto& col) { return col->isPrimaryKey(); });
         const auto autoIncCount =
-          std::count_if(columns.begin(), columns.end(), [](const auto& col) { return col->isAutoIncrement(); });
+          std::ranges::count_if(columns.begin(), columns.end(), [](const auto& col) { return col->isAutoIncrement(); });
 
         // Autoincrement is not allowed when there are more than 1 primary keys.
         if (pkCount > 1 && autoIncCount != 0) throw std::runtime_error("");
@@ -215,11 +214,10 @@ namespace sql
             // Try to get table.
             auto it = tables.find(tableName);
             if (it == tables.end()) throw std::runtime_error("Table referenced by foreign key does not exist");
-            auto& fkTable = it->second;
+            const auto& fkTable = it->second;
 
             // Try to get column.
-            auto it2 = fkTable->columnMap.find(fkColumnName);
-            if (it2 == fkTable->columnMap.end())
+            if (auto it2 = fkTable->columnMap.find(fkColumnName); it2 == fkTable->columnMap.end())
                 throw std::runtime_error("Column referenced by foreign key does not exist");
             auto& fkColumn = *fkTable->columns[fkTable->columnMap[fkColumnName]];
 

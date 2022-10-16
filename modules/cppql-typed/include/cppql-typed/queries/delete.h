@@ -35,7 +35,7 @@ namespace sql
         {
         }
 
-        Delete(StatementPtr statement) : stmt(std::move(statement)) {}
+        explicit Delete(StatementPtr statement) : stmt(std::move(statement)) {}
 
         Delete(const Delete&) = delete;
 

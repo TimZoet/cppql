@@ -9,8 +9,8 @@ using namespace std::string_literals;
 void SelectAll::operator()()
 {
     // Create table.
-    sql::Table* t;
-    expectNoThrow([&t, this]() {
+    sql::Table* t = nullptr;
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col1", sql::Column::Type::Int);
         t->createColumn("col2", sql::Column::Type::Real);
@@ -21,14 +21,14 @@ void SelectAll::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
-    expectNoThrow([&insert]() { insert(40, 100.0f, sql::toText("aaaa")); });
+    expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert] { insert(40, 100.0f, sql::toText("aaaa")); });
 
     // Check rows.
-    auto                                                 select = table.selectAll();
-    std::vector<std::tuple<int64_t, float, std::string>> rows(select.begin(), select.end());
+    auto                                                       select = table.selectAll();
+    const std::vector<std::tuple<int64_t, float, std::string>> rows(select.begin(), select.end());
     compareEQ(rows.size(), static_cast<size_t>(4)).fatal("");
     compareEQ(10, std::get<0>(rows[0]));
     compareEQ(20.0f, std::get<1>(rows[0]));

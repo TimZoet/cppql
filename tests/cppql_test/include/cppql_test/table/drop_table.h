@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class DropTable : public bt::UnitTest<DropTable, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class DropTable final : public bt::UnitTest<DropTable, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;

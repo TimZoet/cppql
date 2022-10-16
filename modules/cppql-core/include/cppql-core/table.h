@@ -64,7 +64,7 @@ namespace sql
          * \param type New column type.
          * \return Column.
          */
-        Column& createColumn(const std::string& columnName, sql::Column::Type type);
+        Column& createColumn(const std::string& columnName, Column::Type type);
 
         /**
          * \brief Create a new foreign key column.

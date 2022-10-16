@@ -13,19 +13,19 @@ void CreateColumnText::create()
 {
     // Create table.
     sql::Table* table;
-    expectNoThrow([&table, this]() { table = &db->createTable("myTable"); });
+    expectNoThrow([&table, this] { table = &db->createTable("myTable"); });
 
     // Create columns.
     sql::Column *col1, *col2;
-    expectNoThrow([&table, &col1]() { col1 = &table->createColumn("col1", sql::Column::Type::Text); });
-    expectNoThrow([&table, &col2]() { col2 = &table->createColumn<std::string>("col2"); });
+    expectNoThrow([&table, &col1] { col1 = &table->createColumn("col1", sql::Column::Type::Text); });
+    expectNoThrow([&table, &col2] { col2 = &table->createColumn<std::string>("col2"); });
 
     // Check column types.
     compareEQ(col1->getType(), sql::Column::Type::Text);
     compareEQ(col2->getType(), sql::Column::Type::Text);
 
     // Commit table.
-    expectNoThrow([&table]() { table->commit(); });
+    expectNoThrow([&table] { table->commit(); });
     compareTrue(table->isCommitted());
 }
 
@@ -33,7 +33,7 @@ void CreateColumnText::verify()
 {
     // Try to get table.
     sql::Table* table;
-    expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
+    expectNoThrow([&table, this] { table = &db->getTable("myTable"); });
 
     // Check column types.
     compareEQ(table->getColumn("col1").getType(), sql::Column::Type::Text);

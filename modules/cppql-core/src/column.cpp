@@ -19,7 +19,7 @@ namespace sql
     // Constructors.
     ////////////////////////////////////////////////////////////////
 
-    Column::Column(Table* t, const int32_t columnIndex, std::string columnName, const Column::Type columnType) :
+    Column::Column(Table* t, const int32_t columnIndex, std::string columnName, const Type columnType) :
         table(t), index(columnIndex), name(std::move(columnName)), type(columnType)
     {
     }

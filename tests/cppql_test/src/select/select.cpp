@@ -10,7 +10,7 @@ void Select::operator()()
 {
     // Create table.
     sql::Table* t;
-    expectNoThrow([&t, this]() {
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col1", sql::Column::Type::Int);
         t->createColumn("col2", sql::Column::Type::Real);
@@ -21,11 +21,11 @@ void Select::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
-    expectNoThrow([&insert]() { insert(40, 100.0f, sql::toText("aaaa")); });
-    expectNoThrow([&insert]() { insert(40, 200.0f, sql::toText("bbbb")); });
+    expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert] { insert(40, 100.0f, sql::toText("aaaa")); });
+    expectNoThrow([&insert] { insert(40, 200.0f, sql::toText("bbbb")); });
 
     // Create select query.
     int64_t id  = 20;

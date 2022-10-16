@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class CreateTypedTable : public bt::UnitTest<CreateTypedTable, bt::CompareMixin, bt::ExceptionMixin>,
+class CreateTypedTable final : public bt::UnitTest<CreateTypedTable, bt::CompareMixin, bt::ExceptionMixin>,
                          utils::DatabaseMember
 {
 public:

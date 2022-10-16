@@ -4,14 +4,13 @@
 // Standard includes.
 ////////////////////////////////////////////////////////////////
 
-#include <initializer_list>
+#include <iterator>
 
 ////////////////////////////////////////////////////////////////
 // Module includes.
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-core/statement.h"
-#include "cppql-core/table.h"
 
 ////////////////////////////////////////////////////////////////
 // Current target includes.
@@ -103,7 +102,7 @@ namespace sql
         {
         }
 
-        Select(StatementPtr statement) : stmt(std::move(statement)) {}
+        explicit Select(StatementPtr statement) : stmt(std::move(statement)) {}
 
         Select(const Select&) = delete;
 

@@ -14,7 +14,8 @@
 
 #include "cppql_test/utils.h"
 
-class GetColumnText : public bt::UnitTest<GetColumnText, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class GetColumnText final : public bt::UnitTest<GetColumnText, bt::CompareMixin, bt::ExceptionMixin>,
+                            utils::DatabaseMember
 {
 public:
     void operator()() override;

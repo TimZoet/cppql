@@ -10,7 +10,7 @@ void SelectOrderBy::operator()()
 {
     // Create table.
     sql::Table* t;
-    expectNoThrow([&t, this]() {
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col0", sql::Column::Type::Int);
         t->createColumn("col1", sql::Column::Type::Int);
@@ -23,7 +23,7 @@ void SelectOrderBy::operator()()
     std::vector<std::tuple<int64_t, int64_t, int64_t>> vals;
     for (int64_t i = 0; i < 100; i++) vals.emplace_back(i, -i, i % 10);
     auto insert = table.insert();
-    expectNoThrow([&]() {
+    expectNoThrow([&] {
         for (const auto& r : vals) insert(r);
     });
 
@@ -32,7 +32,7 @@ void SelectOrderBy::operator()()
         auto sel = table.selectAll(+table.col<0>());
 
         const std::vector<std::tuple<int64_t, int64_t, int64_t>> rows(sel.begin(), sel.end());
-        std::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
+        std::ranges::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
             return std::get<0>(lhs) < std::get<0>(rhs);
         });
         compareEQ(vals, rows);
@@ -42,7 +42,7 @@ void SelectOrderBy::operator()()
     {
         auto                                                     sel = table.selectAll(-table.col<0>());
         const std::vector<std::tuple<int64_t, int64_t, int64_t>> rows(sel.begin(), sel.end());
-        std::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
+        std::ranges::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
             return std::get<0>(lhs) > std::get<0>(rhs);
         });
         compareEQ(vals, rows);
@@ -52,9 +52,9 @@ void SelectOrderBy::operator()()
     {
         auto sel = table.selectAll(+table.col<0>() + table.col<1>());
         const std::vector<std::tuple<int64_t, int64_t, int64_t>> rows(sel.begin(), sel.end());
-        std::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
+        std::ranges::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
             return std::get<0>(lhs) < std::get<0>(rhs) ||
-                   (std::get<0>(lhs) == std::get<0>(rhs) && std::get<1>(lhs) < std::get<1>(rhs));
+                   std::get<0>(lhs) == std::get<0>(rhs) && std::get<1>(lhs) < std::get<1>(rhs);
         });
         compareEQ(vals, rows);
     }
@@ -63,9 +63,9 @@ void SelectOrderBy::operator()()
     {
         auto sel = table.selectAll(-table.col<2>() - table.col<1>());
         const std::vector<std::tuple<int64_t, int64_t, int64_t>> rows(sel.begin(), sel.end());
-        std::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
+        std::ranges::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
             return std::get<2>(lhs) > std::get<2>(rhs) ||
-                   (std::get<2>(lhs) == std::get<2>(rhs) && std::get<1>(lhs) > std::get<1>(rhs));
+                   std::get<2>(lhs) == std::get<2>(rhs) && std::get<1>(lhs) > std::get<1>(rhs);
         });
         compareEQ(vals, rows);
     }
@@ -74,7 +74,7 @@ void SelectOrderBy::operator()()
     {
         auto sel = table.selectAll(+table.col<2>() + (+table.col<0>() - table.col<1>()));
         const std::vector<std::tuple<int64_t, int64_t, int64_t>> rows(sel.begin(), sel.end());
-        std::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
+        std::ranges::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
             if (std::get<0>(lhs) < std::get<0>(rhs)) return true;
             if (std::get<0>(lhs) > std::get<0>(rhs)) return false;
             if (std::get<1>(lhs) > std::get<1>(rhs)) return false;

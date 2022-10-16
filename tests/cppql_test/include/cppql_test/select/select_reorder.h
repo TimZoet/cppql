@@ -14,7 +14,8 @@
 
 #include "cppql_test/utils.h"
 
-class SelectReorder : public bt::UnitTest<SelectReorder, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class SelectReorder final : public bt::UnitTest<SelectReorder, bt::CompareMixin, bt::ExceptionMixin>,
+                            utils::DatabaseMember
 {
 public:
     void operator()() override;

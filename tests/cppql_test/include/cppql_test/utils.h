@@ -13,6 +13,14 @@ namespace utils
     public:
         DatabaseMember();
 
+        DatabaseMember(const DatabaseMember&) = delete;
+
+        DatabaseMember(DatabaseMember&&) = delete;
+
+        DatabaseMember& operator=(const DatabaseMember&) = delete;
+
+        DatabaseMember& operator=(DatabaseMember&&) = delete;
+
         virtual ~DatabaseMember() noexcept;
 
         void reopen();

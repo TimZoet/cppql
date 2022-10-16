@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class Update : public bt::UnitTest<Update, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class Update final : public bt::UnitTest<Update, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;

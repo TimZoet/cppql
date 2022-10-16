@@ -13,8 +13,8 @@
 // Module includes.
 ////////////////////////////////////////////////////////////////
 
-#include "common/static_assert.h"
-#include "common/type_traits.h"
+//#include "common/static_assert.h"
+//#include "common/type_traits.h"
 
 namespace sql
 {

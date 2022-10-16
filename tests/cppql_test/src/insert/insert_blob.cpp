@@ -16,7 +16,7 @@ void InsertBlob::operator()()
 {
     // Create table.
     sql::Table* t;
-    expectNoThrow([&t, this]() {
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col1", sql::Column::Type::Int).setAutoIncrement(true).setPrimaryKey(true);
         t->createColumn("col2", sql::Column::Type::Blob);
@@ -32,10 +32,10 @@ void InsertBlob::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert, &blob1]() { insert(nullptr, sql::toStaticBlob(blob1)); });
-    expectNoThrow([&insert, &blob2]() { insert(nullptr, sql::toStaticBlob(blob2)); });
-    expectNoThrow([&insert, &blob3]() { insert(nullptr, sql::toStaticBlob(blob3)); });
-    expectNoThrow([&insert, &blob4]() { insert(nullptr, sql::toStaticBlob(blob4)); });
+    expectNoThrow([&insert, &blob1] { insert(nullptr, sql::toStaticBlob(blob1)); });
+    expectNoThrow([&insert, &blob2] { insert(nullptr, sql::toStaticBlob(blob2)); });
+    expectNoThrow([&insert, &blob3] { insert(nullptr, sql::toStaticBlob(blob3)); });
+    expectNoThrow([&insert, &blob4] { insert(nullptr, sql::toStaticBlob(blob4)); });
 
     // Create select statement to select all data.
     const auto stmt = db->createStatement("SELECT * FROM myTable;", true);
@@ -66,7 +66,7 @@ void InsertBlob::operator()()
 
     compareTrue(stmt.step());
     compareEQ(stmt.column<int64_t>(0), 4);
-    Foo res4;
+    Foo res4{};
     stmt.column(1, res4);
     compareEQ(res4.x, blob4.x);
     compareEQ(res4.y, blob4.y);

@@ -27,18 +27,17 @@ void CreateTypedTable::operator()()
     table.commit();
 
     // Create several valid tables.
-    expectNoThrow([&table]() {
-        sql::TypedTable<int64_t, double, std::string, std::vector<float>, uint16_t, float, std::string, Foo> t(
+    expectNoThrow([&table] {
+        const sql::TypedTable<int64_t, double, std::string, std::vector<float>, uint16_t, float, std::string, Foo> t(
           table);
         static_cast<void>(t);
     });
-    expectNoThrow([&table]() {
-        sql::TypedTable<int32_t, float, std::string, Bar, int8_t, float, std::string, std::vector<Foo>> t(table);
+    expectNoThrow([&table] {
+        const sql::TypedTable<int32_t, float, std::string, Bar, int8_t, float, std::string, std::vector<Foo>> t(table);
         static_cast<void>(t);
     });
-    expectNoThrow([&table]() {
-        sql::TypedTable<int8_t, double, std::string, std::vector<float>, uint64_t, double, std::string, Bar> t(
-          table);
+    expectNoThrow([&table] {
+        const sql::TypedTable<int8_t, double, std::string, std::vector<float>, uint64_t, double, std::string, Bar> t(table);
         static_cast<void>(t);
     });
 }

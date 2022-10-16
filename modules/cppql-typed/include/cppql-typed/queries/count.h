@@ -34,7 +34,7 @@ namespace sql
         {
         }
 
-        Count(StatementPtr statement) : stmt(std::move(statement)) {}
+        explicit Count(StatementPtr statement) : stmt(std::move(statement)) {}
 
         Count(const Count&) = delete;
 

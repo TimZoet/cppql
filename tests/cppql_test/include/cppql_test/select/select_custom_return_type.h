@@ -14,8 +14,8 @@
 
 #include "cppql_test/utils.h"
 
-class SelectCustomReturnType : public bt::UnitTest<SelectCustomReturnType, bt::CompareMixin, bt::ExceptionMixin>,
-                               utils::DatabaseMember
+class SelectCustomReturnType final : public bt::UnitTest<SelectCustomReturnType, bt::CompareMixin, bt::ExceptionMixin>,
+                                     utils::DatabaseMember
 {
 public:
     void operator()() override;

@@ -14,8 +14,8 @@
 
 #include "cppql_test/utils.h"
 
-class CreateColumnForeignKey : public bt::UnitTest<CreateColumnForeignKey, bt::CompareMixin, bt::ExceptionMixin>,
-                               utils::DatabaseMember
+class CreateColumnForeignKey final : public bt::UnitTest<CreateColumnForeignKey, bt::CompareMixin, bt::ExceptionMixin>,
+                                     utils::DatabaseMember
 {
 public:
     void operator()() override;

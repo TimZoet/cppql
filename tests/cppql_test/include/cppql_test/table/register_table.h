@@ -14,7 +14,8 @@
 
 #include "cppql_test/utils.h"
 
-class RegisterTable : public bt::UnitTest<RegisterTable, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class RegisterTable final : public bt::UnitTest<RegisterTable, bt::CompareMixin, bt::ExceptionMixin>,
+                            utils::DatabaseMember
 {
 public:
     void operator()() override;

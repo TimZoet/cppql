@@ -10,7 +10,7 @@ void SelectOne::operator()()
 {
     // Create table.
     sql::Table* t;
-    expectNoThrow([&t, this]() {
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col1", sql::Column::Type::Int);
         t->createColumn("col2", sql::Column::Type::Real);
@@ -21,36 +21,36 @@ void SelectOne::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
-    expectNoThrow([&insert]() { insert(40, 100.0f, sql::toText("aaaa")); });
-    expectNoThrow([&insert]() { insert(40, 200.0f, sql::toText("bbbb")); });
+    expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert] { insert(40, 100.0f, sql::toText("aaaa")); });
+    expectNoThrow([&insert] { insert(40, 200.0f, sql::toText("bbbb")); });
 
     // Create select one.
     int64_t id  = 0;
     auto sel = table.selectOne<0, 1, 2>(table.col<0>() == &id, false);
 
     // Select by several IDs that should result in exactly one row.
-    expectNoThrow([&id, &sel]() {
+    expectNoThrow([&id, &sel] {
         id = 10;
         sel(true);
     });
-    expectNoThrow([&id, &sel]() {
+    expectNoThrow([&id, &sel] {
         id = 20;
         sel(true);
     });
-    expectNoThrow([&id, &sel]() {
+    expectNoThrow([&id, &sel] {
         id = 30;
         sel(true);
     });
 
     // Select by IDs that should result in 0 or more than 1 results.
-    expectThrow([&id, &sel]() {
+    expectThrow([&id, &sel] {
         id = 0;
         sel(true);
     });
-    expectThrow([&id, &sel]() {
+    expectThrow([&id, &sel] {
         id = 40;
         sel(true);
     });

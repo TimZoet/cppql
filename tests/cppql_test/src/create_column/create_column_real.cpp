@@ -13,13 +13,13 @@ void CreateColumnReal::create()
 {
     // Create table.
     sql::Table* table;
-    expectNoThrow([&table, this]() { table = &db->createTable("myTable"); });
+    expectNoThrow([&table, this] { table = &db->createTable("myTable"); });
 
     // Create columns.
     sql::Column *col1, *col2, *col3;
-    expectNoThrow([&table, &col1]() { col1 = &table->createColumn("col1", sql::Column::Type::Real); });
-    expectNoThrow([&table, &col2]() { col2 = &table->createColumn<float>("col2"); });
-    expectNoThrow([&table, &col3]() { col3 = &table->createColumn<double>("col3"); });
+    expectNoThrow([&table, &col1] { col1 = &table->createColumn("col1", sql::Column::Type::Real); });
+    expectNoThrow([&table, &col2] { col2 = &table->createColumn<float>("col2"); });
+    expectNoThrow([&table, &col3] { col3 = &table->createColumn<double>("col3"); });
 
     // Check column types.
     compareEQ(col1->getType(), sql::Column::Type::Real);
@@ -27,7 +27,7 @@ void CreateColumnReal::create()
     compareEQ(col3->getType(), sql::Column::Type::Real);
 
     // Commit table.
-    expectNoThrow([&table]() { table->commit(); });
+    expectNoThrow([&table] { table->commit(); });
     compareTrue(table->isCommitted());
 }
 
@@ -35,7 +35,7 @@ void CreateColumnReal::verify()
 {
     // Try to get table.
     sql::Table* table;
-    expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
+    expectNoThrow([&table, this] { table = &db->getTable("myTable"); });
 
     // Check column types.
     compareEQ(table->getColumn("col1").getType(), sql::Column::Type::Real);

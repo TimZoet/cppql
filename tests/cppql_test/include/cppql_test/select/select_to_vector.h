@@ -14,7 +14,8 @@
 
 #include "cppql_test/utils.h"
 
-class SelectToVector : public bt::UnitTest<SelectToVector, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class SelectToVector final : public bt::UnitTest<SelectToVector, bt::CompareMixin, bt::ExceptionMixin>,
+                             utils::DatabaseMember
 {
 public:
     void operator()() override;

@@ -12,7 +12,6 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-core/statement.h"
-#include "cppql-core/table.h"
 
 namespace sql
 {

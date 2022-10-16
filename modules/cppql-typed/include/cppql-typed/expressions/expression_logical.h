@@ -4,7 +4,6 @@
 // Standard includes.
 ////////////////////////////////////////////////////////////////
 
-#include <concepts>
 #include <format>
 #include <memory>
 #include <string>
@@ -91,7 +90,7 @@ namespace sql
     }
 
     template<typename T>
-    LogicalExpression<T>::LogicalExpression(FilterExpressionPtr<T> lhs, FilterExpressionPtr<T> rhs, Operator o) :
+    LogicalExpression<T>::LogicalExpression(FilterExpressionPtr<T> lhs, FilterExpressionPtr<T> rhs, const Operator o) :
         left(std::move(lhs)), right(std::move(rhs)), op(o)
     {
     }

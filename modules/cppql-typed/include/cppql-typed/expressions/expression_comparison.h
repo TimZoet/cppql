@@ -125,13 +125,19 @@ namespace sql
     }
 
     template<typename T, typename V>
-    ComparisonExpression<T, V>::ComparisonExpression(BaseColumnExpressionPtr<T> col, V val, Operator o, bool colLhs) :
+    ComparisonExpression<T, V>::ComparisonExpression(BaseColumnExpressionPtr<T> col,
+                                                     V                          val,
+                                                     const Operator             o,
+                                                     const bool                 colLhs) :
         column(std::move(col)), value(val), op(o), lhs(colLhs)
     {
     }
 
     template<typename T, typename V>
-    ComparisonExpression<T, V>::ComparisonExpression(BaseColumnExpressionPtr<T> col, V* p, Operator o, bool colLhs) :
+    ComparisonExpression<T, V>::ComparisonExpression(BaseColumnExpressionPtr<T> col,
+                                                     V*                         p,
+                                                     const Operator             o,
+                                                     const bool                 colLhs) :
         column(std::move(col)), value(), ptr(p), op(o), lhs(colLhs)
     {
     }

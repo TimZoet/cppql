@@ -9,8 +9,8 @@ void DropTable::operator()()
     table2.createColumn<float>("col");
     table2.commit();
 
-    expectNoThrow([this]() { db->dropTable("table1"); });
-    expectNoThrow([this]() { db->dropTable("table2"); });
-    expectThrow([this]() { db->dropTable("table2"); });
-    expectThrow([this]() { db->dropTable("table2"); });
+    expectNoThrow([this] { db->dropTable("table1"); });
+    expectNoThrow([this] { db->dropTable("table2"); });
+    expectThrow([this] { db->dropTable("table2"); });
+    expectThrow([this] { db->dropTable("table2"); });
 }

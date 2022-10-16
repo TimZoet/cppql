@@ -38,25 +38,27 @@ namespace sql
 
     DatabasePtr Database::create(const std::filesystem::path& file)
     {
-        if (std::filesystem::exists(file)) throw std::runtime_error("Database file already exists");
+        if (exists(file)) throw std::runtime_error("Database file already exists");
 
         // Try to create a new database.
-        sqlite3*   db = nullptr;
-        const auto res =
-          sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
-        if (res != SQLITE_OK) throw std::runtime_error("");
+        sqlite3* db = nullptr;
+        if (const auto res =
+              sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
+            res != SQLITE_OK)
+            throw std::runtime_error("");
 
         return std::make_unique<Database>(db);
     }
 
     DatabasePtr Database::open(const std::filesystem::path& file)
     {
-        if (!std::filesystem::exists(file)) throw std::runtime_error("Database file does not exist");
+        if (!exists(file)) throw std::runtime_error("Database file does not exist");
 
         // Try to open database.
-        sqlite3*   db  = nullptr;
-        const auto res = sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE, nullptr);
-        if (res != SQLITE_OK) throw std::runtime_error("");
+        sqlite3* db = nullptr;
+        if (const auto res = sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE, nullptr);
+            res != SQLITE_OK)
+            throw std::runtime_error("");
 
         return std::make_unique<Database>(db);
     }
@@ -66,10 +68,11 @@ namespace sql
         const bool created = !exists(file);
 
         // Try to open or create database.
-        sqlite3*   db = nullptr;
-        const auto res =
-          sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
-        if (res != SQLITE_OK) throw std::runtime_error("");
+        sqlite3* db = nullptr;
+        if (const auto res =
+              sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
+            res != SQLITE_OK)
+            throw std::runtime_error("");
 
         return std::make_pair(std::make_unique<Database>(db), created);
     }
@@ -93,7 +96,7 @@ namespace sql
 
     int64_t Database::getLastInsertRowId() const noexcept { return sqlite3_last_insert_rowid(db); }
 
-    std::string Database::getErrorMessage() const { return std::string(sqlite3_errmsg(db)); }
+    std::string Database::getErrorMessage() const { return {sqlite3_errmsg(db)}; }
 
     ////////////////////////////////////////////////////////////////
     // Setters.
@@ -109,15 +112,15 @@ namespace sql
 
     Statement Database::createStatement(std::string code, const bool prepare)
     {
-        return Statement(*this, std::move(code), prepare);
+        return {*this, std::move(code), prepare};
     }
 
     Table& Database::createTable(const std::string& name)
     {
         // Create new table.
-        const auto res = tables.try_emplace(name, std::make_unique<Table>(this, name));
-        if (!res.second) throw std::runtime_error("");
-        return *res.first->second;
+        const auto [it, created] = tables.try_emplace(name, std::make_unique<Table>(this, name));
+        if (!created) throw std::runtime_error("");
+        return *it->second;
     }
 
     Table& Database::registerTable(const std::string& name)
@@ -128,7 +131,7 @@ namespace sql
         std::unordered_map<std::string, std::vector<std::tuple<std::string, std::string, std::string>>> foreignKeys;
 
         // Create table.
-        auto& table = tables.try_emplace(name, std::make_unique<Table>(this, name)).first->second;
+        const auto& table = tables.try_emplace(name, std::make_unique<Table>(this, name)).first->second;
 
         // Read table definition from database and collect foreign keys.
         table->readFromDb(foreignKeys);
@@ -144,8 +147,8 @@ namespace sql
         if (!tables.contains(name)) throw std::runtime_error("Table does not exist");
 
         // Execute drop table statement.
-        const auto stmt = createStatement(std::format("DROP TABLE {};", name), true);
-        if (!stmt.step()) throw std::runtime_error("Failed to drop table");
+        if (const auto stmt = createStatement(std::format("DROP TABLE {};", name), true); !stmt.step())
+            throw std::runtime_error("Failed to drop table");
 
         // Erase table object from map.
         tables.erase(name);
@@ -153,8 +156,8 @@ namespace sql
 
     void Database::vacuum()
     {
-        const auto stmt = createStatement("VACUUM", true);
-        if (!stmt.step()) throw std::runtime_error("Failed to VACUUM database");
+        if (const auto stmt = createStatement("VACUUM", true); !stmt.step())
+            throw std::runtime_error("Failed to VACUUM database");
     }
 
     void Database::initializeTables()
@@ -177,7 +180,7 @@ namespace sql
             }
 
             // Create table.
-            auto& table = tables.try_emplace(name, std::make_unique<Table>(this, name)).first->second;
+            const auto& table = tables.try_emplace(name, std::make_unique<Table>(this, name)).first->second;
 
             // Read table definition from database and collect foreign keys.
             table->readFromDb(foreignKeys);

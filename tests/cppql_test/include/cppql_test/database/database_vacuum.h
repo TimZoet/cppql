@@ -14,7 +14,8 @@
 
 #include "cppql_test/utils.h"
 
-class DatabaseVacuum : public bt::UnitTest<DatabaseVacuum, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class DatabaseVacuum final : public bt::UnitTest<DatabaseVacuum, bt::CompareMixin, bt::ExceptionMixin>,
+                             utils::DatabaseMember
 {
 public:
     void operator()() override;

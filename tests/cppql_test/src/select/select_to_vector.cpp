@@ -20,7 +20,7 @@ void SelectToVector::operator()()
 {
     // Create table.
     sql::Table* t;
-    expectNoThrow([&t, this]() {
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col1", sql::Column::Type::Int);
         t->createColumn("col2", sql::Column::Type::Real);
@@ -31,10 +31,10 @@ void SelectToVector::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 20.0f, sql::toText("abc")); });
-    expectNoThrow([&insert]() { insert(20, 40.5f, sql::toText("def")); });
-    expectNoThrow([&insert]() { insert(30, 80.2f, sql::toText("ghij")); });
-    expectNoThrow([&insert]() { insert(40, 100.0f, sql::toText("aaaa")); });
+    expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
+    expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
+    expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&insert] { insert(40, 100.0f, sql::toText("aaaa")); });
 
     // Create select queries.
     auto sel0 = table.select<0, 1, 2>(table.col<0>() >= 20, true);

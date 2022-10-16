@@ -33,10 +33,10 @@
 
 namespace sql
 {
-    inline std::string formatColumns(const Table& table, std::initializer_list<size_t> columns)
+    inline std::string formatColumns(const Table& table, const std::initializer_list<size_t> columns)
     {
         std::string s;
-        for (auto index : columns) s += (s.empty() ? "" : ",") + table.getColumn(index).getName();
+        for (const auto index : columns) s += (s.empty() ? "" : ",") + table.getColumn(index).getName();
         return s;
     }
 

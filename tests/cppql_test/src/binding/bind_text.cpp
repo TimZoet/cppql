@@ -3,7 +3,7 @@
 void BindText::operator()()
 {
     // Create simple table.
-    expectNoThrow([this]() {
+    expectNoThrow([this] {
         auto& table = db->createTable("myTable");
         table.createColumn("col1", sql::Column::Type::Text);
         table.createColumn("col2", sql::Column::Type::Text);

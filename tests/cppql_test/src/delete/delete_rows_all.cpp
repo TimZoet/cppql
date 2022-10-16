@@ -10,7 +10,7 @@ void DeleteRowsAll::operator()()
 {
     // Create table.
     sql::Table* t;
-    expectNoThrow([&t, this]() {
+    expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
         t->createColumn("col1", sql::Column::Type::Int);
         t->createColumn("col2", sql::Column::Type::Real);
@@ -21,10 +21,10 @@ void DeleteRowsAll::operator()()
 
     // Insert several rows.
     auto insert = table.insert();
-    expectNoThrow([&insert]() { insert(10, 11.0f, sql::toText("abc")); });
-    expectNoThrow([&insert]() { insert(20, 12.0f, sql::toText("def")); });
-    expectNoThrow([&insert]() { insert(30, 13.0f, sql::toText("ghi")); });
-    expectNoThrow([&insert]() { insert(40, 14.0f, sql::toText("jkl")); });
+    expectNoThrow([&insert] { insert(10, 11.0f, sql::toText("abc")); });
+    expectNoThrow([&insert] { insert(20, 12.0f, sql::toText("def")); });
+    expectNoThrow([&insert] { insert(30, 13.0f, sql::toText("ghi")); });
+    expectNoThrow([&insert] { insert(40, 14.0f, sql::toText("jkl")); });
 
     // Delete all rows.
     const auto del = table.del();

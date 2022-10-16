@@ -17,8 +17,8 @@ void CreateColumnPrimaryKey::create()
 
     // Create column.
     sql::Column* idCol;
-    expectNoThrow([&table, &idCol]() { idCol = &table->createColumn("id", sql::Column::Type::Int); });
-    expectNoThrow([&idCol]() { idCol->setAutoIncrement(true).setPrimaryKey(true).setNotNull(true); });
+    expectNoThrow([&table, &idCol] { idCol = &table->createColumn("id", sql::Column::Type::Int); });
+    expectNoThrow([&idCol] { idCol->setAutoIncrement(true).setPrimaryKey(true).setNotNull(true); });
 
     // Check column types.
     compareEQ(idCol->getType(), sql::Column::Type::Int);
@@ -27,7 +27,7 @@ void CreateColumnPrimaryKey::create()
     compareTrue(idCol->isNotNull());
 
     // Commit table.
-    expectNoThrow([&table]() { table->commit(); });
+    expectNoThrow([&table] { table->commit(); });
     compareTrue(table->isCommitted());
 }
 
@@ -35,7 +35,7 @@ void CreateColumnPrimaryKey::verify()
 {
     // Try to get table.
     sql::Table* table;
-    expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
+    expectNoThrow([&table, this] { table = &db->getTable("myTable"); });
 
     // Check column types.
     const auto& idCol = table->getColumn("id");

@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class Insert : public bt::UnitTest<Insert, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class Insert final : public bt::UnitTest<Insert, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;

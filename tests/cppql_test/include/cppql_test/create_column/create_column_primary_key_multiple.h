@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class CreateColumnPrimaryKeyMultiple
+class CreateColumnPrimaryKeyMultiple final
     : public bt::UnitTest<CreateColumnPrimaryKeyMultiple, bt::CompareMixin, bt::ExceptionMixin>,
       utils::DatabaseMember
 {

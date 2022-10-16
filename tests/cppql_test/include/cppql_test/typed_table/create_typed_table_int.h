@@ -13,7 +13,7 @@
 
 #include "cppql_test/utils.h"
 
-class CreateTypedTableInt : public bt::UnitTest<CreateTypedTableInt, bt::ExceptionMixin>, utils::DatabaseMember
+class CreateTypedTableInt final : public bt::UnitTest<CreateTypedTableInt, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;

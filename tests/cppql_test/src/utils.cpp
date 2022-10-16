@@ -12,7 +12,7 @@ namespace utils
     {
         const auto cwd    = std::filesystem::current_path();
         const auto dbPath = cwd / "db.db";
-        if (std::filesystem::exists(dbPath)) std::filesystem::remove(dbPath);
+        if (exists(dbPath)) std::filesystem::remove(dbPath);
         db = sql::Database::create(dbPath);
     }
 

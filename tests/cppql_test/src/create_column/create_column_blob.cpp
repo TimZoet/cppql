@@ -20,14 +20,14 @@ void CreateColumnBlob::create()
 {
     // Create table.
     sql::Table* table;
-    expectNoThrow([&table, this]() { table = &db->createTable("myTable"); });
+    expectNoThrow([&table, this] { table = &db->createTable("myTable"); });
 
     // Create columns.
     sql::Column *col1, *col2, *col3, *col4;
-    expectNoThrow([&table, &col1]() { col1 = &table->createColumn("col1", sql::Column::Type::Blob); });
-    expectNoThrow([&table, &col2]() { col2 = &table->createColumn<float*>("col2"); });
-    expectNoThrow([&table, &col3]() { col3 = &table->createColumn<void*>("col3"); });
-    expectNoThrow([&table, &col4]() { col4 = &table->createColumn<Foo*>("col4"); });
+    expectNoThrow([&table, &col1] { col1 = &table->createColumn("col1", sql::Column::Type::Blob); });
+    expectNoThrow([&table, &col2] { col2 = &table->createColumn<float*>("col2"); });
+    expectNoThrow([&table, &col3] { col3 = &table->createColumn<void*>("col3"); });
+    expectNoThrow([&table, &col4] { col4 = &table->createColumn<Foo*>("col4"); });
 
     // Check column types.
     compareEQ(col1->getType(), sql::Column::Type::Blob);
@@ -36,7 +36,7 @@ void CreateColumnBlob::create()
     compareEQ(col4->getType(), sql::Column::Type::Blob);
 
     // Commit table.
-    expectNoThrow([&table]() { table->commit(); });
+    expectNoThrow([&table] { table->commit(); });
     compareTrue(table->isCommitted());
 }
 
@@ -44,7 +44,7 @@ void CreateColumnBlob::verify()
 {
     // Try to get table.
     sql::Table* table;
-    expectNoThrow([&table, this]() { table = &db->getTable("myTable"); });
+    expectNoThrow([&table, this] { table = &db->getTable("myTable"); });
 
     // Check column types.
     compareEQ(table->getColumn("col1").getType(), sql::Column::Type::Blob);

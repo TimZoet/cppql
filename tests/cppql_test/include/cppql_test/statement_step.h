@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class StatementStep : public bt::UnitTest<StatementStep, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class StatementStep final : public bt::UnitTest<StatementStep, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
     void operator()() override;
