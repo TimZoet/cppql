@@ -55,6 +55,7 @@ set(HEADERS
     ${INCLUDE_DIR}/typed_table/create_typed_table_real.h
     ${INCLUDE_DIR}/typed_table/create_typed_table_text.h
     ${INCLUDE_DIR}/update/update.h
+    ${INCLUDE_DIR}/update/update_limit.h
 
     ${INCLUDE_DIR}/statement_prepare.h
     ${INCLUDE_DIR}/statement_step.h
@@ -110,6 +111,7 @@ set(SOURCES
     ${SRC_DIR}/typed_table/create_typed_table_real.cpp
     ${SRC_DIR}/typed_table/create_typed_table_text.cpp
     ${SRC_DIR}/update/update.cpp
+    ${SRC_DIR}/update/update_limit.cpp
 
     ${SRC_DIR}/main.cpp
     

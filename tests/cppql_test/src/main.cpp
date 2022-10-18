@@ -58,6 +58,7 @@
 #include "cppql_test/typed_table/create_typed_table_real.h"
 #include "cppql_test/typed_table/create_typed_table_text.h"
 #include "cppql_test/update/update.h"
+#include "cppql_test/update/update_limit.h"
 
 #include "cppql_test/statement_prepare.h"
 #include "cppql_test/statement_step.h"
@@ -128,6 +129,7 @@ int main(const int argc, char** argv)
             SelectToVector,
             StatementPrepare,
             StatementStep,
-            Update>(argc, argv, "cppql");
+            Update,
+            UpdateLimit>(argc, argv, "cppql");
     return 0;
 }

@@ -173,6 +173,7 @@ namespace sql
         }
 
         // TODO: For all Select(One/All) methods with en explicit return type, constrain R to object that is constructible from selected column types.
+        // TODO: Replace boolean bind parameter by an enum.
 
         ////////////////////////////////////////////////////////////////
         // Select.
@@ -834,13 +835,45 @@ namespace sql
 
         /**
          * \brief Create an UPDATE query. Creates a callable object that will update the specified columns of matching rows with the passed values.
+         * \tparam O OrderByExpression type.
+         * \param orderByExpression Expression to order results by.
+         * \param limitExpression Expression to limit results by.
+         * \return Update object.
+         */
+        template<is_order_by_expression<table_t> O>
+        [[nodiscard]] auto update(O&& orderByExpression, LimitExpression limitExpression)
+        {
+            const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
+            {
+                return update<Is...>(std::forward<O>(orderByExpression), limitExpression);
+            };
+            return f(std::index_sequence_for<C, Cs...>{});
+        }
+
+        /**
+         * \brief Create an UPDATE query. Creates a callable object that will update the specified columns of matching rows with the passed values.
          * \tparam Indices Indices of the columns to update.
          * \return Update object.
          */
         template<size_t... Indices>
         requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto update()
         {
-            return updateImpl<Indices...>(nullptr, false);
+            return updateImpl<Indices...>(nullptr, {}, {}, false);
+        }
+
+        /**
+         * \brief Create an UPDATE query. Creates a callable object that will update the specified columns of matching rows with the passed values.
+         * \tparam Indices Indices of the columns to update.
+         * \tparam O OrderByExpression type.
+         * \param orderByExpression Expression to order results by.
+         * \param limitExpression Expression to limit results by.
+         * \return Update object.
+         */
+        template<size_t... Indices, is_order_by_expression<table_t> O>
+        requires(in_column_range<column_count, Indices...>)
+          [[nodiscard]] auto update(O&& orderByExpression, LimitExpression limitExpression)
+        {
+            return updateImpl<Indices...>(nullptr, std::forward<O>(orderByExpression), limitExpression, false);
         }
 
         /**
@@ -862,6 +895,28 @@ namespace sql
 
         /**
          * \brief Create an UPDATE query. Creates a callable object that will update the specified columns of matching rows with the passed values.
+         * \tparam F FilterExpression type.
+         * \tparam O OrderByExpression type.
+         * \param filterExpression Expression to filter the rows that will be updated.
+         * \param orderByExpression Expression to order results by.
+         * \param limitExpression Expression to limit results by.
+         * \param bind If true, binds expression parameters.
+         * \return Update object.
+         */
+        template<is_filter_expression<table_t> F, is_order_by_expression<table_t> O>
+        [[nodiscard]] auto
+          update(F&& filterExpression, O&& orderByExpression, LimitExpression limitExpression, bool bind)
+        {
+            const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
+            {
+                return update<Is...>(
+                  std::forward<F>(filterExpression), std::forward<O>(orderByExpression), limitExpression, bind);
+            };
+            return f(std::index_sequence_for<C, Cs...>{});
+        }
+
+        /**
+         * \brief Create an UPDATE query. Creates a callable object that will update the specified columns of matching rows with the passed values.
          * \tparam Indices Indices of the columns to update.
          * \tparam F FilterExpression type.
          * \param filterExpression Expression to filter the rows that will be updated.
@@ -871,7 +926,30 @@ namespace sql
         template<size_t... Indices, is_filter_expression<table_t> F>
         requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto update(F&& filterExpression, bool bind)
         {
-            return updateImpl<Indices...>(std::make_unique<F>(std::forward<F>(filterExpression)), bind);
+            return updateImpl<Indices...>(std::make_unique<F>(std::forward<F>(filterExpression)), {}, {}, bind);
+        }
+
+        /**
+         * \brief Create an UPDATE query. Creates a callable object that will update the specified columns of matching rows with the passed values.
+         * \tparam Indices Indices of the columns to update.
+         * \tparam F FilterExpression type.
+         * \tparam O OrderByExpression type.
+         * \param filterExpression Expression to filter the rows that will be updated.
+         * \param orderByExpression Expression to order results by.
+         * \param limitExpression Expression to limit results by.
+         * \param bind If true, binds expression parameters.
+         * \return Update object.
+         */
+        template<size_t... Indices, is_filter_expression<table_t> F, is_order_by_expression<table_t> O>
+        requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto update(F&&             filterExpression,
+                                                                                      O&&             orderByExpression,
+                                                                                      LimitExpression limitExpression,
+                                                                                      bool            bind)
+        {
+            return updateImpl<Indices...>(std::make_unique<F>(std::forward<F>(filterExpression)),
+                                          std::forward<O>(orderByExpression),
+                                          limitExpression,
+                                          bind);
         }
 
     private:
@@ -997,20 +1075,30 @@ namespace sql
         }
 
         template<size_t... Indices>
-        [[nodiscard]] auto updateImpl(FilterExpressionPtr<table_t> fExpr, bool bind)
+        [[nodiscard]] auto updateImpl(FilterExpressionPtr<table_t>                    fExpr,
+                                      const std::optional<OrderByExpression<table_t>> oExpr,
+                                      const std::optional<LimitExpression>            lExpr,
+                                      bool                                            bind)
         {
-            // Construct an UPDATE <table> SET (<cols>) = (<vals>) WHERE <filter> query.
+            // Construct an UPDATE <table> SET (<cols>) = (<vals>) WHERE <filter> ORDER BY <expr> LIMIT <expr> OFFSET <expr> query.
 
             // Generate format arguments.
             auto        index    = static_cast<int32_t>(sizeof...(Indices));
             std::string e        = fExpr ? "WHERE " + fExpr->toString(*table, index) : "";
+            std::string orderBy  = oExpr ? oExpr->toString(*table) : "";
+            std::string limit    = lExpr ? lExpr->toString() : "";
             std::string colNames = formatColumns(*table, {Indices...});
             std::string cs       = "?1";
             for (size_t i = 1; i < sizeof...(Indices); i++) cs += std::format(",?{0}", i + 1);
 
             // Format SQL statement.
-            std::string sql = std::format(
-              "UPDATE {0} SET ({1}) = ({2}) {3};", table->getName(), std::move(colNames), std::move(cs), std::move(e));
+            std::string sql = std::format("UPDATE {0} SET ({1}) = ({2}) {3} {4} {5};",
+                                          table->getName(),
+                                          std::move(colNames),
+                                          std::move(cs),
+                                          std::move(e),
+                                          std::move(orderBy),
+                                          std::move(limit));
 
             // Create and prepare statement.
             auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
