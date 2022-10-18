@@ -72,7 +72,7 @@ class CppqlConan(ConanFile):
     
     def package_info(self):
         self.cpp_info.components["core"].libs = ["cppql-core"]
-        self.cpp_info.components["core"].requires = ["common::common", "SQLite::SQLite3"]
+        self.cpp_info.components["core"].requires = ["common::common", "sqlite3::sqlite3"]
         
         self.cpp_info.components["typed"].libs = ["cppql-typed"]
         self.cpp_info.components["typed"].requires = ["core"]
