@@ -23,7 +23,7 @@ void SelectLimit::operator()()
         for (int64_t i = 0; i < 100; i++) insert(i);
     });
 
-    // Try a bunch of different combinations of limit and offset.
+    // Try a bunch of different combinations of limit and offset for select with filter.
 
     {
         auto sel = table.select<int64_t>(
@@ -79,5 +79,55 @@ void SelectLimit::operator()()
           table.col<0>() >= static_cast<int64_t>(50), sql::LimitExpression{.limit = 50, .offset = 50}, true);
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(0));
+    }
+
+    // Try a bunch of different combinations of limit and offset for select without filter.
+
+    {
+        auto                       sel = table.selectAll<int64_t>(sql::LimitExpression{.limit = 10, .offset = 0});
+        const std::vector<int64_t> rows(sel.begin(), sel.end());
+        compareEQ(rows.size(), static_cast<size_t>(10));
+    }
+
+    {
+        auto                       sel = table.selectAll<int64_t>(sql::LimitExpression{.limit = 33, .offset = 0});
+        const std::vector<int64_t> rows(sel.begin(), sel.end());
+        compareEQ(rows.size(), static_cast<size_t>(33));
+    }
+
+    {
+        auto                       sel = table.selectAll<int64_t>(sql::LimitExpression{.limit = 10, .offset = 10});
+        const std::vector<int64_t> rows(sel.begin(), sel.end());
+        compareEQ(rows.size(), static_cast<size_t>(10));
+    }
+
+    {
+        auto                       sel = table.selectAll<int64_t>(sql::LimitExpression{.limit = 33, .offset = 20});
+        const std::vector<int64_t> rows(sel.begin(), sel.end());
+        compareEQ(rows.size(), static_cast<size_t>(33));
+    }
+
+    {
+        auto                       sel = table.selectAll<int64_t>(sql::LimitExpression{.limit = 50, .offset = 0});
+        const std::vector<int64_t> rows(sel.begin(), sel.end());
+        compareEQ(rows.size(), static_cast<size_t>(50));
+    }
+
+    {
+        auto                       sel = table.selectAll<int64_t>(sql::LimitExpression{.limit = 50, .offset = 10});
+        const std::vector<int64_t> rows(sel.begin(), sel.end());
+        compareEQ(rows.size(), static_cast<size_t>(50));
+    }
+
+    {
+        auto                       sel = table.selectAll<int64_t>(sql::LimitExpression{.limit = 50, .offset = 60});
+        const std::vector<int64_t> rows(sel.begin(), sel.end());
+        compareEQ(rows.size(), static_cast<size_t>(40));
+    }
+
+    {
+        auto                       sel = table.selectAll<int64_t>(sql::LimitExpression{.limit = -1, .offset = 60});
+        const std::vector<int64_t> rows(sel.begin(), sel.end());
+        compareEQ(rows.size(), static_cast<size_t>(40));
     }
 }

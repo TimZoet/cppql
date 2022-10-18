@@ -574,6 +574,20 @@ namespace sql
 
         /**
          * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as tuples.
+         * \param limitExpression Expression to limit results by.
+         * \return Select object.
+         */
+        auto selectAll(LimitExpression limitExpression)
+        {
+            const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
+            {
+                return selectAll<Is...>(limitExpression);
+            };
+            return f(std::index_sequence_for<C, Cs...>{});
+        }
+
+        /**
+         * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as tuples.
          * \tparam O OrderByExpression type.
          * \param orderByExpression Expression to order results by.
          * \return Select object.
@@ -584,6 +598,23 @@ namespace sql
             const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
             {
                 return selectAll<Is...>(std::forward<O>(orderByExpression));
+            };
+            return f(std::index_sequence_for<C, Cs...>{});
+        }
+
+        /**
+         * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as tuples.
+         * \tparam O OrderByExpression type.
+         * \param orderByExpression Expression to order results by.
+         * \param limitExpression Expression to limit results by.
+         * \return Select object.
+         */
+        template<is_order_by_expression<table_t> O>
+        [[nodiscard]] auto selectAll(O&& orderByExpression, LimitExpression limitExpression)
+        {
+            const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
+            {
+                return selectAll<Is...>(std::forward<O>(orderByExpression), limitExpression);
             };
             return f(std::index_sequence_for<C, Cs...>{});
         }
@@ -603,6 +634,20 @@ namespace sql
         /**
          * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as tuples.
          * \tparam Indices Indices of the columns to select.
+         * \param limitExpression Expression to limit results by.
+         * \return Select object.
+         */
+        template<size_t... Indices>
+        requires(in_column_range<column_count, Indices...>)
+          [[nodiscard]] auto selectAll(LimitExpression limitExpression)
+        {
+            using return_t = std::tuple<get_column_return_t<col_t<Indices, table_t>>...>;
+            return selectImpl<return_t, Indices...>(nullptr, {}, limitExpression, false);
+        }
+
+        /**
+         * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as tuples.
+         * \tparam Indices Indices of the columns to select.
          * \tparam O OrderByExpression type.
          * \param orderByExpression Expression to order results by.
          * \return Select object.
@@ -615,6 +660,23 @@ namespace sql
         }
 
         /**
+         * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as tuples.
+         * \tparam Indices Indices of the columns to select.
+         * \tparam O OrderByExpression type.
+         * \param orderByExpression Expression to order results by.
+         * \param limitExpression Expression to limit results by.
+         * \return Select object.
+         */
+        template<size_t... Indices, is_order_by_expression<table_t> O>
+        requires(in_column_range<column_count, Indices...>)
+          [[nodiscard]] auto selectAll(O&& orderByExpression, LimitExpression limitExpression)
+        {
+            using return_t = std::tuple<get_column_return_t<col_t<Indices, table_t>>...>;
+            return selectImpl<return_t, Indices...>(
+              nullptr, std::forward<O>(orderByExpression), limitExpression, false);
+        }
+
+        /**
          * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as objects of type R.
          * \tparam R Row return type.
          * \return Select object.
@@ -623,6 +685,22 @@ namespace sql
         auto selectAll()
         {
             const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return selectAll<R, Is...>(); };
+            return f(std::index_sequence_for<C, Cs...>{});
+        }
+
+        /**
+         * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as objects of type R.
+         * \tparam R Row return type.
+         * \param limitExpression Expression to limit results by.
+         * \return Select object.
+         */
+        template<typename R>
+        auto selectAll(LimitExpression limitExpression)
+        {
+            const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
+            {
+                return selectAll<R, Is...>(limitExpression);
+            };
             return f(std::index_sequence_for<C, Cs...>{});
         }
 
@@ -646,6 +724,24 @@ namespace sql
         /**
          * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as objects of type R.
          * \tparam R Row return type.
+         * \tparam O OrderByExpression type.
+         * \param orderByExpression Expression to order results by.
+         * \param limitExpression Expression to limit results by.
+         * \return Select object.
+         */
+        template<typename R, is_order_by_expression<table_t> O>
+        [[nodiscard]] auto selectAll(O&& orderByExpression, LimitExpression limitExpression)
+        {
+            const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
+            {
+                return selectAll<R, Is...>(std::forward<O>(orderByExpression), limitExpression);
+            };
+            return f(std::index_sequence_for<C, Cs...>{});
+        }
+
+        /**
+         * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as objects of type R.
+         * \tparam R Row return type.
          * \tparam Indices Indices of the columns to select.
          * \return Select object.
          */
@@ -653,6 +749,20 @@ namespace sql
         requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto selectAll()
         {
             return selectImpl<R, Indices...>(nullptr, {}, {}, false);
+        }
+
+        /**
+         * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as objects of type R.
+         * \tparam R Row return type.
+         * \tparam Indices Indices of the columns to select.
+         * \param limitExpression Expression to limit results by.
+         * \return Select object.
+         */
+        template<typename R, size_t... Indices>
+        requires(in_column_range<column_count, Indices...>)
+          [[nodiscard]] auto selectAll(LimitExpression limitExpression)
+        {
+            return selectImpl<R, Indices...>(nullptr, {}, limitExpression, false);
         }
 
         /**
@@ -667,6 +777,22 @@ namespace sql
         requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto selectAll(O&& orderByExpression)
         {
             return selectImpl<R, Indices...>(nullptr, std::forward<O>(orderByExpression), {}, false);
+        }
+
+        /**
+         * \brief Create a SELECT query without filter expression to select all rows. Creates an iterable object that returns rows as objects of type R.
+         * \tparam R Row return type.
+         * \tparam Indices Indices of the columns to select.
+         * \tparam O OrderByExpression type.
+         * \param orderByExpression Expression to order results by.
+         * \param limitExpression Expression to limit results by.
+         * \return Select object.
+         */
+        template<typename R, size_t... Indices, is_order_by_expression<table_t> O>
+        requires(in_column_range<column_count, Indices...>)
+          [[nodiscard]] auto selectAll(O&& orderByExpression, LimitExpression limitExpression)
+        {
+            return selectImpl<R, Indices...>(nullptr, std::forward<O>(orderByExpression), limitExpression, false);
         }
 
         ////////////////////////////////////////////////////////////////
