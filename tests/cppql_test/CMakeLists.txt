@@ -26,6 +26,7 @@ set(HEADERS
     ${INCLUDE_DIR}/database/database_vacuum.h
     ${INCLUDE_DIR}/delete/delete_rows.h
     ${INCLUDE_DIR}/delete/delete_rows_all.h
+    ${INCLUDE_DIR}/delete/delete_rows_limit.h
     ${INCLUDE_DIR}/get_column/get_column_blob.h
     ${INCLUDE_DIR}/get_column/get_column_int.h
     ${INCLUDE_DIR}/get_column/get_column_real.h
@@ -83,6 +84,7 @@ set(SOURCES
     ${SRC_DIR}/database/database_vacuum.cpp
     ${SRC_DIR}/delete/delete_rows.cpp
     ${SRC_DIR}/delete/delete_rows_all.cpp
+    ${SRC_DIR}/delete/delete_rows_limit.cpp
     ${SRC_DIR}/get_column/get_column_blob.cpp
     ${SRC_DIR}/get_column/get_column_int.cpp
     ${SRC_DIR}/get_column/get_column_real.cpp

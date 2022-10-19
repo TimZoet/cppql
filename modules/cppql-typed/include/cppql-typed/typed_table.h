@@ -157,7 +157,20 @@ namespace sql
          * \brief Create a DELETE FROM query. Creates a callable object that will delete all rows.
          * \return Delete object.
          */
-        [[nodiscard]] Delete<table_t> del() { return delImpl(nullptr, false); }
+        [[nodiscard]] Delete<table_t> del() { return delImpl(nullptr, {}, {}, false); }
+
+        /**
+         * \brief Create a DELETE FROM query. Creates a callable object that will delete all rows.
+         * \tparam O OrderByExpression type.
+         * \param orderByExpression Expression to order results by.
+         * \param limitExpression Expression to limit results by.
+         * \return Delete object.
+         */
+        template<is_order_by_expression<table_t> O>
+        [[nodiscard]] Delete<table_t> del(O&& orderByExpression, LimitExpression limitExpression)
+        {
+            return delImpl(nullptr, std::forward<O>(orderByExpression), limitExpression, false);
+        }
 
         /**
          * \brief Create a DELETE FROM query. Creates a callable object that will delete all rows that match the filter expression.
@@ -169,7 +182,27 @@ namespace sql
         template<is_filter_expression<table_t> F>
         [[nodiscard]] Delete<table_t> del(F&& filterExpression, bool bind)
         {
-            return delImpl(std::make_unique<F>(std::forward<F>(filterExpression)), bind);
+            return delImpl(std::make_unique<F>(std::forward<F>(filterExpression)), {}, {}, bind);
+        }
+
+        /**
+         * \brief Create a DELETE FROM query. Creates a callable object that will delete all rows that match the filter expression.
+         * \tparam F FilterExpression type.
+         * \tparam O OrderByExpression type.
+         * \param filterExpression Expression to filter rows that are deleted.
+         * \param orderByExpression Expression to order results by.
+         * \param limitExpression Expression to limit results by.
+         * \param bind If true, binds expression parameters.
+         * \return Delete object.
+         */
+        template<is_filter_expression<table_t> F, is_order_by_expression<table_t> O>
+        [[nodiscard]] Delete<table_t>
+          del(F&& filterExpression, O&& orderByExpression, LimitExpression limitExpression, bool bind)
+        {
+            return delImpl(std::make_unique<F>(std::forward<F>(filterExpression)),
+                           std::forward<O>(orderByExpression),
+                           limitExpression,
+                           bind);
         }
 
         // TODO: For all Select(One/All) methods with en explicit return type, constrain R to object that is constructible from selected column types.
@@ -993,18 +1026,23 @@ namespace sql
             return Insert<table_t, Indices...>(std::move(stmt));
         }
 
-        [[nodiscard]] auto delImpl(FilterExpressionPtr<table_t> fExpr, bool bind)
+        [[nodiscard]] auto delImpl(FilterExpressionPtr<table_t>                    fExpr,
+                                   const std::optional<OrderByExpression<table_t>> oExpr,
+                                   const std::optional<LimitExpression>            lExpr,
+                                   bool                                            bind)
         {
-            std::string sql;
+            // Generate format arguments.
+            auto        index   = 0;
+            std::string e       = fExpr ? "WHERE " + fExpr->toString(*table, index) : "";
+            std::string orderBy = oExpr ? oExpr->toString(*table) : "";
+            std::string limit   = lExpr ? lExpr->toString() : "";
 
             // Format SQL statement.
-            if (fExpr)
-            {
-                auto index = 0;
-                sql = std::format("DELETE FROM {0} WHERE {1};", table->getName(), fExpr->toString(*table, index));
-            }
-            else
-                sql = std::format("DELETE FROM {0};", table->getName());
+            auto sql = std::format("DELETE FROM {0} {1} {2} {3};",
+                                   table->getName(),
+                                   std::move(e),
+                                   std::move(orderBy),
+                                   std::move(limit));
 
             // Create and prepare statement.
             auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);

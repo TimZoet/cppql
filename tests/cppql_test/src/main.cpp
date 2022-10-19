@@ -30,6 +30,7 @@
 #include "cppql_test/database/database_vacuum.h"
 #include "cppql_test/delete/delete_rows.h"
 #include "cppql_test/delete/delete_rows_all.h"
+#include "cppql_test/delete/delete_rows_limit.h"
 #include "cppql_test/get_column/get_column_blob.h"
 #include "cppql_test/get_column/get_column_int.h"
 #include "cppql_test/get_column/get_column_real.h"
@@ -108,6 +109,7 @@ int main(const int argc, char** argv)
             CreateTypedTableText,
             DeleteRows,
             DeleteRowsAll,
+            DeleteRowsLimit,
             GetColumnBlob,
             GetColumnInt,
             GetColumnReal,
