@@ -48,6 +48,7 @@
 #include "cppql_test/select/select_limit.h"
 #include "cppql_test/select/select_one.h"
 #include "cppql_test/select/select_order_by.h"
+#include "cppql_test/select/select_order_by_null.h"
 #include "cppql_test/select/select_reorder.h"
 #include "cppql_test/select/select_to_vector.h"
 #include "cppql_test/table/create_table.h"
@@ -127,6 +128,7 @@ int main(const int argc, char** argv)
             SelectLimit,
             SelectOne,
             SelectOrderBy,
+            SelectOrderByNull,
             SelectReorder,
             SelectToVector,
             StatementPrepare,

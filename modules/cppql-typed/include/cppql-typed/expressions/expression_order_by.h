@@ -54,6 +54,13 @@ namespace sql
             Desc
         };
 
+        enum class Nulls
+        {
+            None,
+            First,
+            Last
+        };
+
         using table_t = T;
 
         OrderByExpression() = delete;
@@ -64,7 +71,11 @@ namespace sql
 
         OrderByExpression(BaseColumnExpressionPtr<T> col, Order orderBy);
 
+        OrderByExpression(BaseColumnExpressionPtr<T> col, Order orderBy, Nulls nlls);
+
         OrderByExpression(BaseColumnExpressionPtr<T> col, OrderByExpressionPtr<T> nxt, Order orderBy);
+
+        OrderByExpression(BaseColumnExpressionPtr<T> col, OrderByExpressionPtr<T> nxt, Order orderBy, Nulls nlls);
 
         ~OrderByExpression() = default;
 
@@ -86,7 +97,13 @@ namespace sql
         requires(same_table<O, C>) friend O operator+(O order, C&& col);
 
         template<_is_order_by_expression O, is_column_expression C>
+        requires(same_table<O, C>) friend O operator*(O order, C&& col);
+
+        template<_is_order_by_expression O, is_column_expression C>
         requires(same_table<O, C>) friend O operator-(O order, C&& col);
+
+        template<_is_order_by_expression O, is_column_expression C>
+        requires(same_table<O, C>) friend O operator/(O order, C&& col);
 
         template<_is_order_by_expression O>
         friend O operator+(O lhs, O&& rhs);
@@ -105,6 +122,11 @@ namespace sql
          * \brief Order in which the values of this column are sorted.
          */
         Order order;
+
+        /**
+         * \brief Optional order for NULLS.
+         */
+        Nulls nulls = Nulls::None;
     };
 
     ////////////////////////////////////////////////////////////////
@@ -115,19 +137,26 @@ namespace sql
     OrderByExpression<T>::OrderByExpression(const OrderByExpression& other) :
         column(other.column->clone()),
         next(other.next ? std::make_unique<OrderByExpression<T>>(*other.next) : nullptr),
-        order(other.order)
+        order(other.order),
+        nulls(other.nulls)
     {
     }
 
     template<typename T>
     OrderByExpression<T>::OrderByExpression(OrderByExpression&& other) noexcept :
-        column(std::move(other.column)), next(std::move(other.next)), order(other.order)
+        column(std::move(other.column)), next(std::move(other.next)), order(other.order), nulls(other.nulls)
     {
     }
 
     template<typename T>
     OrderByExpression<T>::OrderByExpression(BaseColumnExpressionPtr<T> col, const Order orderBy) :
         column(std::move(col)), next(), order(orderBy)
+    {
+    }
+
+    template<typename T>
+    OrderByExpression<T>::OrderByExpression(BaseColumnExpressionPtr<T> col, const Order orderBy, const Nulls nlls) :
+        column(std::move(col)), next(), order(orderBy), nulls(nlls)
     {
     }
 
@@ -140,11 +169,21 @@ namespace sql
     }
 
     template<typename T>
+    OrderByExpression<T>::OrderByExpression(BaseColumnExpressionPtr<T> col,
+                                            OrderByExpressionPtr<T>    nxt,
+                                            const Order                orderBy,
+                                            const Nulls                nlls) :
+        column(std::move(col)), next(std::move(nxt)), order(orderBy), nulls(nlls)
+    {
+    }
+
+    template<typename T>
     OrderByExpression<T>& OrderByExpression<T>::operator=(const OrderByExpression& other)
     {
         column = other.column->clone();
         next   = other.next ? std::make_unique<OrderByExpression<T>>(*other.next) : nullptr;
         order  = other.order;
+        nulls  = other.nulls;
         return *this;
     }
 
@@ -154,6 +193,7 @@ namespace sql
         column = std::move(other.column);
         next   = std::move(other.next);
         order  = other.order;
+        nulls  = other.nulls;
         return *this;
     }
 
@@ -166,14 +206,19 @@ namespace sql
     template<typename T>
     std::string OrderByExpression<T>::toString(const Table& table, std::string prev) const
     {
-        auto c = column->toString(table);
-        auto o = order == Order::Asc ? std::string("ASC") : std::string("DESC");
+        auto        c = column->toString(table);
+        auto        o = order == Order::Asc ? std::string("ASC") : std::string("DESC");
+        std::string s;
+        if (nulls == Nulls::First)
+            s = "NULLS FIRST";
+        else if (nulls == Nulls::Last)
+            s = "NULLS LAST";
 
         // Format "<column_name> <order>," string and recurse on next expression in sequence.
-        if (next) return next->toString(table, std::format("{0} {1},", std::move(c), std::move(o)));
+        if (next) return next->toString(table, std::format("{0} {1} {2},", std::move(c), std::move(o), std::move(s)));
 
         // Last expression in sequence, format complete ORDER BY string.
-        return std::format("ORDER BY {0} {1} {2}", std::move(prev), std::move(c), std::move(o));
+        return std::format("ORDER BY {0} {1} {2} {3}", std::move(prev), std::move(c), std::move(o), std::move(s));
     }
 
     ////////////////////////////////////////////////////////////////
@@ -194,6 +239,19 @@ namespace sql
     }
 
     /**
+     * \brief Order column in ascending order with NULLS last.
+     * \tparam C Column type.
+     * \param col Column to order by.
+     * \return OrderByExpression object.
+     */
+    template<is_column_expression C>
+    auto operator*(C&& col)
+    {
+        using O = OrderByExpression<typename C::table_t>;
+        return O(std::make_unique<C>(std::forward<C>(col)), O::Order::Asc, O::Nulls::Last);
+    }
+
+    /**
      * \brief Order column in ascending order.
      * \tparam O OrderByExpression type.
      * \tparam C Column type.
@@ -204,7 +262,21 @@ namespace sql
     template<_is_order_by_expression O, is_column_expression C>
     requires(same_table<O, C>) O operator+(O order, C&& col)
     {
-        return O(std::move(order.column), std::make_unique<O>(+std::forward<C>(col)), order.order);
+        return O(std::move(order.column), std::make_unique<O>(+std::forward<C>(col)), order.order, order.nulls);
+    }
+
+    /**
+     * \brief Order column in ascending order with NULLS last.
+     * \tparam O OrderByExpression type.
+     * \tparam C Column type.
+     * \param order Preceding OrderByExpression object.
+     * \param col Column to order by.
+     * \return OrderByExpression object.
+     */
+    template<_is_order_by_expression O, is_column_expression C>
+    requires(same_table<O, C>) O operator*(O order, C&& col)
+    {
+        return O(std::move(order.column), std::make_unique<O>(*std::forward<C>(col)), order.order, order.nulls);
     }
 
     ////////////////////////////////////////////////////////////////
@@ -225,6 +297,19 @@ namespace sql
     }
 
     /**
+     * \brief Order column in descending order with NULLS first.
+     * \tparam C Column type.
+     * \param col Column to order by.
+     * \return OrderByExpression object.
+     */
+    template<is_column_expression C>
+    auto operator~(C&& col)
+    {
+        using O = OrderByExpression<typename C::table_t>;
+        return O(std::make_unique<C>(std::forward<C>(col)), O::Order::Desc, O::Nulls::First);
+    }
+
+    /**
      * \brief Order column in descending order.
      * \tparam O OrderByExpression type.
      * \tparam C Column type.
@@ -235,7 +320,21 @@ namespace sql
     template<_is_order_by_expression O, is_column_expression C>
     requires(same_table<O, C>) O operator-(O order, C&& col)
     {
-        return O(std::move(order.column), std::make_unique<O>(-std::forward<C>(col)), order.order);
+        return O(std::move(order.column), std::make_unique<O>(-std::forward<C>(col)), order.order, order.nulls);
+    }
+
+    /**
+     * \brief Order column in descending order with NULLS first.
+     * \tparam O OrderByExpression type.
+     * \tparam C Column type.
+     * \param order Preceding OrderByExpression object.
+     * \param col Column to order by.
+     * \return OrderByExpression object.
+     */
+    template<_is_order_by_expression O, is_column_expression C>
+    requires(same_table<O, C>) O operator/(O order, C&& col)
+    {
+        return O(std::move(order.column), std::make_unique<O>(~std::forward<C>(col)), order.order, order.nulls);
     }
 
     ////////////////////////////////////////////////////////////////
