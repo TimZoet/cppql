@@ -29,29 +29,29 @@ void SelectOne::operator()()
 
     // Create select one.
     int64_t id  = 0;
-    auto sel = table.selectOne<0, 1, 2>(table.col<0>() == &id, false);
+    auto    sel = table.selectOne<0, 1, 2>(table.col<0>() == &id, sql::BindParameters::None);
 
     // Select by several IDs that should result in exactly one row.
     expectNoThrow([&id, &sel] {
         id = 10;
-        sel(true);
+        sel(sql::BindParameters::All);
     });
     expectNoThrow([&id, &sel] {
         id = 20;
-        sel(true);
+        sel(sql::BindParameters::All);
     });
     expectNoThrow([&id, &sel] {
         id = 30;
-        sel(true);
+        sel(sql::BindParameters::All);
     });
 
     // Select by IDs that should result in 0 or more than 1 results.
     expectThrow([&id, &sel] {
         id = 0;
-        sel(true);
+        sel(sql::BindParameters::All);
     });
     expectThrow([&id, &sel] {
         id = 40;
-        sel(true);
+        sel(sql::BindParameters::All);
     });
 }

@@ -14,15 +14,13 @@ void InsertDefault::operator()()
 
     // Create columns with default values.
     sql::Column *col1, *col2, *col3, *col4;
-    expectNoThrow(
-      [&table, &col1] { col1 = &table->createColumn("col1", sql::Column::Type::Int).setDefaultValue(10); });
+    expectNoThrow([&table, &col1] { col1 = &table->createColumn("col1", sql::Column::Type::Int).setDefaultValue(10); });
     expectNoThrow(
       [&table, &col2] { col2 = &table->createColumn("col2", sql::Column::Type::Real).setDefaultValue(4.5f); });
     expectNoThrow(
       [&table, &col3] { col3 = &table->createColumn("col3", sql::Column::Type::Text).setDefaultValue("'abc'"); });
-    expectNoThrow([&table, &col4] {
-        col4 = &table->createColumn("col4", sql::Column::Type::Blob).setDefaultValue("X'FFAA5500'");
-    });
+    expectNoThrow(
+      [&table, &col4] { col4 = &table->createColumn("col4", sql::Column::Type::Blob).setDefaultValue("X'FFAA5500'"); });
 
     // Commit table.
     expectNoThrow([&table] { table->commit(); });
@@ -35,7 +33,7 @@ void InsertDefault::operator()()
     insert();
 
     // Get row.
-    auto                       row   = typedTable.selectOne(typedTable.col<0>() > 0, true)(false);
+    auto row = typedTable.selectOne(typedTable.col<0>() > 0, sql::BindParameters::All)(sql::BindParameters::None);
     const std::vector<uint8_t> bytes = {255, 170, 85, 0};
 
     // Compare.

@@ -50,7 +50,7 @@ namespace sql
 
         [[nodiscard]] std::string toString(const Table& table, int32_t& pIndex) override;
 
-        void bind(Statement& stmt) const override;
+        void bind(Statement& stmt, BindParameters bind) const override;
 
         [[nodiscard]] std::unique_ptr<FilterExpression<T>> clone() const override;
 
@@ -134,11 +134,11 @@ namespace sql
     }
 
     template<typename T>
-    void LikeExpression<T>::bind(Statement& stmt) const
+    void LikeExpression<T>::bind(Statement& stmt, const BindParameters bind) const
     {
-        // If pointer is not null, bind dynamic value. Otherwise bind fixed value.
-        const auto res = ptr ? stmt.bind(index + Statement::getFirstBindIndex(), *ptr) :
-                               stmt.bind(index + Statement::getFirstBindIndex(), value);
+        Result res;
+        if (any(bind & BindParameters::Fixed) && !ptr) res = stmt.bind(index + Statement::getFirstBindIndex(), value);
+        if (any(bind & BindParameters::Dynamic) && ptr) res = stmt.bind(index + Statement::getFirstBindIndex(), *ptr);
         if (!res) throw std::runtime_error("");
     }
 

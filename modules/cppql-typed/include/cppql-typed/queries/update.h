@@ -67,11 +67,11 @@ namespace sql
         /**
          * \brief Update table.
          * \tparam Cs Column types.
-         * \param bind If true, (re)bind parameters.
+         * \param bind Parameters to bind.
          * \param values Values.
          */
         template<typename... Cs>
-        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(bool bind, Cs... values)
+        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(BindParameters bind, Cs... values)
         {
             if (!stmt->reset()) throw std::runtime_error("");
 
@@ -79,7 +79,7 @@ namespace sql
             if (!stmt->bind(Statement::getFirstBindIndex(), std::move(values)...)) throw std::runtime_error("");
 
             // (Re)bind filter expression parameters.
-            if (bind && exp) exp->bind(*stmt);
+            if (any(bind) && exp) exp->bind(*stmt, bind);
 
             if (!stmt->step()) throw std::runtime_error("");
         }
@@ -98,11 +98,11 @@ namespace sql
         /**
          * \brief Update table.
          * \tparam Cs Column types.
-         * \param bind If true, (re)bind parameters.
+         * \param bind Parameters to bind.
          * \param values Values.
          */
         template<typename... Cs>
-        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(bool bind, const std::tuple<Cs...>& values)
+        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(BindParameters bind, const std::tuple<Cs...>& values)
         {
             // Call unpack function.
             this->operator()(bind, values, std::index_sequence_for<Cs...>{});
@@ -110,7 +110,7 @@ namespace sql
 
     private:
         template<typename Tuple, std::size_t... Is>
-        void operator()(bool bind, const Tuple& values, std::index_sequence<Is...>)
+        void operator()(BindParameters bind, const Tuple& values, std::index_sequence<Is...>)
         {
             // Unpack tuple.
             this->operator()(bind, std::get<Is>(values)...);

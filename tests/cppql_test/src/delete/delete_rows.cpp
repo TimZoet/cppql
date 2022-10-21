@@ -28,7 +28,7 @@ void DeleteRows::operator()()
 
     // Create delete and select count queries.
     int32_t    id  = 0;
-    const auto del = table.del(table.col<0>() == &id, false);
+    const auto del   = table.del(table.col<0>() == &id, sql::BindParameters::None);
     const auto count = db->createStatement("SELECT COUNT(*) FROM myTable;", true);
     compareTrue(count.isPrepared());
 
@@ -39,35 +39,35 @@ void DeleteRows::operator()()
     compareTrue(count.reset());
 
     // Delete with bound id 0.
-    del(true);
+    del(sql::BindParameters::All);
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 4);
     compareTrue(count.reset());
 
     // Delete with bound id 10.
     id = 10;
-    del(true);
+    del(sql::BindParameters::All);
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 3);
     compareTrue(count.reset());
 
     // Delete with bound id 10.
     id = 40;
-    del(false);
+    del(sql::BindParameters::None);
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 3);
     compareTrue(count.reset());
 
     // Delete with bound id 40.
     id = 40;
-    del(true);
+    del(sql::BindParameters::All);
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 2);
     compareTrue(count.reset());
 
     // Delete with bound id 30.
-    const auto del2 = table.del(table.col<0>() == 30, true);
-    del2(false);
+    const auto del2 = table.del(table.col<0>() == 30, sql::BindParameters::All);
+    del2(sql::BindParameters::None);
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 1);
     compareTrue(count.reset());

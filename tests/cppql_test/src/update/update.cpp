@@ -29,59 +29,59 @@ void Update::operator()()
     // Update one column at a time.
     {
         int64_t param  = 0;
-        auto    update = table.update<1>(table.col<0>() == &param, false);
-        auto    select = table.selectOne<float, 1>(table.col<0>() == &param, false);
+        auto    update = table.update<1>(table.col<0>() == &param, sql::BindParameters::None);
+        auto    select = table.selectOne<float, 1>(table.col<0>() == &param, sql::BindParameters::None);
 
         param = 10;
-        expectNoThrow([&] { update(true, 5.0f); });
-        compareEQ(5.0f, select(true));
+        expectNoThrow([&] { update(sql::BindParameters::All, 5.0f); });
+        compareEQ(5.0f, select(sql::BindParameters::All));
 
         param = 10;
-        expectNoThrow([&] { update(true, nullptr); });
-        compareEQ(0.0f, select(true));
+        expectNoThrow([&] { update(sql::BindParameters::All, nullptr); });
+        compareEQ(0.0f, select(sql::BindParameters::All));
 
         param = 20;
-        expectNoThrow([&] { update(true, 15.0f); });
-        compareEQ(15.0f, select(true));
+        expectNoThrow([&] { update(sql::BindParameters::All, 15.0f); });
+        compareEQ(15.0f, select(sql::BindParameters::All));
 
         param = 30;
-        expectNoThrow([&] { update(true, -10.0f); });
-        compareEQ(-10.0f, select(true));
+        expectNoThrow([&] { update(sql::BindParameters::All, -10.0f); });
+        compareEQ(-10.0f, select(sql::BindParameters::All));
 
         param = 30;
         constexpr std::optional<float> f;
-        expectNoThrow([&] { update(true, f); });
-        compareEQ(0.0f, select(true));
+        expectNoThrow([&] { update(sql::BindParameters::All, f); });
+        compareEQ(0.0f, select(sql::BindParameters::All));
     }
 
     // Update multiple columns at a time.
     {
         int64_t param  = 0;
-        auto    update = table.update<1, 2>(table.col<0>() == &param, false);
-        auto    select = table.selectOne<1, 2>(table.col<0>() == &param, false);
+        auto    update = table.update<1, 2>(table.col<0>() == &param, sql::BindParameters::None);
+        auto    select = table.selectOne<1, 2>(table.col<0>() == &param, sql::BindParameters::None);
 
         param = 10;
-        expectNoThrow([&] { update(true, 1000.0f, sql::toText("val0")); });
-        auto row = select(true);
+        expectNoThrow([&] { update(sql::BindParameters::All, 1000.0f, sql::toText("val0")); });
+        auto row = select(sql::BindParameters::All);
         compareEQ(1000.0f, std::get<0>(row));
         compareEQ("val0"s, std::get<1>(row));
 
         param = 20;
-        expectNoThrow([&] { update(true, 444.0f, sql::toText("val1")); });
-        row = select(true);
+        expectNoThrow([&] { update(sql::BindParameters::All, 444.0f, sql::toText("val1")); });
+        row = select(sql::BindParameters::All);
         compareEQ(444.0f, std::get<0>(row));
         compareEQ("val1"s, std::get<1>(row));
 
         param = 30;
-        expectNoThrow([&] { update(true, -555.0f, sql::toText("val2")); });
-        row = select(true);
+        expectNoThrow([&] { update(sql::BindParameters::All, -555.0f, sql::toText("val2")); });
+        row = select(sql::BindParameters::All);
         compareEQ(-555.0f, std::get<0>(row));
         compareEQ("val2"s, std::get<1>(row));
 
         param = 30;
         constexpr std::optional<std::string> s;
-        expectNoThrow([&] { update(true, nullptr, sql::toStaticText(s)); });
-        row = select(true);
+        expectNoThrow([&] { update(sql::BindParameters::All, nullptr, sql::toStaticText(s)); });
+        row = select(sql::BindParameters::All);
         compareEQ(0.0f, std::get<0>(row));
         compareEQ(""s, std::get<1>(row));
     }

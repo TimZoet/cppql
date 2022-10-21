@@ -52,7 +52,7 @@ namespace sql
 
         [[nodiscard]] std::string toString(const Table& table, int32_t& pIndex) override;
 
-        void bind(Statement& stmt) const override;
+        void bind(Statement& stmt, BindParameters bind) const override;
 
         [[nodiscard]] std::unique_ptr<FilterExpression<T>> clone() const override;
 
@@ -123,10 +123,10 @@ namespace sql
     }
 
     template<typename T>
-    void LogicalExpression<T>::bind(Statement& stmt) const
+    void LogicalExpression<T>::bind(Statement& stmt, const BindParameters bind) const
     {
-        left->bind(stmt);
-        right->bind(stmt);
+        left->bind(stmt, bind);
+        right->bind(stmt, bind);
     }
 
     template<typename T>

@@ -66,12 +66,12 @@ namespace sql
 
         /**
          * \brief Run delete statement. Optionally binds parameters.
-         * \param bind If true, (re)bind parameters.
+         * \param bind Parameters to bind.
          */
-        void operator()(const bool bind) const
+        void operator()(const BindParameters bind) const
         {
             // Bind parameters.
-            if (bind && exp) exp->bind(*stmt);
+            if (any(bind) && exp) exp->bind(*stmt, bind);
 
             // Run statement.
             if (!stmt->step()) throw std::runtime_error("");

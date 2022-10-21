@@ -69,13 +69,13 @@ namespace sql
 
         /**
          * \brief Run count statement. Optionally binds parameters.
-         * \param bind If true, (re)bind parameters.
+         * \param bind Parameters to bind.
          * \return Number of rows.
          */
-        row_id operator()(const bool bind) const
+        row_id operator()(const BindParameters bind) const
         {
             // Bind parameters.
-            if (bind && exp) exp->bind(*stmt);
+            if (any(bind) && exp) exp->bind(*stmt, bind);
 
             // Run statement.
             if (!stmt->step()) throw std::runtime_error("");

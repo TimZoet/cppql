@@ -41,10 +41,10 @@ namespace sql
 
         /**
          * \brief Execute statement.
-         * \param bind If true, (re)bind parameters.
+         * \param bind Parameters to bind.
          * \return Result row.
          */
-        typename select_t::return_t operator()(const bool bind)
+        typename select_t::return_t operator()(const BindParameters bind)
         {
             // Reset statement and possibly rebind parameters.
             stmt(bind);

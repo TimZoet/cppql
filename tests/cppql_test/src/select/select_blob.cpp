@@ -42,7 +42,7 @@ void SelectBlob::operator()()
     });
 
     // Create select.
-    auto sel = table.select<1, 2, 3>(table.col<0>() > 0, true);
+    auto sel = table.select<1, 2, 3>(table.col<0>() > 0, sql::BindParameters::All);
     const std::vector<std::tuple<std::vector<int32_t>, Foo, std::vector<Foo>>> rows(sel.begin(), sel.end());
 
     // TODO: Use vector comparison methods.

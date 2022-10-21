@@ -35,7 +35,7 @@ void UpdateLimit::operator()()
         auto update = table.update<1>(+table.col<0>(), sql::LimitExpression{.limit = 2});
         auto select = table.selectAll<float, 1>();
 
-        expectNoThrow([&] { update(true, 5.0f); });
+        expectNoThrow([&] { update(sql::BindParameters::All, 5.0f); });
         const std::vector<float> rows(select.begin(), select.end());
         compareEQ(rows.size(), static_cast<size_t>(3)).fatal("");
         compareEQ(5.0f, rows[0]);
@@ -44,11 +44,13 @@ void UpdateLimit::operator()()
     }
 
     {
-        auto update =
-          table.update<1>(table.col<0>() <= 20, +table.col<0>(), sql::LimitExpression{.limit = 1, .offset = 1}, true);
+        auto update = table.update<1>(table.col<0>() <= 20,
+                                      +table.col<0>(),
+                                      sql::LimitExpression{.limit = 1, .offset = 1},
+                                      sql::BindParameters::All);
         auto select = table.selectAll<float, 1>();
 
-        expectNoThrow([&] { update(true, 11.0f); });
+        expectNoThrow([&] { update(sql::BindParameters::All, 11.0f); });
         const std::vector<float> rows(select.begin(), select.end());
         compareEQ(rows.size(), static_cast<size_t>(3)).fatal("");
         compareEQ(5.0f, rows[0]);
@@ -60,7 +62,7 @@ void UpdateLimit::operator()()
         auto update = table.update<1>(-table.col<0>(), sql::LimitExpression{.limit = 2});
         auto select = table.selectAll<float, 1>();
 
-        expectNoThrow([&] { update(true, 13.0f); });
+        expectNoThrow([&] { update(sql::BindParameters::All, 13.0f); });
         const std::vector<float> rows(select.begin(), select.end());
         compareEQ(rows.size(), static_cast<size_t>(3)).fatal("");
         compareEQ(5.0f, rows[0]);

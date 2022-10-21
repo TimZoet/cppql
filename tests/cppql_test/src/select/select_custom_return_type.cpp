@@ -39,7 +39,7 @@ void SelectCustomReturnType::operator()()
     expectNoThrow([&insert] { insert(40, 100.0f, sql::toText("aaaa")); });
 
     // Create select query with custom return type.
-    auto sel = table.select<Row, 0, 1, 2>(table.col<0>() <= 20, true);
+    auto sel = table.select<Row, 0, 1, 2>(table.col<0>() <= 20, sql::BindParameters::All);
 
     // Select with unbound id.
     const std::vector<Row> vals(sel.begin(), sel.end());

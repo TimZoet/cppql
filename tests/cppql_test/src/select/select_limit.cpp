@@ -26,57 +26,65 @@ void SelectLimit::operator()()
     // Try a bunch of different combinations of limit and offset for select with filter.
 
     {
-        auto sel = table.select<int64_t>(
-          table.col<0>() >= static_cast<int64_t>(0), sql::LimitExpression{.limit = 10, .offset = 0}, true);
+        auto                       sel = table.select<int64_t>(table.col<0>() >= static_cast<int64_t>(0),
+                                         sql::LimitExpression{.limit = 10, .offset = 0},
+                                         sql::BindParameters::All);
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(10));
     }
 
     {
-        auto sel = table.select<int64_t>(
-          table.col<0>() >= static_cast<int64_t>(0), sql::LimitExpression{.limit = 33, .offset = 0}, true);
+        auto                       sel = table.select<int64_t>(table.col<0>() >= static_cast<int64_t>(0),
+                                         sql::LimitExpression{.limit = 33, .offset = 0},
+                                         sql::BindParameters::All);
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(33));
     }
 
     {
-        auto sel = table.select<int64_t>(
-          table.col<0>() >= static_cast<int64_t>(0), sql::LimitExpression{.limit = 10, .offset = 10}, true);
+        auto                       sel = table.select<int64_t>(table.col<0>() >= static_cast<int64_t>(0),
+                                         sql::LimitExpression{.limit = 10, .offset = 10},
+                                         sql::BindParameters::All);
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(10));
     }
 
     {
-        auto sel = table.select<int64_t>(
-          table.col<0>() >= static_cast<int64_t>(0), sql::LimitExpression{.limit = 33, .offset = 20}, true);
+        auto                       sel = table.select<int64_t>(table.col<0>() >= static_cast<int64_t>(0),
+                                         sql::LimitExpression{.limit = 33, .offset = 20},
+                                         sql::BindParameters::All);
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(33));
     }
 
     {
-        auto sel = table.select<int64_t>(
-          table.col<0>() >= static_cast<int64_t>(50), sql::LimitExpression{.limit = 50, .offset = 0}, true);
+        auto                       sel = table.select<int64_t>(table.col<0>() >= static_cast<int64_t>(50),
+                                         sql::LimitExpression{.limit = 50, .offset = 0},
+                                         sql::BindParameters::All);
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(50));
     }
 
     {
-        auto sel = table.select<int64_t>(
-          table.col<0>() >= static_cast<int64_t>(50), sql::LimitExpression{.limit = 60, .offset = 0}, true);
+        auto                       sel = table.select<int64_t>(table.col<0>() >= static_cast<int64_t>(50),
+                                         sql::LimitExpression{.limit = 60, .offset = 0},
+                                         sql::BindParameters::All);
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(50));
     }
 
     {
-        auto sel = table.select<int64_t>(
-          table.col<0>() >= static_cast<int64_t>(50), sql::LimitExpression{.limit = 50, .offset = 10}, true);
+        auto                       sel = table.select<int64_t>(table.col<0>() >= static_cast<int64_t>(50),
+                                         sql::LimitExpression{.limit = 50, .offset = 10},
+                                         sql::BindParameters::All);
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(40));
     }
 
     {
-        auto sel = table.select<int64_t>(
-          table.col<0>() >= static_cast<int64_t>(50), sql::LimitExpression{.limit = 50, .offset = 50}, true);
+        auto                       sel = table.select<int64_t>(table.col<0>() >= static_cast<int64_t>(50),
+                                         sql::LimitExpression{.limit = 50, .offset = 50},
+                                         sql::BindParameters::All);
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(0));
     }

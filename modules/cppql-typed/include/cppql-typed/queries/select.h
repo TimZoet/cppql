@@ -131,16 +131,16 @@ namespace sql
 
         /**
          * \brief Bind parameters and return reference to this object.
-         * \param bind If true, (re)bind parameters.
+         * \param bind Parameters to bind.
          * \return *this.
          */
-        Select& operator()(const bool bind)
+        Select& operator()(const BindParameters bind)
         {
             // Reset statement.
             if (!stmt->reset()) throw std::runtime_error("");
 
             // (Re)bind parameters.
-            if (bind && exp) exp->bind(*stmt);
+            if (any(bind) && exp) exp->bind(*stmt, bind);
 
             return *this;
         }

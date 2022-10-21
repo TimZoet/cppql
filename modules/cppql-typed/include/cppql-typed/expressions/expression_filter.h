@@ -15,6 +15,21 @@
 
 namespace sql
 {
+    /**
+     * \brief Specifies whether to bind fixed and/or dynamic parameters.
+     */
+    enum class BindParameters
+    {
+        // Don't bind any parameters.
+        None = 0,
+        // Bind fixed parameters only.
+        Fixed = 1,
+        // Bind dynamic parameters only.
+        Dynamic = 2,
+        // Bind fixed and dynamic parameters.
+        All = Fixed | Dynamic
+    };
+
     ////////////////////////////////////////////////////////////////
     // FilterExpression class.
     ////////////////////////////////////////////////////////////////
@@ -53,9 +68,10 @@ namespace sql
 
         /**
          * \brief Bind all parameters in this expression to the statement.
+         * \param bind Parameters to bind.
          * \param stmt Statement object.
          */
-        virtual void bind(Statement& stmt) const = 0;
+        virtual void bind(Statement& stmt, BindParameters bind) const = 0;
 
         [[nodiscard]] virtual std::unique_ptr<FilterExpression<T>> clone() const = 0;
     };
