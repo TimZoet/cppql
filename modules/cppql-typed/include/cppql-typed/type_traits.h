@@ -4,6 +4,7 @@
 // Standard includes.
 ////////////////////////////////////////////////////////////////
 
+#include <concepts>
 #include <tuple>
 
 namespace sql
@@ -21,4 +22,7 @@ namespace sql
 
     template<typename T, typename... Ts>
     concept same_table = ((std::same_as<typename T::table_t, typename Ts::table_t>)&&...);
+
+    template<typename R, typename T, size_t... Indices>
+    concept constructible_from = std::constructible_from<R, get_column_return_t<col_t<Indices, T>>...>;
 }  // namespace sql

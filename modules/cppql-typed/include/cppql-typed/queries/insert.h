@@ -46,15 +46,12 @@ namespace sql
             return *this;
         }
 
-        // TODO: Constrain types to bindable types? Or let lower level handle that?
-        // TODO: Constrain types to match column types? Or leave user free to insert other stuff.
-
         /**
          * \brief Insert a row.
          * \tparam Cs Column types.
          * \param values Values.
          */
-        template<typename... Cs>
+        template<bindable... Cs>
         requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(Cs... values)
         {
             if (!stmt->reset()) throw std::runtime_error("");
@@ -71,7 +68,7 @@ namespace sql
          * \tparam Cs Column types.
          * \param values Values.
          */
-        template<typename... Cs>
+        template<bindable... Cs>
         requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(const std::tuple<Cs...>& values)
         {
             // Call unpack function.

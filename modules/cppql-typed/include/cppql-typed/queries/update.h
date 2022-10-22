@@ -50,15 +50,12 @@ namespace sql
             return *this;
         }
 
-        // TODO: Constrain types to bindable types? Or let lower level handle that?
-        // TODO: Constrain types to match column types? Or leave user free to insert other stuff.
-
         /**
          * \brief Update table.
          * \tparam Cs Column types.
          * \param values Values.
          */
-        template<typename... Cs>
+        template<bindable... Cs>
         requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(Cs&&... values)
         {
             this->operator()(false, std::forward<Cs>(values)...);
@@ -70,7 +67,7 @@ namespace sql
          * \param bind Parameters to bind.
          * \param values Values.
          */
-        template<typename... Cs>
+        template<bindable... Cs>
         requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(BindParameters bind, Cs... values)
         {
             if (!stmt->reset()) throw std::runtime_error("");
@@ -89,7 +86,7 @@ namespace sql
          * \tparam Cs Column types.
          * \param values Values.
          */
-        template<typename... Cs>
+        template<bindable... Cs>
         requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(const std::tuple<Cs...>& values)
         {
             this->operator()(false, values);
@@ -101,8 +98,9 @@ namespace sql
          * \param bind Parameters to bind.
          * \param values Values.
          */
-        template<typename... Cs>
-        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(BindParameters bind, const std::tuple<Cs...>& values)
+        template<bindable... Cs>
+        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(BindParameters           bind,
+                                                                      const std::tuple<Cs...>& values)
         {
             // Call unpack function.
             this->operator()(bind, values, std::index_sequence_for<Cs...>{});

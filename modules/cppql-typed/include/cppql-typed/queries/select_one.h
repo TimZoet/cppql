@@ -15,6 +15,7 @@ namespace sql
      * \tparam Indices 0-based indices of the columns to retrieve. Duplicate values and reordering are allowed.
      */
     template<typename T, typename R, size_t... Indices>
+    requires(constructible_from<R, T, Indices...>)
     class SelectOne
     {
     public:

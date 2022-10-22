@@ -21,12 +21,15 @@
 namespace sql
 {
     /**
-     * \brief The Select class wraps a SELECT <cols> FROM <table> WHERE <expr> statement. The statement is executed when calling the begin() method. Iterating over the object will return all rows that matched the expression.
+     * \brief The Select class wraps a SELECT <cols> FROM <table> WHERE <expr> statement.
+     * The statement is executed when calling the begin() method. Iterating over the
+     * object will return all rows that matched the expression.
      * \tparam T Table type.
      * \tparam R Return type.
      * \tparam Indices 0-based indices of the columns to retrieve. Duplicate values and reordering are allowed.
      */
     template<typename T, typename R, size_t... Indices>
+    requires(constructible_from<R, T, Indices...>)
     class Select
     {
     public:
@@ -58,11 +61,10 @@ namespace sql
 
             iterator& operator++()
             {
-                // TODO: Catch errors.
                 const auto res = stmt->step();
                 code           = res.code;
 
-                // if (code != SQLITE_ROW && code != SQLITE_DONE) throw std::runtime_error("");
+                if (code != Result::sqlite_row && code != Result::sqlite_done) throw std::runtime_error("");
 
                 return *this;
             }
@@ -74,8 +76,7 @@ namespace sql
                 return retval;
             }
 
-            // TODO: Use sqlite constant instead of hardcoded number.
-            bool operator==(iterator) const { return code != 100; }
+            bool operator==(iterator) const { return code != Result::sqlite_row; }
 
             bool operator!=(iterator other) const { return !(*this == other); }
 

@@ -6,11 +6,17 @@
 
 using namespace std::string_literals;
 
-struct Foo
+namespace
 {
-    int64_t a;
-    float   b;
-};
+    struct Foo
+    {
+        int64_t a;
+        float   b;
+    };
+
+    [[nodiscard]] bool operator==(const Foo& lhs, const Foo& rhs) noexcept { return lhs.a == rhs.a && lhs.b == rhs.b; }
+
+}  // namespace
 
 void SelectBlob::operator()()
 {
@@ -45,28 +51,13 @@ void SelectBlob::operator()()
     auto sel = table.select<1, 2, 3>(table.col<0>() > 0, sql::BindParameters::All);
     const std::vector<std::tuple<std::vector<int32_t>, Foo, std::vector<Foo>>> rows(sel.begin(), sel.end());
 
-    // TODO: Use vector comparison methods.
     // Check first row.
-    compareEQ(std::get<0>(rows[0])[0], 0);
-    compareEQ(std::get<0>(rows[0])[1], 1);
-    compareEQ(std::get<0>(rows[0])[2], 2);
-    compareEQ(std::get<0>(rows[0])[3], 3);
-    compareEQ(std::get<1>(rows[0]).a, 10);
-    compareEQ(std::get<1>(rows[0]).b, 5.0f);
-    compareEQ(std::get<2>(rows[0])[0].a, 20);
-    compareEQ(std::get<2>(rows[0])[0].b, 30.0f);
-    compareEQ(std::get<2>(rows[0])[1].a, 40);
-    compareEQ(std::get<2>(rows[0])[1].b, 50.0f);
+    compareEQ(std::get<0>(rows[0]), std::vector{0, 1, 2, 3});
+    compareEQ(std::get<1>(rows[0]), Foo{.a = 10, .b = 5});
+    compareEQ(std::get<2>(rows[0]), std::vector{Foo{.a = 20, .b = 30}, Foo{.a = 40, .b = 50}});
 
     // Check second row.
-    compareEQ(std::get<0>(rows[1])[0], -10);
-    compareEQ(std::get<0>(rows[1])[1], -11);
-    compareEQ(std::get<0>(rows[1])[2], -12);
-    compareEQ(std::get<0>(rows[1])[3], -13);
-    compareEQ(std::get<1>(rows[1]).a, -1000);
-    compareEQ(std::get<1>(rows[1]).b, 0.5f);
-    compareEQ(std::get<2>(rows[1])[0].a, 1000000);
-    compareEQ(std::get<2>(rows[1])[0].b, 4.2f);
-    compareEQ(std::get<2>(rows[1])[1].a, -100);
-    compareEQ(std::get<2>(rows[1])[1].b, -1.0f);
+    compareEQ(std::get<0>(rows[1]), std::vector{-10, -11, -12, -13});
+    compareEQ(std::get<1>(rows[1]), Foo{.a = -1000, .b = 0.5f});
+    compareEQ(std::get<2>(rows[1]), std::vector{Foo{.a = 1000000, .b = 4.2f}, Foo{.a = -100, .b = -1.0f}});
 }

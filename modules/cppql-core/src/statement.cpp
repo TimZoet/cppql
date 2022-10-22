@@ -18,6 +18,9 @@ namespace sql
     // Result.
     ////////////////////////////////////////////////////////////////
 
+    int32_t Result::sqlite_row  = SQLITE_ROW;
+    int32_t Result::sqlite_done = SQLITE_DONE;
+
     Result::Result(const int32_t c, const bool s) : code(c), success(s) {}
 
     Result::operator bool() const noexcept { return success; }

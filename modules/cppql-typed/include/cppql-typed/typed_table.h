@@ -54,9 +54,11 @@ namespace sql
     class Insert;
 
     template<typename T, typename R, size_t... Indices>
+    requires(constructible_from<R, T, Indices...>)
     class Select;
 
     template<typename T, typename R, size_t... Indices>
+    requires(constructible_from<R, T, Indices...>)
     class SelectOne;
 
     template<typename T, size_t... Indices>
@@ -204,9 +206,6 @@ namespace sql
                            limitExpression,
                            bind);
         }
-
-        // TODO: For all Select(One/All) methods with en explicit return type, constrain R to object that is constructible from selected column types.
-        // TODO: Replace boolean bind parameter by an enum.
 
         ////////////////////////////////////////////////////////////////
         // Select.

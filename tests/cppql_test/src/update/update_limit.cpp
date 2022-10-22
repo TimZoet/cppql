@@ -9,7 +9,7 @@ using namespace std::string_literals;
 
 void UpdateLimit::operator()()
 {
-    // TODO: This test cannot run because SQLITE_ENABLE_UPDATE_DELETE_LIMIT
+    // This test cannot run because SQLITE_ENABLE_UPDATE_DELETE_LIMIT
     // is not enabled by default. This option is unfortunately not available
     // as an option for the Conan package.
     // Refer to https://www.sqlite.org/compile.html#enable_update_delete_limit.

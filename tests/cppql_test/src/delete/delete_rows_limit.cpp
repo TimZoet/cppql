@@ -8,5 +8,5 @@ using namespace std::string_literals;
 
 void DeleteRowsLimit::operator()()
 {
-    // TODO: This test cannot run. See UpdateLimit test.
+    // This test cannot run. See UpdateLimit test.
 }

@@ -91,6 +91,7 @@ set(SOURCES
     ${SRC_DIR}/get_column/get_column_real.cpp
     ${SRC_DIR}/get_column/get_column_template.cpp
     ${SRC_DIR}/get_column/get_column_text.cpp
+    ${SRC_DIR}/get_column/get_column_type.cpp
     ${SRC_DIR}/insert/insert.cpp
     ${SRC_DIR}/insert/insert_blob.cpp
     ${SRC_DIR}/insert/insert_default.cpp

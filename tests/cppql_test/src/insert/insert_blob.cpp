@@ -41,28 +41,24 @@ void InsertBlob::operator()()
     const auto stmt = db->createStatement("SELECT * FROM myTable;", true);
 
     // Check rows.
-    // TODO: Once BetterTest supports directly comparing vectors, use those methods instead of iterating here.
 
     compareTrue(stmt.step());
     compareEQ(stmt.column<int64_t>(0), 1);
     std::vector<uint32_t> res1;
     stmt.column(1, res1);
-    compareEQ(blob1.size(), res1.size());
-    for (size_t i = 0; i < blob1.size(); i++) compareEQ(blob1[i], res1[i]);
+    compareEQ(blob1, res1);
 
     compareTrue(stmt.step());
     compareEQ(stmt.column<int64_t>(0), 2);
     std::vector<uint32_t> res2;
     stmt.column(1, res2);
-    compareEQ(blob2.size(), res2.size());
-    for (size_t i = 0; i < blob2.size(); i++) compareEQ(blob2[i], res2[i]);
+    compareEQ(blob2, res2);
 
     compareTrue(stmt.step());
     compareEQ(stmt.column<int64_t>(0), 3);
     std::vector<uint32_t> res3;
     stmt.column(1, res3);
-    compareEQ(blob3.size(), res3.size());
-    for (size_t i = 0; i < blob3.size(); i++) compareEQ(blob3[i], res3[i]);
+    compareEQ(blob3, res3);
 
     compareTrue(stmt.step());
     compareEQ(stmt.column<int64_t>(0), 4);

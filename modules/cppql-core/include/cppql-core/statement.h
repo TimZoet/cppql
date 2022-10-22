@@ -35,6 +35,9 @@ namespace sql
 
     struct Result final
     {
+        static int32_t sqlite_row;
+        static int32_t sqlite_done;
+
         int32_t code    = 0;
         bool    success = true;
 
