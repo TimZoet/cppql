@@ -15,8 +15,7 @@ namespace sql
      * \tparam Indices 0-based indices of the columns to retrieve. Duplicate values and reordering are allowed.
      */
     template<typename T, typename R, size_t... Indices>
-    requires(constructible_from<R, T, Indices...>)
-    class SelectOne
+    requires(constructible_from<R, T, Indices...>) class SelectOne
     {
     public:
         using select_t = Select<T, R, Indices...>;
@@ -48,7 +47,7 @@ namespace sql
         typename select_t::return_t operator()(const BindParameters bind)
         {
             // Reset statement and possibly rebind parameters.
-            stmt(bind);
+            if (any(bind)) stmt(bind);
 
             // Get iterator to execute statement.
             auto it = stmt.begin();

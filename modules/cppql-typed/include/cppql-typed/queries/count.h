@@ -55,17 +55,7 @@ namespace sql
          * \brief Run count statement. Does not bind parameters.
          * \return Number of rows.
          */
-        row_id operator()() const
-        {
-            // Run statement.
-            if (!stmt->step()) throw std::runtime_error("");
-
-            // Reset statement.
-            if (!stmt->reset()) throw std::runtime_error("");
-
-            // Return number of rows.
-            return stmt->column<row_id>(0);
-        }
+        row_id operator()() const { return this->operator()(BindParameters::None); }
 
         /**
          * \brief Run count statement. Optionally binds parameters.

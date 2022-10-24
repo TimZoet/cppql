@@ -55,14 +55,7 @@ namespace sql
         /**
          * \brief Run delete statement. Does not bind parameters.
          */
-        void operator()() const
-        {
-            // Run statement.
-            if (!stmt->step()) throw std::runtime_error("");
-
-            // Reset statement.
-            if (!stmt->reset()) throw std::runtime_error("");
-        }
+        void operator()() const { return this->operator()(BindParameters::None); }
 
         /**
          * \brief Run delete statement. Optionally binds parameters.

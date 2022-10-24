@@ -58,7 +58,7 @@ namespace sql
         template<bindable... Cs>
         requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(Cs&&... values)
         {
-            this->operator()(false, std::forward<Cs>(values)...);
+            this->operator()(BindParameters::None, std::forward<Cs>(values)...);
         }
 
         /**
@@ -89,7 +89,7 @@ namespace sql
         template<bindable... Cs>
         requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(const std::tuple<Cs...>& values)
         {
-            this->operator()(false, values);
+            this->operator()(BindParameters::None, values);
         }
 
         /**
