@@ -10,7 +10,7 @@
 namespace sql
 {
     template<size_t Count, size_t... Indices>
-    concept in_column_range = sizeof...(Indices) > 0 && ((Indices < Count) && ...);
+    concept in_column_range = sizeof...(Indices) == 0 || sizeof...(Indices) > 0 && ((Indices < Count) && ...);
 
     /**
      * \brief Get the type of a table column by index.
