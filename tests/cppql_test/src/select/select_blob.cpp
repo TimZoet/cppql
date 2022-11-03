@@ -48,7 +48,7 @@ void SelectBlob::operator()()
     });
 
     // Create select.
-    auto sel = table.select<1, 2, 3>(table.col<0>() > 0, sql::BindParameters::All);
+    auto sel = table.select<1, 2, 3>(table.col<0>() > 0, std::nullopt, std::nullopt, sql::BindParameters::All);
     const std::vector<std::tuple<std::vector<int32_t>, Foo, std::vector<Foo>>> rows(sel.begin(), sel.end());
 
     // Check first row.

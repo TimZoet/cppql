@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include <memory>
+#include <optional>
 #include <string>
 
 ////////////////////////////////////////////////////////////////
@@ -85,6 +86,10 @@ namespace sql
 
     template<typename T, typename Table>
     concept is_filter_expression = std::derived_from<T, FilterExpression<Table>>;
+
+    template<typename T, typename Table>
+    concept is_filter_expression_or_none =
+      is_filter_expression<T, Table> || std::same_as<std::remove_cvref_t<T>, std::nullopt_t>;
 
     template<typename T>
     concept _is_filter_expression = std::derived_from<T, FilterExpression<typename T::table_t>>;

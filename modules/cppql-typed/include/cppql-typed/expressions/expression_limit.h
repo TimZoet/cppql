@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include <format>
+#include <optional>
 #include <string>
 
 namespace sql
@@ -16,4 +17,15 @@ namespace sql
 
         [[nodiscard]] std::string toString() const { return std::format("LIMIT {0} OFFSET {1}", limit, offset); }
     };
+
+    ////////////////////////////////////////////////////////////////
+    // Type traits.
+    ////////////////////////////////////////////////////////////////
+
+    template<typename T>
+    concept is_limit_expression = std::same_as<T, LimitExpression>;
+
+    template<typename T>
+    concept is_limit_expression_or_none =
+      is_limit_expression<T> || std::same_as<std::remove_cvref_t<T>, std::nullopt_t>;
 }  // namespace sql

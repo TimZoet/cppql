@@ -28,9 +28,9 @@ void Update::operator()()
 
     // Update one column at a time.
     {
-        int64_t param  = 0;
-        auto    update = table.update<1>(table.col<0>() == &param, sql::BindParameters::None);
-        auto    select = table.selectOne<float, 1>(table.col<0>() == &param, sql::BindParameters::None);
+        int64_t param = 0;
+        auto update = table.update<1>(table.col<0>() == &param, std::nullopt, std::nullopt, sql::BindParameters::None);
+        auto select = table.selectOne<float, 1>(table.col<0>() == &param, sql::BindParameters::None);
 
         param = 10;
         expectNoThrow([&] { update(sql::BindParameters::All, 5.0f); });
@@ -56,9 +56,10 @@ void Update::operator()()
 
     // Update multiple columns at a time.
     {
-        int64_t param  = 0;
-        auto    update = table.update<1, 2>(table.col<0>() == &param, sql::BindParameters::None);
-        auto    select = table.selectOne<1, 2>(table.col<0>() == &param, sql::BindParameters::None);
+        int64_t param = 0;
+        auto    update =
+          table.update<1, 2>(table.col<0>() == &param, std::nullopt, std::nullopt, sql::BindParameters::None);
+        auto select = table.selectOne<1, 2>(table.col<0>() == &param, sql::BindParameters::None);
 
         param = 10;
         expectNoThrow([&] { update(sql::BindParameters::All, 1000.0f, sql::toText("val0")); });

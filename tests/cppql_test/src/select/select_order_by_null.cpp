@@ -20,7 +20,7 @@ void SelectOrderByNull::operator()()
 
     // Generate and insert a bunch of vals.
     const std::vector<std::tuple<int64_t, int64_t>> vals   = {{1, 2}, {1, 1}, {2, 2}, {2, 1}, {3, 0}, {0, 3}};
-    auto insert = table.insert();
+    auto                                            insert = table.insert();
     expectNoThrow([&] {
         insert(1, 1);
         insert(1, 2);
@@ -31,7 +31,11 @@ void SelectOrderByNull::operator()()
     });
 
     // col0 ASC NULLS LAST, col1 DESC NULLS FIRST
-    auto select = table.selectAll(*table.col<0>() / table.col<1>());
+    auto select =
+      table.select(std::nullopt,
+                   ascending(table.col<0>(), sql::Nulls::Last) + descending(table.col<1>(), sql::Nulls::First),
+                   std::nullopt,
+                   sql::BindParameters::None);
     const std::vector<std::tuple<int64_t, int64_t>> rows(select.begin(), select.end());
     compareEQ(rows.size(), static_cast<size_t>(6)).fatal("");
     compareEQ(vals, rows);

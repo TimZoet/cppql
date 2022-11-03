@@ -27,8 +27,8 @@ void DeleteRows::operator()()
     expectNoThrow([&insert] { insert(40, 14.0f, sql::toText("jkl")); });
 
     // Create delete and select count queries.
-    int32_t    id  = 0;
-    const auto del   = table.del(table.col<0>() == &id, sql::BindParameters::None);
+    int32_t    id    = 0;
+    const auto del   = table.del(table.col<0>() == &id, std::nullopt, std::nullopt, sql::BindParameters::None);
     const auto count = db->createStatement("SELECT COUNT(*) FROM myTable;", true);
     compareTrue(count.isPrepared());
 
@@ -66,7 +66,7 @@ void DeleteRows::operator()()
     compareTrue(count.reset());
 
     // Delete with bound id 30.
-    const auto del2 = table.del(table.col<0>() == 30, sql::BindParameters::All);
+    const auto del2 = table.del(table.col<0>() == 30, std::nullopt, std::nullopt, sql::BindParameters::All);
     del2(sql::BindParameters::None);
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 1);

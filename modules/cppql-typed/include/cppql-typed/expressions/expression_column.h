@@ -14,8 +14,6 @@
 
 namespace sql
 {
-    
-
     template<typename T>
     class BaseColumnExpression
     {

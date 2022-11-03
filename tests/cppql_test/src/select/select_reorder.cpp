@@ -24,16 +24,17 @@ void SelectReorder::operator()()
     expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
 
     // Select columns in different orders.
-    auto sel0 = table.select<0, 1, 2>(table.col<0>() == 10, sql::BindParameters::All);
-    auto sel1 = table.select<2, 1, 0>(table.col<0>() == 10, sql::BindParameters::All);
-    auto sel2 = table.select<0, 0, 0>(table.col<0>() == 10, sql::BindParameters::All);
-    auto sel3 = table.select<1, 1, 1>(table.col<0>() == 10, sql::BindParameters::All);
-    auto sel4 = table.select<2, 2, 2>(table.col<0>() == 10, sql::BindParameters::All);
-    auto sel5 = table.select<0, 1, 0, 1>(table.col<0>() == 10, sql::BindParameters::All);
-    auto sel6 = table.select<2, 1, 0, 0, 1, 2>(table.col<0>() == 10, sql::BindParameters::All);
-    auto sel7 = table.select<0>(table.col<0>() == 10, sql::BindParameters::All);
-    auto sel8 = table.select<1>(table.col<0>() == 10, sql::BindParameters::All);
-    auto sel9 = table.select<2>(table.col<0>() == 10, sql::BindParameters::All);
+    auto sel0 = table.select<0, 1, 2>(table.col<0>() == 10, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel1 = table.select<2, 1, 0>(table.col<0>() == 10, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel2 = table.select<0, 0, 0>(table.col<0>() == 10, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel3 = table.select<1, 1, 1>(table.col<0>() == 10, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel4 = table.select<2, 2, 2>(table.col<0>() == 10, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel5 = table.select<0, 1, 0, 1>(table.col<0>() == 10, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel6 =
+      table.select<2, 1, 0, 0, 1, 2>(table.col<0>() == 10, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel7 = table.select<0>(table.col<0>() == 10, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel8 = table.select<1>(table.col<0>() == 10, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel9 = table.select<2>(table.col<0>() == 10, std::nullopt, std::nullopt, sql::BindParameters::All);
 
     // Get values.
     auto val0 = *sel0.begin();

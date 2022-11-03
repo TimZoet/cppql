@@ -29,7 +29,7 @@ void SelectOrderBy::operator()()
 
     // col0 ASC
     {
-        auto sel = table.selectAll(+table.col<0>());
+        auto sel = table.select(std::nullopt, ascending(table.col<0>()), std::nullopt, sql::BindParameters::None);
 
         const std::vector<std::tuple<int64_t, int64_t, int64_t>> rows(sel.begin(), sel.end());
         std::ranges::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
@@ -40,7 +40,7 @@ void SelectOrderBy::operator()()
 
     // col0 DESC
     {
-        auto                                                     sel = table.selectAll(-table.col<0>());
+        auto sel = table.select(std::nullopt, descending(table.col<0>()), std::nullopt, sql::BindParameters::None);
         const std::vector<std::tuple<int64_t, int64_t, int64_t>> rows(sel.begin(), sel.end());
         std::ranges::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
             return std::get<0>(lhs) > std::get<0>(rhs);
@@ -50,7 +50,8 @@ void SelectOrderBy::operator()()
 
     // col0 ASC, col1 ASC
     {
-        auto sel = table.selectAll(+table.col<0>() + table.col<1>());
+        auto sel = table.select(
+          std::nullopt, ascending(table.col<0>()) + ascending(table.col<1>()), std::nullopt, sql::BindParameters::None);
         const std::vector<std::tuple<int64_t, int64_t, int64_t>> rows(sel.begin(), sel.end());
         std::ranges::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
             return std::get<0>(lhs) < std::get<0>(rhs) ||
@@ -61,7 +62,10 @@ void SelectOrderBy::operator()()
 
     // col2 DESC, col1 DESC
     {
-        auto sel = table.selectAll(-table.col<2>() - table.col<1>());
+        auto                                                     sel = table.select(std::nullopt,
+                                descending(table.col<2>()) + descending(table.col<1>()),
+                                std::nullopt,
+                                sql::BindParameters::None);
         const std::vector<std::tuple<int64_t, int64_t, int64_t>> rows(sel.begin(), sel.end());
         std::ranges::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
             return std::get<2>(lhs) > std::get<2>(rhs) ||
@@ -72,7 +76,10 @@ void SelectOrderBy::operator()()
 
     // col0 ASC, col1 DESC, col2 ASC
     {
-        auto sel = table.selectAll(+table.col<2>() + (+table.col<0>() - table.col<1>()));
+        auto                                                     sel = table.select(std::nullopt,
+                                ascending(table.col<0>()) + (descending(table.col<1>()) + ascending(table.col<2>())),
+                                std::nullopt,
+                                sql::BindParameters::None);
         const std::vector<std::tuple<int64_t, int64_t, int64_t>> rows(sel.begin(), sel.end());
         std::ranges::sort(vals.begin(), vals.end(), [](const auto& lhs, const auto& rhs) {
             if (std::get<0>(lhs) < std::get<0>(rhs)) return true;
