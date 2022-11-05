@@ -25,4 +25,19 @@ namespace sql
 
     template<typename R, typename T, size_t... Indices>
     concept constructible_from = std::constructible_from<R, get_column_return_t<col_t<Indices, T>>...>;
+
+    /**
+     * \brief Forward value to std::make_unique or return nullptr if it is of type std::nullopt_t.
+     * \tparam T std::nullopt_t or type.
+     * \param val std::nullopt or value.
+     * \return nullptr or std::unique_ptr<T>.
+     */
+    template<typename T>
+    auto optionalToPtr(T&& val)
+    {
+        if constexpr (std::same_as<std::remove_cvref_t<T>, std::nullopt_t>)
+            return nullptr;
+        else
+            return std::make_unique<T>(std::forward<T>(val));
+    }
 }  // namespace sql

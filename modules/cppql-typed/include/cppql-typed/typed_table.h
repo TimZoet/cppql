@@ -156,7 +156,6 @@ namespace sql
         // Delete.
         ////////////////////////////////////////////////////////////////
 
-
         /**
          * \brief Create a DELETE FROM query. Creates a callable object that will delete all rows that match the filter expression.
          * \tparam F FilterExpression type or std::nullopt_t.
@@ -174,17 +173,10 @@ namespace sql
         [[nodiscard]] Delete<table_t>
           del(F&& filterExpression, O&& orderByExpression, L&& limitExpression, BindParameters bind)
         {
-            if constexpr (std::same_as<std::remove_cvref_t<F>, std::nullopt_t>)
-            {
-                return delImpl(nullptr, std::forward<O>(orderByExpression), std::forward<L>(limitExpression), bind);
-            }
-            else
-            {
-                return delImpl(std::make_unique<F>(std::forward<F>(filterExpression)),
-                               std::forward<O>(orderByExpression),
-                               std::forward<L>(limitExpression),
-                               bind);
-            }
+            return delImpl(optionalToPtr(std::forward<F>(filterExpression)),
+                           std::forward<O>(orderByExpression),
+                           std::forward<L>(limitExpression),
+                           bind);
         }
 
         ////////////////////////////////////////////////////////////////
@@ -215,18 +207,10 @@ namespace sql
             if constexpr (sizeof...(Indices))
             {
                 using return_t = std::tuple<get_column_return_t<col_t<Indices, table_t>>...>;
-                if constexpr (std::same_as<std::remove_cvref_t<F>, std::nullopt_t>)
-                {
-                    return selectImpl<return_t, Indices...>(
-                      nullptr, std::forward<O>(orderByExpression), limitExpression, bind);
-                }
-                else
-                {
-                    return selectImpl<return_t, Indices...>(std::make_unique<F>(std::forward<F>(filterExpression)),
-                                                            std::forward<O>(orderByExpression),
-                                                            std::forward<L>(limitExpression),
-                                                            bind);
-                }
+                return selectImpl<return_t, Indices...>(optionalToPtr(std::forward<F>(filterExpression)),
+                                                        std::forward<O>(orderByExpression),
+                                                        std::forward<L>(limitExpression),
+                                                        bind);
             }
             else
             {
@@ -266,18 +250,10 @@ namespace sql
         {
             if constexpr (sizeof...(Indices))
             {
-                if constexpr (std::same_as<std::remove_cvref_t<F>, std::nullopt_t>)
-                {
-                    return selectImpl<R, Indices...>(
-                      nullptr, std::forward<O>(orderByExpression), std::forward<L>(limitExpression), bind);
-                }
-                else
-                {
-                    return selectImpl<R, Indices...>(std::make_unique<F>(std::forward<F>(filterExpression)),
-                                                     std::forward<O>(orderByExpression),
-                                                     std::forward<L>(limitExpression),
-                                                     bind);
-                }
+                return selectImpl<R, Indices...>(optionalToPtr(std::forward<F>(filterExpression)),
+                                                 std::forward<O>(orderByExpression),
+                                                 std::forward<L>(limitExpression),
+                                                 bind);
             }
             else
             {
@@ -366,10 +342,7 @@ namespace sql
         template<is_filter_expression_or_none<table_t> F>
         [[nodiscard]] auto count(F&& filterExpression, BindParameters bind)
         {
-            if constexpr (std::same_as<std::remove_cvref_t<F>, std::nullopt_t>)
-                return countImpl(std::make_unique<F>(std::forward<F>(filterExpression)), bind);
-            else
-                return countImpl(nullptr, BindParameters::None);
+            return countImpl(optionalToPtr(std::forward<F>(filterExpression)), bind);
         }
 
         ////////////////////////////////////////////////////////////////
@@ -399,18 +372,10 @@ namespace sql
         {
             if constexpr (sizeof...(Indices))
             {
-                if constexpr (std::same_as<std::remove_cvref_t<F>, std::nullopt_t>)
-                {
-                    return updateImpl<Indices...>(
-                      nullptr, std::forward<O>(orderByExpression), std::forward<L>(limitExpression), bind);
-                }
-                else
-                {
-                    return updateImpl<Indices...>(std::make_unique<F>(std::forward<F>(filterExpression)),
-                                                  std::forward<O>(orderByExpression),
-                                                  std::forward<L>(limitExpression),
-                                                  bind);
-                }
+                return updateImpl<Indices...>(optionalToPtr(std::forward<F>(filterExpression)),
+                                              std::forward<O>(orderByExpression),
+                                              std::forward<L>(limitExpression),
+                                              bind);
             }
             else
             {
