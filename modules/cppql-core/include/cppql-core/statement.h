@@ -24,6 +24,7 @@
 
 #include "cppql-core/binding.h"
 #include "cppql-core/column.h"
+#include "cppql-core/error/cppql_error.h"
 
 struct sqlite3_stmt;
 
@@ -60,12 +61,6 @@ namespace sql
         [[nodiscard]] Result operator|(const Result& rhs) const noexcept;
 
         Result& operator|=(const Result& rhs) noexcept;
-
-        template<typename E = std::runtime_error>
-        void operator()(const std::string& message) const
-        {
-            if (!*this) throw E("Errorcode: " + std::to_string(code) + " Message: " + message);
-        }
     };
 
     class Statement
@@ -94,6 +89,8 @@ namespace sql
         [[nodiscard]] bool isPrepared() const noexcept;
 
         [[nodiscard]] const std::string& getSql() const noexcept;
+
+        [[nodiscard]] std::optional<Result> getResult() const noexcept;
 
         [[nodiscard]] static int32_t getFirstBindIndex() noexcept;
 
@@ -404,8 +401,7 @@ namespace sql
             // Get raw result data.
             const auto [data, size] = columnBlob(index);
             if (sizeof(T) != size)
-                throw std::runtime_error(
-                  std::format("Size of data ({}) does not match size of object ({})", size, sizeof(T)));
+                throw CppqlError(std::format("Size of data ({}) does not match size of object ({})", size, sizeof(T)));
             std::memcpy(&value, data, sizeof(T));
         }
 
@@ -423,7 +419,7 @@ namespace sql
 
             // Copy to vector. If size of blob is not a multiple of sizeof(T), excess data is discarded.
             if (size % sizeof(T))
-                throw std::runtime_error(
+                throw CppqlError(
                   std::format("Size of data ({}) is not a multiple of size of object ({})", size, sizeof(T)));
             values.resize(size / sizeof(T));
             std::memcpy(values.data(), data, size);
@@ -451,5 +447,10 @@ namespace sql
          * \brief Sql code that is being executed by this statement.
          */
         std::string sql;
+
+        /**
+         * \brief Result of preparing statement.
+         */
+        std::optional<Result> prepareResult;
     };
 }  // namespace sql

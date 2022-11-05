@@ -19,6 +19,9 @@ set(HEADERS
     ${INCLUDE_DIR}/database.h
     ${INCLUDE_DIR}/statement.h
     ${INCLUDE_DIR}/table.h
+
+    ${INCLUDE_DIR}/error/cppql_error.h
+    ${INCLUDE_DIR}/error/sqlite_error.h
 )
 
 set(SOURCES
@@ -26,6 +29,9 @@ set(SOURCES
     ${SRC_DIR}/database.cpp
     ${SRC_DIR}/statement.cpp
     ${SRC_DIR}/table.cpp
+
+    ${SRC_DIR}/error/cppql_error.cpp
+    ${SRC_DIR}/error/sqlite_error.cpp
 )
 
 set(DEPS_PUBLIC

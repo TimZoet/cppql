@@ -12,6 +12,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-core/table.h"
+#include "cppql-core/error/cppql_error.h"
 
 namespace sql
 {
@@ -56,21 +57,21 @@ namespace sql
 
     Column& Column::setPrimaryKey(const bool value)
     {
-        if (table->isCommitted()) throw std::runtime_error("");
+        table->requireNotCommitted();
         primaryKey = value;
         return *this;
     }
 
     Column& Column::setNotNull(const bool value)
     {
-        if (table->isCommitted()) throw std::runtime_error("");
+        table->requireNotCommitted();
         notNull = value;
         return *this;
     }
 
     Column& Column::setAutoIncrement(const bool value)
     {
-        if (table->isCommitted()) throw std::runtime_error("");
+        table->requireNotCommitted();
         autoIncrement = value;
         return *this;
     }
@@ -81,44 +82,44 @@ namespace sql
 
     Column& Column::setForeignKey(Column& column)
     {
-        if (table->isCommitted()) throw std::runtime_error("");
-        if (&column.getTable() == table) throw std::runtime_error("");
-        if (column.getType() != Type::Int) throw std::runtime_error("");
+        table->requireNotCommitted();
+        if (&column.getTable() == table) throw CppqlError("Cannot set foreign key pointing to the same table.");
+        if (column.getType() != Type::Int) throw CppqlError("Cannot set foreign key pointing to non-integer column type.");
         this->foreignKey = &column;
         return *this;
     }
 
     Column& Column::setDefaultValue(std::string value)
     {
-        if (table->isCommitted()) throw std::runtime_error("");
+        table->requireNotCommitted();
         defaultValue = std::move(value);
         return *this;
     }
 
     Column& Column::setDefaultValue(int32_t value)
     {
-        if (table->isCommitted()) throw std::runtime_error("");
+        table->requireNotCommitted();
         defaultValue = std::format("{0:d}", value);
         return *this;
     }
 
     Column& Column::setDefaultValue(int64_t value)
     {
-        if (table->isCommitted()) throw std::runtime_error("");
+        table->requireNotCommitted();
         defaultValue = std::format("{0:d}", value);
         return *this;
     }
 
     Column& Column::setDefaultValue(float value)
     {
-        if (table->isCommitted()) throw std::runtime_error("");
+        table->requireNotCommitted();
         defaultValue = std::format("{0:f}", value);
         return *this;
     }
 
     Column& Column::setDefaultValue(double value)
     {
-        if (table->isCommitted()) throw std::runtime_error("");
+        table->requireNotCommitted();
         defaultValue = std::format("{0:f}", value);
         return *this;
     }
@@ -150,6 +151,6 @@ namespace sql
         else if (s == "NULL")
             type = Column::Type::Null;
         else
-            throw std::runtime_error("");
+            throw CppqlError(std::format("Unknown type {}", s));
     }
 }  // namespace sql

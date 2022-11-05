@@ -19,6 +19,7 @@
 
 #include "cppql-core/database.h"
 #include "cppql-core/statement.h"
+#include "cppql-core/error/sqlite_error.h"
 
 namespace sql
 {
@@ -26,7 +27,7 @@ namespace sql
 
     void Table::commit()
     {
-        if (committed) throw std::runtime_error("");
+        requireNotCommitted();
 
         // Make sure all table and column settings are legal.
         validate();
@@ -34,7 +35,8 @@ namespace sql
         // Create and run CREATE TABLE statement.
         const auto sql  = generateSql();
         const auto stmt = Statement(*db, sql, true);
-        if (const auto res = stmt.step(); !res) throw std::runtime_error(std::to_string(res.code));
+        const auto res  = stmt.step();
+        if (!res) throw SqliteError(std::format("Failed to commit table."), res.code);
 
         committed = true;
     }
@@ -90,6 +92,16 @@ namespace sql
         return sql;
     }
 
+    void Table::requireCommitted() const
+    {
+        if (!committed) throw CppqlError("Table was not yet committed.");
+    }
+
+    void Table::requireNotCommitted() const
+    {
+        if (committed) throw CppqlError("Table was already committed.");
+    }
+
     ////////////////////////////////////////////////////////////////
     // Getters.
     ////////////////////////////////////////////////////////////////
@@ -112,11 +124,13 @@ namespace sql
 
     Column& Table::createColumn(const std::string& columnName, Column::Type type)
     {
-        if (committed) throw std::runtime_error("");
+        requireNotCommitted();
 
         // Check for duplicate name.
         const auto [it, emplaced] = columnMap.try_emplace(columnName, columns.size());
-        if (!emplaced) throw std::runtime_error("");
+        if (!emplaced)
+            throw CppqlError(
+              std::format("Failed to create column {}. A column with this name already exists.", columnName));
 
         // Create a new column.
         auto col = std::make_unique<Column>(this, static_cast<int32_t>(it->second), columnName, type);
@@ -125,11 +139,13 @@ namespace sql
 
     Column& Table::createColumn(const std::string& columnName, Column& foreignKey)
     {
-        if (committed) throw std::runtime_error("");
+        requireNotCommitted();
 
         // Check for duplicate name.
         const auto [it, emplaced] = columnMap.try_emplace(columnName, columns.size());
-        if (!emplaced) throw std::runtime_error("");
+        if (!emplaced)
+            throw CppqlError(
+              std::format("Failed to create column {}. A column with this name already exists.", columnName));
 
         // Create a new column.
         auto col = std::make_unique<Column>(this, static_cast<int32_t>(it->second), columnName, foreignKey);
@@ -148,7 +164,10 @@ namespace sql
           std::ranges::count_if(columns.begin(), columns.end(), [](const auto& col) { return col->isAutoIncrement(); });
 
         // Autoincrement is not allowed when there are more than 1 primary keys.
-        if (pkCount > 1 && autoIncCount != 0) throw std::runtime_error("");
+        if (pkCount > 1 && autoIncCount != 0)
+            throw CppqlError(std::format(
+              "Failed to validate table {}. here is an auto increment column and more than 1 primary key columns.",
+              name));
     }
 
     void Table::readFromDb(
@@ -168,16 +187,9 @@ namespace sql
             const char* dt      = nullptr;
             const char* coll    = nullptr;
             auto        notNull = 0, primaryKey = 0, autoInc = 0;
-            if (sqlite3_table_column_metadata(db->get(),
-                                              nullptr,
-                                              getName().c_str(),
-                                              columnName.c_str(),
-                                              &dt,
-                                              &coll,
-                                              &notNull,
-                                              &primaryKey,
-                                              &autoInc) != SQLITE_OK)
-                throw std::runtime_error("failed");
+            const auto  res = sqlite3_table_column_metadata(
+              db->get(), nullptr, getName().c_str(), columnName.c_str(), &dt, &coll, &notNull, &primaryKey, &autoInc);
+            if (res != SQLITE_OK) throw SqliteError(std::format("Could not retrieve column metadata."), res);
 
             // Determine column type. If returned data type string is null, column has a null type.
             auto columnType = Column::Type::Null;
@@ -213,12 +225,15 @@ namespace sql
 
             // Try to get table.
             auto it = tables.find(tableName);
-            if (it == tables.end()) throw std::runtime_error("Table referenced by foreign key does not exist");
+            if (it == tables.end())
+                throw CppqlError(std::format(
+                  "Could not resolve foreign key {}. Referenced table {} does not exist.", columnName, tableName));
             const auto& fkTable = it->second;
 
             // Try to get column.
             if (auto it2 = fkTable->columnMap.find(fkColumnName); it2 == fkTable->columnMap.end())
-                throw std::runtime_error("Column referenced by foreign key does not exist");
+                throw CppqlError(std::format(
+                  "Could not resolve foreign key {}. Referenced column {} does not exist.", columnName, fkColumnName));
             auto& fkColumn = *fkTable->columns[fkTable->columnMap[fkColumnName]];
 
             // Set foreign key.

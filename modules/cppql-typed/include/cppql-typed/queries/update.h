@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-core/statement.h"
+#include "cppql-core/error/sqlite_error.h"
 
 ////////////////////////////////////////////////////////////////
 // Current target includes.
@@ -70,15 +71,18 @@ namespace sql
         template<bindable... Cs>
         requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(BindParameters bind, Cs... values)
         {
-            if (!stmt->reset()) throw std::runtime_error("");
+            if (const auto res = stmt->reset(); !res)
+                throw SqliteError(std::format("Failed to reset count statement."), res.code);
 
             // Bind value parameters.
-            if (!stmt->bind(Statement::getFirstBindIndex(), std::move(values)...)) throw std::runtime_error("");
+            if (const auto res = stmt->bind(Statement::getFirstBindIndex(), std::move(values)...); !res)
+                throw SqliteError(std::format("Failed to bind parameters to update statement."), res.code);
 
             // (Re)bind filter expression parameters.
             if (any(bind) && exp) exp->bind(*stmt, bind);
 
-            if (!stmt->step()) throw std::runtime_error("");
+            if (const auto res = stmt->step(); !res)
+                throw SqliteError(std::format("Failed to step through update statement."), res.code);
         }
 
         /**

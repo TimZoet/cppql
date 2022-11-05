@@ -38,6 +38,10 @@ namespace sql
 
         [[nodiscard]] std::string generateSql() const;
 
+        void requireCommitted() const;
+
+        void requireNotCommitted() const;
+
         ////////////////////////////////////////////////////////////////
         // Getters.
         ////////////////////////////////////////////////////////////////

@@ -1,6 +1,12 @@
 #pragma once
 
 ////////////////////////////////////////////////////////////////
+// Module includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql-core/error/cppql_error.h"
+
+////////////////////////////////////////////////////////////////
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
@@ -53,13 +59,13 @@ namespace sql
             auto it = stmt.begin();
 
             // Check if there is a result.
-            if (it == stmt.end()) throw std::runtime_error("Select returned no result");
+            if (it == stmt.end()) throw CppqlError("Select returned no result.");
 
             // Get result.
             auto r = *it;
 
             // Check if there was only one result.
-            if (++it != stmt.end()) throw std::runtime_error("More than one result returned");
+            if (++it != stmt.end()) throw CppqlError("More than one result returned.");
 
             return r;
         }

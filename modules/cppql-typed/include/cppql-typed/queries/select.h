@@ -11,6 +11,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-core/statement.h"
+#include "cppql-core/error/sqlite_error.h"
 
 ////////////////////////////////////////////////////////////////
 // Current target includes.
@@ -29,8 +30,7 @@ namespace sql
      * \tparam Indices 0-based indices of the columns to retrieve. Duplicate values and reordering are allowed.
      */
     template<typename T, typename R, size_t... Indices>
-    requires(constructible_from<R, T, Indices...>)
-    class Select
+    requires(constructible_from<R, T, Indices...>) class Select
     {
     public:
         /**
@@ -64,7 +64,8 @@ namespace sql
                 const auto res = stmt->step();
                 code           = res.code;
 
-                if (code != Result::sqlite_row && code != Result::sqlite_done) throw std::runtime_error("");
+                if (code != Result::sqlite_row && code != Result::sqlite_done)
+                    throw SqliteError(std::format("Failed to step through select statement."), res.code);
 
                 return *this;
             }
@@ -123,7 +124,8 @@ namespace sql
         iterator begin()
         {
             // Reset statement.
-            if (!stmt->reset()) throw std::runtime_error("");
+            if (const auto res = stmt->reset(); !res)
+                throw SqliteError(std::format("Failed to reset select statement."), res.code);
 
             return iterator(*stmt);
         }
@@ -138,7 +140,8 @@ namespace sql
         Select& operator()(const BindParameters bind)
         {
             // Reset statement.
-            if (!stmt->reset()) throw std::runtime_error("");
+            if (const auto res = stmt->reset(); !res)
+                throw SqliteError(std::format("Failed to reset select statement."), res.code);
 
             // (Re)bind parameters.
             if (any(bind) && exp) exp->bind(*stmt, bind);

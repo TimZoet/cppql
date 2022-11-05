@@ -11,6 +11,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-core/statement.h"
+#include "cppql-core/error/sqlite_error.h"
 
 namespace sql
 {
@@ -54,13 +55,18 @@ namespace sql
         template<bindable... Cs>
         requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(Cs... values)
         {
-            if (!stmt->reset()) throw std::runtime_error("");
+            if (const auto res = stmt->reset(); !res)
+                throw SqliteError(std::format("Failed to reset insert statement."), res.code);
+
             // Only rebind if there are parameters.
             if constexpr (sizeof...(Indices) > 0)
             {
-                if (!stmt->bind(Statement::getFirstBindIndex(), std::move(values)...)) throw std::runtime_error("");
+                if (const auto res = stmt->bind(Statement::getFirstBindIndex(), std::move(values)...); !res)
+                    throw SqliteError(std::format("Failed to bind parameters to insert statement."), res.code);
             }
-            if (!stmt->step()) throw std::runtime_error("");
+
+            if (const auto res = stmt->step(); !res)
+                throw SqliteError(std::format("Failed to step through insert statement."), res.code);
         }
 
         /**

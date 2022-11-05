@@ -6,6 +6,7 @@
 
 #include "cppql-core/statement.h"
 #include "cppql-core/table.h"
+#include "cppql-core/error/sqlite_error.h"
 
 ////////////////////////////////////////////////////////////////
 // Current target includes.
@@ -67,10 +68,12 @@ namespace sql
             if (any(bind) && exp) exp->bind(*stmt, bind);
 
             // Run statement.
-            if (!stmt->step()) throw std::runtime_error("");
+            if (const auto res = stmt->step(); !res)
+                throw SqliteError(std::format("Failed to step through delete statement."), res.code);
 
             // Reset statement.
-            if (!stmt->reset()) throw std::runtime_error("");
+            if (const auto res = stmt->reset(); !res)
+                throw SqliteError(std::format("Failed to reset delete statement."), res.code);
         }
 
     private:

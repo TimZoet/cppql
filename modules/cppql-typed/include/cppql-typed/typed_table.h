@@ -17,6 +17,8 @@
 #include "cppql-core/column.h"
 #include "cppql-core/database.h"
 #include "cppql-core/table.h"
+#include "cppql-core/error/cppql_error.h"
+#include "cppql-core/error/sqlite_error.h"
 
 ////////////////////////////////////////////////////////////////
 // Current target includes.
@@ -98,7 +100,7 @@ namespace sql
         explicit TypedTable(Table& t) : table(&t)
         {
             validate<0, C, Cs...>();
-            if (column_count != table->getColumnCount()) throw std::runtime_error("Invalid number of columns");
+            if (column_count != table->getColumnCount()) throw CppqlError("Invalid number of columns.");
         }
 
         TypedTable(const TypedTable&) = default;
@@ -394,7 +396,7 @@ namespace sql
         template<size_t Index, typename U, typename... Us>
         void validate()
         {
-            if (table->getColumn(Index).getType() != toColumnType<U>()) throw std::runtime_error("Invalid type");
+            if (table->getColumn(Index).getType() != toColumnType<U>()) throw CppqlError("Invalid column type.");
 
             // Recurse.
             if constexpr (sizeof...(Us) > 0) validate<Index + 1, Us...>();
@@ -425,7 +427,9 @@ namespace sql
 
             // Create and prepare statement.
             auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
-            if (!stmt->isPrepared()) throw std::runtime_error("");
+            if (!stmt->isPrepared())
+                throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
+                                  stmt->getResult()->code);
 
             // Construct Insert.
             return Insert<table_t, Indices...>(std::move(stmt));
@@ -448,7 +452,9 @@ namespace sql
 
             // Create and prepare statement.
             auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
-            if (!stmt->isPrepared()) throw std::runtime_error("");
+            if (!stmt->isPrepared())
+                throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
+                                  stmt->getResult()->code);
 
             // Bind parameters.
             if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
@@ -480,7 +486,9 @@ namespace sql
 
             // Create and prepare statement.
             auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
-            if (!stmt->isPrepared()) throw std::runtime_error("");
+            if (!stmt->isPrepared())
+                throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
+                                  stmt->getResult()->code);
 
             // Bind parameters.
             if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
@@ -505,7 +513,9 @@ namespace sql
 
             // Create and prepare statement.
             auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
-            if (!stmt->isPrepared()) throw std::runtime_error("");
+            if (!stmt->isPrepared())
+                throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
+                                  stmt->getResult()->code);
 
             // Bind parameters.
             if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
@@ -542,7 +552,9 @@ namespace sql
 
             // Create and prepare statement.
             auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
-            if (!stmt->isPrepared()) throw std::runtime_error("");
+            if (!stmt->isPrepared())
+                throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
+                                  stmt->getResult()->code);
 
             // Bind parameters.
             if (fExpr && any(bind)) fExpr->bind(*stmt, bind);

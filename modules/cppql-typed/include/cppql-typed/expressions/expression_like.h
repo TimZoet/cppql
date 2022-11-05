@@ -13,6 +13,12 @@
 // Module includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-core/error/sqlite_error.h"
+
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
 #include "cppql-typed/type_traits.h"
 #include "cppql-typed/expressions/expression_column.h"
 #include "cppql-typed/expressions/expression_filter.h"
@@ -138,8 +144,9 @@ namespace sql
     {
         Result res;
         if (any(bind & BindParameters::Fixed) && !ptr) res = stmt.bind(index + Statement::getFirstBindIndex(), value);
+        if (!res) throw SqliteError(std::format("Failed to bind parameter."), res.code);
         if (any(bind & BindParameters::Dynamic) && ptr) res = stmt.bind(index + Statement::getFirstBindIndex(), *ptr);
-        if (!res) throw std::runtime_error("");
+        if (!res) throw SqliteError(std::format("Failed to bind parameter."), res.code);
     }
 
     template<typename T>

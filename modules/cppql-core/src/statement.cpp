@@ -76,6 +76,8 @@ namespace sql
 
     const std::string& Statement::getSql() const noexcept { return sql; }
 
+    std::optional<Result> Statement::getResult() const noexcept { return prepareResult; }
+
     int32_t Statement::getFirstBindIndex() noexcept
     {
 #ifdef CPPQL_BIND_ZERO_BASED_INDICES
@@ -97,7 +99,8 @@ namespace sql
         // Try to prepare statement.
         const auto code =
           sqlite3_prepare_v2(db->db, getSql().c_str(), static_cast<int32_t>(getSql().size()), &statement, nullptr);
-        return {code, code == SQLITE_OK};
+        prepareResult = {code, code == SQLITE_OK};
+        return *prepareResult;
     }
 
     Result Statement::step() const noexcept
