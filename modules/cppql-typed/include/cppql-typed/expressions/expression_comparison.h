@@ -42,6 +42,7 @@ namespace sql
         enum class Operator
         {
             Eq,  // ==
+            Ne,  // !=
             Lt,  // <
             Gt,  // >
             Le,  // <=
@@ -184,6 +185,7 @@ namespace sql
         switch (op)
         {
         case Operator::Eq: o = "="; break;
+        case Operator::Ne: o = "!="; break;
         case Operator::Lt: o = "<"; break;
         case Operator::Gt: o = ">"; break;
         case Operator::Le: o = "<="; break;
@@ -280,6 +282,78 @@ namespace sql
         using C = ComparisonExpression<T, V>;
         using D = ColumnExpression<T, Index>;
         return C(std::make_unique<D>(std::move(col)), val, C::Operator::Eq, false);
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // !=
+    ////////////////////////////////////////////////////////////////
+
+    /**
+     * \brief Require column != fixed value.
+     * \tparam T Table type.
+     * \tparam Index Column index.
+     * \tparam V Value type.
+     * \param col Column object.
+     * \param val Value.
+     * \return ComparisonExpression object.
+     */
+    template<typename T, size_t Index, typename V>
+    requires(std::convertible_to<V, col_t<Index, T>>) auto operator!=(ColumnExpression<T, Index> col, V val)
+    {
+        using C = ComparisonExpression<T, V>;
+        using D = ColumnExpression<T, Index>;
+        return C(std::make_unique<D>(std::move(col)), std::move(val), C::Operator::Ne, true);
+    }
+
+    /**
+     * \brief Require fixed value != column.
+     * \tparam T Table type.
+     * \tparam Index Column index.
+     * \tparam V Value type.
+     * \param col Column object.
+     * \param val Value.
+     * \return ComparisonExpression object.
+     */
+    template<typename T, size_t Index, typename V>
+    requires(std::convertible_to<V, col_t<Index, T>>) auto operator!=(V val, ColumnExpression<T, Index> col)
+    {
+        using C = ComparisonExpression<T, V>;
+        using D = ColumnExpression<T, Index>;
+        return C(std::make_unique<D>(std::move(col)), val, C::Operator::Ne, false);
+    }
+
+    /**
+     * \brief Require column != dynamic value.
+     * \tparam T Table type.
+     * \tparam Index Column index.
+     * \tparam V Value type.
+     * \param col Column object.
+     * \param val Pointer to value.
+     * \return ComparisonExpression object.
+     */
+    template<typename T, size_t Index, typename V>
+    requires(std::convertible_to<V, col_t<Index, T>>) auto operator!=(ColumnExpression<T, Index> col, V* val)
+    {
+        using C = ComparisonExpression<T, V>;
+        using D = ColumnExpression<T, Index>;
+        return C(std::make_unique<D>(std::move(col)), val, C::Operator::Ne, true);
+    }
+
+    /**
+     * \brief Require dynamic value != column.
+     * \tparam T Table type.
+     * \tparam Index Column index.
+     * \tparam V Value type.
+     * \param col Column object.
+     * \param val Pointer to value.
+     * \return ComparisonExpression object.
+     */
+    template<typename T, size_t Index, typename V>
+    requires(std::convertible_to<V, col_t<Index, T>>) auto operator!=(V* val, ColumnExpression<T, Index> col)
+    {
+        using C = ComparisonExpression<T, V>;
+        using D = ColumnExpression<T, Index>;
+        return C(std::make_unique<D>(std::move(col)), val, C::Operator::Ne, false);
     }
 
     ////////////////////////////////////////////////////////////////
