@@ -12,7 +12,8 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql-typed/expressions/expression_filter.h"
+#include "cppql-typed/expressions/bind_parameters.h"
+#include "cppql-typed/expressions/single_filter_expression.h"
 
 namespace sql
 {
@@ -22,12 +23,12 @@ namespace sql
 
     /**
      * \brief The LogicalExpression class holds two sub
-     * FilterExpressions that are combined using either the AND or
+     * SingleFilterExpression that are combined using either the AND or
      * OR operator.
      * \tparam T Table type.
      */
     template<typename T>
-    class LogicalExpression final : public FilterExpression<T>
+    class LogicalExpression final : public SingleFilterExpression<T>
     {
     public:
         enum class Operator
@@ -42,7 +43,7 @@ namespace sql
 
         LogicalExpression(LogicalExpression&& other) noexcept;
 
-        LogicalExpression(FilterExpressionPtr<T> lhs, FilterExpressionPtr<T> rhs, Operator o);
+        LogicalExpression(SingleFilterExpression<T> lhs, SingleFilterExpression<T> rhs, Operator o);
 
         ~LogicalExpression() override = default;
 
@@ -54,18 +55,18 @@ namespace sql
 
         void bind(Statement& stmt, BindParameters bind) const override;
 
-        [[nodiscard]] std::unique_ptr<FilterExpression<T>> clone() const override;
+        [[nodiscard]] std::unique_ptr<SingleFilterExpression<T>> clone() const override;
 
     private:
         /**
          * \brief Left hand side of expression.
          */
-        FilterExpressionPtr<T> left;
+        SingleFilterExpression<T> left;
 
         /**
          * \brief Right hand side of expression.
          */
-        FilterExpressionPtr<T> right;
+        SingleFilterExpression<T> right;
 
         /**
          * \brief Logical operator.
@@ -90,7 +91,9 @@ namespace sql
     }
 
     template<typename T>
-    LogicalExpression<T>::LogicalExpression(FilterExpressionPtr<T> lhs, FilterExpressionPtr<T> rhs, const Operator o) :
+    LogicalExpression<T>::LogicalExpression(SingleFilterExpression<T> lhs,
+                                            SingleFilterExpression<T> rhs,
+                                            const Operator            o) :
         left(std::move(lhs)), right(std::move(rhs)), op(o)
     {
     }
@@ -130,7 +133,7 @@ namespace sql
     }
 
     template<typename T>
-    std::unique_ptr<FilterExpression<T>> LogicalExpression<T>::clone() const
+    std::unique_ptr<SingleFilterExpression<T>> LogicalExpression<T>::clone() const
     {
         return std::make_unique<LogicalExpression<T>>(*this);
     }
@@ -139,7 +142,7 @@ namespace sql
     // AND (&&).
     ////////////////////////////////////////////////////////////////
 
-    template<_is_filter_expression E1, _is_filter_expression E2>
+    template<_is_single_filter_expression E1, _is_single_filter_expression E2>
     requires(same_table<E1, E2>) auto operator&&(E1&& lhs, E2&& rhs)
     {
         using L = LogicalExpression<typename E1::table_t>;
@@ -151,7 +154,7 @@ namespace sql
     // OR (||).
     ////////////////////////////////////////////////////////////////
 
-    template<_is_filter_expression E1, _is_filter_expression E2>
+    template<_is_single_filter_expression E1, _is_single_filter_expression E2>
     requires(same_table<E1, E2>) auto operator||(E1&& lhs, E2&& rhs)
     {
         using L = LogicalExpression<typename E1::table_t>;

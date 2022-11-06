@@ -10,6 +10,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/expressions/bind_parameters.h"
 #include "cppql-typed/queries/select.h"
 
 namespace sql

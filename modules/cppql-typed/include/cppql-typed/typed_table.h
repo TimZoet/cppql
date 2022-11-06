@@ -25,13 +25,14 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/type_traits.h"
-#include "cppql-typed/expressions/expression_column.h"
-#include "cppql-typed/expressions/expression_comparison.h"
-#include "cppql-typed/expressions/expression_filter.h"
-#include "cppql-typed/expressions/expression_like.h"
-#include "cppql-typed/expressions/expression_limit.h"
-#include "cppql-typed/expressions/expression_logical.h"
-#include "cppql-typed/expressions/expression_order_by.h"
+#include "cppql-typed/expressions/bind_parameters.h"
+#include "cppql-typed/expressions/column_expression.h"
+#include "cppql-typed/expressions/comparison_expression.h"
+#include "cppql-typed/expressions/like_expression.h"
+#include "cppql-typed/expressions/limit_expression.h"
+#include "cppql-typed/expressions/logical_expression.h"
+#include "cppql-typed/expressions/order_by_expression.h"
+#include "cppql-typed/expressions/single_filter_expression.h"
 
 namespace sql
 {
@@ -160,7 +161,7 @@ namespace sql
 
         /**
          * \brief Create a DELETE FROM query. Creates a callable object that will delete all rows that match the filter expression.
-         * \tparam F FilterExpression type or std::nullopt_t.
+         * \tparam F SingleFilterExpression type or std::nullopt_t.
          * \tparam O OrderByExpression type or std::nullopt_t.
          * \tparam L LimitExpression type or std::nullopt_t.
          * \param filterExpression Expression to filter rows that are deleted. If std::nullopt, all rows are deleted.
@@ -169,9 +170,9 @@ namespace sql
          * \param bind Parameters to bind.
          * \return Delete object.
          */
-        template<is_filter_expression_or_none<table_t>   F,
-                 is_order_by_expression_or_none<table_t> O,
-                 is_limit_expression_or_none             L>
+        template<is_single_filter_expression_or_none<table_t> F,
+                 is_order_by_expression_or_none<table_t>      O,
+                 is_limit_expression_or_none                  L>
         [[nodiscard]] Delete<table_t>
           del(F&& filterExpression, O&& orderByExpression, L&& limitExpression, BindParameters bind)
         {
@@ -188,7 +189,7 @@ namespace sql
         /**
          * \brief Create a SELECT query. Creates an iterable object that returns rows as tuples.
          * \tparam Indices Indices of the columns to select. If empty, all columns are selected.
-         * \tparam F FilterExpression type or std::nullopt_t.
+         * \tparam F SingleFilterExpression type or std::nullopt_t.
          * \tparam O OrderByExpression type or std::nullopt_t.
          * \tparam L LimitExpression type or std::nullopt_t.
          * \param filterExpression Expression to filter results by. If std::nullopt, results are not filtered.
@@ -198,9 +199,9 @@ namespace sql
          * \return Select object.
          */
         template<size_t... Indices,
-                 is_filter_expression_or_none<table_t>   F,
-                 is_order_by_expression_or_none<table_t> O,
-                 is_limit_expression_or_none             L>
+                 is_single_filter_expression_or_none<table_t> F,
+                 is_order_by_expression_or_none<table_t>      O,
+                 is_limit_expression_or_none                  L>
         requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto select(F&&            filterExpression,
                                                                                       O&&            orderByExpression,
                                                                                       L&&            limitExpression,
@@ -231,7 +232,7 @@ namespace sql
          * \brief Create a SELECT query. Creates an iterable object that returns rows as objects of type R.
          * \tparam R Row return type.
          * \tparam Indices Indices of the columns to select. If empty, all columns are selected.
-         * \tparam F FilterExpression type or std::nullopt_t.
+         * \tparam F SingleFilterExpression type or std::nullopt_t.
          * \tparam O OrderByExpression type or std::nullopt_t.
          * \tparam L LimitExpression type or std::nullopt_t.
          * \param filterExpression Expression to filter results by. If std::nullopt, results are not filtered.
@@ -242,9 +243,9 @@ namespace sql
          */
         template<typename R,
                  size_t... Indices,
-                 is_filter_expression_or_none<table_t>   F,
-                 is_order_by_expression_or_none<table_t> O,
-                 is_limit_expression_or_none             L>
+                 is_single_filter_expression_or_none<table_t> F,
+                 is_order_by_expression_or_none<table_t>      O,
+                 is_limit_expression_or_none                  L>
         requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto select(F&&            filterExpression,
                                                                                       O&&            orderByExpression,
                                                                                       L&&            limitExpression,
@@ -278,12 +279,12 @@ namespace sql
         /**
          * \brief Create a SELECT query. Creates a callable object that returns a single row as a tuple. Will throw if there are 0 or more than 1 results.
          * \tparam Indices Indices of the columns to select. If empty, all columns are selected.
-         * \tparam F FilterExpression type.
+         * \tparam F SingleFilterExpression type.
          * \param filterExpression Expression to filter results by.
          * \param bind Parameters to bind.
          * \return SelectOne object.
          */
-        template<size_t... Indices, is_filter_expression<table_t> F>
+        template<size_t... Indices, is_single_filter_expression<table_t> F>
         requires(in_column_range<column_count, Indices...>)
           [[nodiscard]] auto selectOne(F&& filterExpression, BindParameters bind)
         {
@@ -306,12 +307,12 @@ namespace sql
          * \brief Create a SELECT query. Creates a callable object that returns a single row as an object of type R. Will throw if there are 0 or more than 1 results.
          * \tparam R Row return type.
          * \tparam Indices Indices of the columns to select. If empty, all columns are selected.
-         * \tparam F FilterExpression type.
+         * \tparam F SingleFilterExpression type.
          * \param filterExpression Expression to filter results by.
          * \param bind Parameters to bind.
          * \return SelectOne object.
          */
-        template<typename R, size_t... Indices, is_filter_expression<table_t> F>
+        template<typename R, size_t... Indices, is_single_filter_expression<table_t> F>
         requires(in_column_range<column_count, Indices...>)
           [[nodiscard]] auto selectOne(F&& filterExpression, BindParameters bind)
         {
@@ -336,12 +337,12 @@ namespace sql
 
         /**
          * \brief Create a COUNT query. Creates a callable object that returns the number of rows that match the filter expression.
-         * \tparam F FilterExpression type.
+         * \tparam F SingleFilterExpression type.
          * \param filterExpression Expression to filter results by.
          * \param bind Parameters to bind.
          * \return Count object.
          */
-        template<is_filter_expression_or_none<table_t> F>
+        template<is_single_filter_expression_or_none<table_t> F>
         [[nodiscard]] auto count(F&& filterExpression, BindParameters bind)
         {
             return countImpl(optionalToPtr(std::forward<F>(filterExpression)), bind);
@@ -354,7 +355,7 @@ namespace sql
         /**
          * \brief Create an UPDATE query. Creates a callable object that will update the specified columns of matching rows with the passed values.
          * \tparam Indices Indices of the columns to update.
-         * \tparam F FilterExpression type or std::nullopt_t.
+         * \tparam F SingleFilterExpression type or std::nullopt_t.
          * \tparam O OrderByExpression type or std::nullopt_t.
          * \tparam L LimitExpression type or std::nullopt_t.
          * \param filterExpression Expression to filter the rows that will be updated. If std::nullopt, rows are not filtered.
@@ -364,9 +365,9 @@ namespace sql
          * \return Update object.
          */
         template<size_t... Indices,
-                 is_filter_expression_or_none<table_t>   F,
-                 is_order_by_expression_or_none<table_t> O,
-                 is_limit_expression_or_none             L>
+                 is_single_filter_expression_or_none<table_t> F,
+                 is_order_by_expression_or_none<table_t>      O,
+                 is_limit_expression_or_none                  L>
         requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto update(F&&            filterExpression,
                                                                                       O&&            orderByExpression,
                                                                                       L&&            limitExpression,
@@ -435,7 +436,7 @@ namespace sql
             return Insert<table_t, Indices...>(std::move(stmt));
         }
 
-        [[nodiscard]] auto delImpl(FilterExpressionPtr<table_t>                    fExpr,
+        [[nodiscard]] auto delImpl(SingleFilterExpressionPtr<table_t>              fExpr,
                                    const std::optional<OrderByExpression<table_t>> oExpr,
                                    const std::optional<LimitExpression>            lExpr,
                                    const BindParameters                            bind)
@@ -464,7 +465,7 @@ namespace sql
         }
 
         template<typename R, size_t... Indices>
-        [[nodiscard]] auto selectImpl(FilterExpressionPtr<table_t>                    fExpr,
+        [[nodiscard]] auto selectImpl(SingleFilterExpressionPtr<table_t>              fExpr,
                                       const std::optional<OrderByExpression<table_t>> oExpr,
                                       const std::optional<LimitExpression>            lExpr,
                                       BindParameters                                  bind)
@@ -497,7 +498,7 @@ namespace sql
             return Select<table_t, R, Indices...>(std::move(stmt), std::move(fExpr));
         }
 
-        [[nodiscard]] auto countImpl(FilterExpressionPtr<table_t> fExpr, BindParameters bind)
+        [[nodiscard]] auto countImpl(SingleFilterExpressionPtr<table_t> fExpr, BindParameters bind)
         {
             std::string sql;
 
@@ -525,7 +526,7 @@ namespace sql
         }
 
         template<size_t... Indices>
-        [[nodiscard]] auto updateImpl(FilterExpressionPtr<table_t>                    fExpr,
+        [[nodiscard]] auto updateImpl(SingleFilterExpressionPtr<table_t>              fExpr,
                                       const std::optional<OrderByExpression<table_t>> oExpr,
                                       const std::optional<LimitExpression>            lExpr,
                                       BindParameters                                  bind)

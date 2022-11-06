@@ -12,6 +12,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/typed_table.h"
+#include "cppql-typed/expressions/bind_parameters.h"
 
 namespace sql
 {
@@ -30,7 +31,7 @@ namespace sql
 
         Count() = default;
 
-        Count(StatementPtr statement, FilterExpressionPtr<T> filterExpression) :
+        Count(StatementPtr statement, SingleFilterExpression<T> filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
@@ -91,6 +92,6 @@ namespace sql
         /**
          * \brief Pointer to filter expression.
          */
-        FilterExpressionPtr<T> exp;
+        SingleFilterExpressionPtr<T> exp;
     };
 }  // namespace sql

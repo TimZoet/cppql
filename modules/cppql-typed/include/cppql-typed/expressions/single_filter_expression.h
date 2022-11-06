@@ -14,25 +14,16 @@
 
 #include "cppql-core/statement.h"
 
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql-typed/expressions/bind_parameters.h"
+
 namespace sql
 {
-    /**
-     * \brief Specifies whether to bind fixed and/or dynamic parameters.
-     */
-    enum class BindParameters
-    {
-        // Don't bind any parameters.
-        None = 0,
-        // Bind fixed parameters only.
-        Fixed = 1,
-        // Bind dynamic parameters only.
-        Dynamic = 2,
-        // Bind fixed and dynamic parameters.
-        All = Fixed | Dynamic
-    };
-
     ////////////////////////////////////////////////////////////////
-    // FilterExpression class.
+    // SingleFilterExpression class.
     ////////////////////////////////////////////////////////////////
 
     /**
@@ -42,22 +33,22 @@ namespace sql
      * \tparam T Table type.
      */
     template<typename T>
-    class FilterExpression
+    class SingleFilterExpression
     {
     public:
         using table_t = T;
 
-        FilterExpression() = default;
+        SingleFilterExpression() = default;
 
-        FilterExpression(const FilterExpression&) = default;
+        SingleFilterExpression(const SingleFilterExpression&) = default;
 
-        FilterExpression(FilterExpression&&) noexcept = default;
+        SingleFilterExpression(SingleFilterExpression&&) noexcept = default;
 
-        virtual ~FilterExpression() = default;
+        virtual ~SingleFilterExpression() = default;
 
-        FilterExpression& operator=(const FilterExpression&) = default;
+        SingleFilterExpression& operator=(const SingleFilterExpression&) = default;
 
-        FilterExpression& operator=(FilterExpression&&) noexcept = default;
+        SingleFilterExpression& operator=(SingleFilterExpression&&) noexcept = default;
 
         /**
          * \brief Generate SQL.
@@ -74,7 +65,7 @@ namespace sql
          */
         virtual void bind(Statement& stmt, BindParameters bind) const = 0;
 
-        [[nodiscard]] virtual std::unique_ptr<FilterExpression<T>> clone() const = 0;
+        [[nodiscard]] virtual std::unique_ptr<SingleFilterExpression<T>> clone() const = 0;
     };
 
     ////////////////////////////////////////////////////////////////
@@ -82,15 +73,15 @@ namespace sql
     ////////////////////////////////////////////////////////////////
 
     template<typename T>
-    using FilterExpressionPtr = std::unique_ptr<FilterExpression<T>>;
+    using SingleFilterExpressionPtr = std::unique_ptr<SingleFilterExpression<T>>;
 
     template<typename T, typename Table>
-    concept is_filter_expression = std::derived_from<T, FilterExpression<Table>>;
+    concept is_single_filter_expression = std::derived_from<T, SingleFilterExpression<Table>>;
 
     template<typename T, typename Table>
-    concept is_filter_expression_or_none =
-      is_filter_expression<T, Table> || std::same_as<std::remove_cvref_t<T>, std::nullopt_t>;
+    concept is_single_filter_expression_or_none =
+      is_single_filter_expression<T, Table> || std::same_as<std::remove_cvref_t<T>, std::nullopt_t>;
 
     template<typename T>
-    concept _is_filter_expression = std::derived_from<T, FilterExpression<typename T::table_t>>;
+    concept _is_single_filter_expression = std::derived_from<T, SingleFilterExpression<typename T::table_t>>;
 }  // namespace sql

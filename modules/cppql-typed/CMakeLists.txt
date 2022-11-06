@@ -9,13 +9,14 @@ set(SRC_DIR "src")
 set(HEADERS
     ${INCLUDE_DIR}/type_traits.h
     ${INCLUDE_DIR}/typed_table.h
-    ${INCLUDE_DIR}/expressions/expression_column.h
-    ${INCLUDE_DIR}/expressions/expression_comparison.h
-    ${INCLUDE_DIR}/expressions/expression_filter.h
-    ${INCLUDE_DIR}/expressions/expression_like.h
-    ${INCLUDE_DIR}/expressions/expression_limit.h
-    ${INCLUDE_DIR}/expressions/expression_logical.h
-    ${INCLUDE_DIR}/expressions/expression_order_by.h
+    ${INCLUDE_DIR}/expressions/bind_parameters.h
+    ${INCLUDE_DIR}/expressions/column_expression.h
+    ${INCLUDE_DIR}/expressions/comparison_expression.h
+    ${INCLUDE_DIR}/expressions/like_expression.h
+    ${INCLUDE_DIR}/expressions/limit_expression.h
+    ${INCLUDE_DIR}/expressions/logical_expression.h
+    ${INCLUDE_DIR}/expressions/order_by_expression.h
+    ${INCLUDE_DIR}/expressions/single_filter_expression.h
     ${INCLUDE_DIR}/queries/count.h
     ${INCLUDE_DIR}/queries/delete.h
     ${INCLUDE_DIR}/queries/insert.h

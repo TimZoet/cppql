@@ -15,7 +15,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql-typed/expressions/expression_column.h"
+#include "cppql-typed/expressions/column_expression.h"
 
 namespace sql
 {

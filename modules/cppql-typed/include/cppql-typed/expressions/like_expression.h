@@ -20,8 +20,9 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/type_traits.h"
-#include "cppql-typed/expressions/expression_column.h"
-#include "cppql-typed/expressions/expression_filter.h"
+#include "cppql-typed/expressions/bind_parameters.h"
+#include "cppql-typed/expressions/column_expression.h"
+#include "cppql-typed/expressions/single_filter_expression.h"
 
 namespace sql
 {
@@ -35,7 +36,7 @@ namespace sql
      * \tparam T Table type.
      */
     template<typename T>
-    class LikeExpression final : public FilterExpression<T>
+    class LikeExpression final : public SingleFilterExpression<T>
     {
     public:
         LikeExpression() = delete;
@@ -58,7 +59,7 @@ namespace sql
 
         void bind(Statement& stmt, BindParameters bind) const override;
 
-        [[nodiscard]] std::unique_ptr<FilterExpression<T>> clone() const override;
+        [[nodiscard]] std::unique_ptr<SingleFilterExpression<T>> clone() const override;
 
     private:
         /**
@@ -105,8 +106,7 @@ namespace sql
     }
 
     template<typename T>
-    LikeExpression<T>::LikeExpression(BaseColumnExpressionPtr<T> col, std::string* p) :
-        column(std::move(col)), ptr(p)
+    LikeExpression<T>::LikeExpression(BaseColumnExpressionPtr<T> col, std::string* p) : column(std::move(col)), ptr(p)
     {
     }
 
@@ -150,7 +150,7 @@ namespace sql
     }
 
     template<typename T>
-    std::unique_ptr<FilterExpression<T>> LikeExpression<T>::clone() const
+    std::unique_ptr<SingleFilterExpression<T>> LikeExpression<T>::clone() const
     {
         return std::make_unique<LikeExpression<T>>(*this);
     }
@@ -174,7 +174,7 @@ namespace sql
         using D = ColumnExpression<T, Index>;
         return C(std::make_unique<D>(std::move(col)), std::move(val));
     }
-    
+
     /**
      * \brief Require column LIKE dynamic value.
      * \tparam T Table type.

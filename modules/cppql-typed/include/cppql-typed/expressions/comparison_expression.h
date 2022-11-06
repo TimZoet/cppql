@@ -21,8 +21,9 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/type_traits.h"
-#include "cppql-typed/expressions/expression_column.h"
-#include "cppql-typed/expressions/expression_filter.h"
+#include "cppql-typed/expressions/bind_parameters.h"
+#include "cppql-typed/expressions/column_expression.h"
+#include "cppql-typed/expressions/single_filter_expression.h"
 
 namespace sql
 {
@@ -37,7 +38,7 @@ namespace sql
      * \tparam V Value type.
      */
     template<typename T, typename V>
-    class ComparisonExpression final : public FilterExpression<T>
+    class ComparisonExpression final : public SingleFilterExpression<T>
     {
     public:
         enum class Operator
@@ -72,7 +73,7 @@ namespace sql
 
         void bind(Statement& stmt, BindParameters bind) const override;
 
-        [[nodiscard]] std::unique_ptr<FilterExpression<T>> clone() const override;
+        [[nodiscard]] std::unique_ptr<SingleFilterExpression<T>> clone() const override;
 
     private:
         /**
@@ -209,7 +210,7 @@ namespace sql
     }
 
     template<typename T, typename V>
-    std::unique_ptr<FilterExpression<T>> ComparisonExpression<T, V>::clone() const
+    std::unique_ptr<SingleFilterExpression<T>> ComparisonExpression<T, V>::clone() const
     {
         return std::make_unique<ComparisonExpression<T, V>>(*this);
     }
