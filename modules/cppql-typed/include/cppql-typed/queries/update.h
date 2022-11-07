@@ -32,7 +32,7 @@ namespace sql
 
         Update() = default;
 
-        Update(StatementPtr statement, SingleFilterExpressionPtr<T> filterExpression) :
+        Update(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
@@ -127,6 +127,6 @@ namespace sql
         /**
          * \brief Pointer to filter expression.
          */
-        SingleFilterExpressionPtr<T> exp;
+        BaseFilterExpressionPtr exp;
     };
 }  // namespace sql

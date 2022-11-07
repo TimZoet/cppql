@@ -1,5 +1,5 @@
 #pragma once
-
+#if 0
 ////////////////////////////////////////////////////////////////
 // Standard includes.
 ////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/expressions/base_filter_expression.h"
 #include "cppql-typed/expressions/bind_parameters.h"
 
 namespace sql
@@ -33,7 +34,7 @@ namespace sql
      * \tparam T Table type.
      */
     template<typename T>
-    class SingleFilterExpression
+    class SingleFilterExpression : public BaseFilterExpression
     {
     public:
         using table_t = T;
@@ -44,28 +45,13 @@ namespace sql
 
         SingleFilterExpression(SingleFilterExpression&&) noexcept = default;
 
-        virtual ~SingleFilterExpression() = default;
+        ~SingleFilterExpression() noexcept override = default;
 
         SingleFilterExpression& operator=(const SingleFilterExpression&) = default;
 
         SingleFilterExpression& operator=(SingleFilterExpression&&) noexcept = default;
 
-        /**
-         * \brief Generate SQL.
-         * \param table Table.
-         * \param pIndex Reference to counter that is incremented for each parameter.
-         * \return SQL code.
-         */
-        [[nodiscard]] virtual std::string toString(const Table& table, int32_t& pIndex) = 0;
-
-        /**
-         * \brief Bind all parameters in this expression to the statement.
-         * \param bind Parameters to bind.
-         * \param stmt Statement object.
-         */
-        virtual void bind(Statement& stmt, BindParameters bind) const = 0;
-
-        [[nodiscard]] virtual std::unique_ptr<SingleFilterExpression<T>> clone() const = 0;
+        [[nodiscard]] virtual std::unique_ptr<SingleFilterExpression<T>> cloneSingle() const = 0;
     };
 
     ////////////////////////////////////////////////////////////////
@@ -85,3 +71,4 @@ namespace sql
     template<typename T>
     concept _is_single_filter_expression = std::derived_from<T, SingleFilterExpression<typename T::table_t>>;
 }  // namespace sql
+#endif

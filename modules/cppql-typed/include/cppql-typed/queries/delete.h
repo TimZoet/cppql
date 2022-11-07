@@ -32,7 +32,7 @@ namespace sql
 
         Delete() = default;
 
-        Delete(StatementPtr statement, SingleFilterExpressionPtr<T> filterExpression) :
+        Delete(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
@@ -86,6 +86,6 @@ namespace sql
         /**
          * \brief Pointer to filter expression.
          */
-        SingleFilterExpressionPtr<T> exp;
+        BaseFilterExpressionPtr exp;
     };
 }  // namespace sql

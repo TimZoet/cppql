@@ -100,7 +100,7 @@ namespace sql
 
         Select() = default;
 
-        Select(StatementPtr statement, SingleFilterExpressionPtr<T> filterExpression) :
+        Select(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
@@ -159,6 +159,6 @@ namespace sql
         /**
          * \brief Pointer to filter expression.
          */
-        SingleFilterExpressionPtr<T> exp;
+        BaseFilterExpressionPtr exp;
     };
 }  // namespace sql

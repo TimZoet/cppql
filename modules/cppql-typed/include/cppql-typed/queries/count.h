@@ -31,7 +31,7 @@ namespace sql
 
         Count() = default;
 
-        Count(StatementPtr statement, SingleFilterExpression<T> filterExpression) :
+        Count(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
@@ -92,6 +92,6 @@ namespace sql
         /**
          * \brief Pointer to filter expression.
          */
-        SingleFilterExpressionPtr<T> exp;
+        BaseFilterExpressionPtr exp;
     };
 }  // namespace sql

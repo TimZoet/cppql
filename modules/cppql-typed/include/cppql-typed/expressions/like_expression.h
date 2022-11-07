@@ -1,5 +1,5 @@
 #pragma once
-
+#if 0
 ////////////////////////////////////////////////////////////////
 // Standard includes.
 ////////////////////////////////////////////////////////////////
@@ -55,11 +55,13 @@ namespace sql
 
         LikeExpression& operator=(LikeExpression&& other) noexcept;
 
-        [[nodiscard]] std::string toString(const Table& table, int32_t& pIndex) override;
+        [[nodiscard]] std::string toString(int32_t& pIndex) override;
 
         void bind(Statement& stmt, BindParameters bind) const override;
 
-        [[nodiscard]] std::unique_ptr<SingleFilterExpression<T>> clone() const override;
+        [[nodiscard]] BaseFilterExpressionPtr clone() const override;
+
+        [[nodiscard]] SingleFilterExpressionPtr<T> cloneSingle() const override;
 
     private:
         /**
@@ -131,12 +133,12 @@ namespace sql
     }
 
     template<typename T>
-    std::string LikeExpression<T>::toString(const Table& table, int32_t& pIndex)
+    std::string LikeExpression<T>::toString(int32_t& pIndex)
     {
         // Store unincremented index value. Use incremented value in string, because sqlite parameter indices start at 1.
         index    = pIndex++;
-        auto col = column->toString(table);
-        return std::format("{0} LIKE ?{1}", column->toString(table), pIndex);
+        auto col = column->toString();
+        return std::format("{0} LIKE ?{1}", column->toString(), pIndex);
     }
 
     template<typename T>
@@ -150,7 +152,13 @@ namespace sql
     }
 
     template<typename T>
-    std::unique_ptr<SingleFilterExpression<T>> LikeExpression<T>::clone() const
+    BaseFilterExpressionPtr LikeExpression<T>::clone() const
+    {
+        return std::make_unique<LikeExpression<T>>(*this);
+    }
+
+    template<typename T>
+    SingleFilterExpressionPtr<T> LikeExpression<T>::cloneSingle() const
     {
         return std::make_unique<LikeExpression<T>>(*this);
     }
@@ -191,3 +199,4 @@ namespace sql
         return C(std::make_unique<D>(std::move(col)), val);
     }
 }  // namespace sql
+#endif

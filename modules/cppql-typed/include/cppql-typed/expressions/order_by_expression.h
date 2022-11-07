@@ -74,7 +74,8 @@ namespace sql
             /**
              * \brief Column to order.
              */
-            BaseColumnExpressionPtr<T> column;
+            //BaseColumnExpressionPtr<T> column;
+            std::string column;
 
             /**
              * \brief Order in which the values of this column are sorted.
@@ -93,7 +94,8 @@ namespace sql
 
         OrderByExpression(OrderByExpression&& other) noexcept;
 
-        OrderByExpression(BaseColumnExpressionPtr<T> col, Order orderBy, Nulls nlls);
+        //OrderByExpression(BaseColumnExpressionPtr<T> col, Order orderBy, Nulls nlls);
+        OrderByExpression(std::string col, Order orderBy, Nulls nlls);
 
         ~OrderByExpression() = default;
 
@@ -103,10 +105,9 @@ namespace sql
 
         /**
          * \brief Generate ORDER BY string.
-         * \param table Table.
          * \return ORDER BY string.
          */
-        [[nodiscard]] std::string toString(const Table& table) const;
+        [[nodiscard]] std::string toString() const;
 
         std::vector<Element> elements;
     };
@@ -127,7 +128,7 @@ namespace sql
     }
 
     template<typename T>
-    OrderByExpression<T>::OrderByExpression(BaseColumnExpressionPtr<T> col, const Order orderBy, const Nulls nlls)
+    OrderByExpression<T>::OrderByExpression(std::string col, const Order orderBy, const Nulls nlls)
 
     {
         elements.emplace_back(std::move(col), orderBy, nlls);
@@ -148,7 +149,7 @@ namespace sql
     }
 
     template<typename T>
-    std::string OrderByExpression<T>::toString(const Table& table) const
+    std::string OrderByExpression<T>::toString() const
     {
         bool              first = true;
         std::stringstream s;
@@ -157,7 +158,7 @@ namespace sql
         {
             if (!first) s << ",";
             first = false;
-            s << " " << elem.column->toString(table) << (elem.order == Order::Asc ? " ASC" : " DESC");
+            s << " " << elem.column << (elem.order == Order::Asc ? " ASC" : " DESC");
             if (elem.nulls == Nulls::First)
                 s << " NULLS FIRST";
             else if (elem.nulls == Nulls::Last)
@@ -180,7 +181,8 @@ namespace sql
     template<is_column_expression C>
     auto ascending(C&& col, Nulls nulls = Nulls::None)
     {
-        return OrderByExpression<typename C::table_t>(col.clone(), Order::Asc, nulls);
+        int32_t dummy = 0;
+        return OrderByExpression<typename C::table_t>(col.toString(dummy), Order::Asc, nulls);
     }
 
     /**
@@ -193,7 +195,8 @@ namespace sql
     template<is_column_expression C>
     auto descending(C&& col, Nulls nulls = Nulls::None)
     {
-        return OrderByExpression<typename C::table_t>(col.clone(), Order::Desc, nulls);
+        int32_t dummy = 0;
+        return OrderByExpression<typename C::table_t>(col.toString(dummy), Order::Desc, nulls);
     }
 
     template<_is_order_by_expression T>

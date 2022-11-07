@@ -26,6 +26,7 @@
 
 #include "cppql-typed/type_traits.h"
 #include "cppql-typed/expressions/bind_parameters.h"
+#include "cppql-typed/expressions/column_comparison_expression.h"
 #include "cppql-typed/expressions/column_expression.h"
 #include "cppql-typed/expressions/comparison_expression.h"
 #include "cppql-typed/expressions/like_expression.h"
@@ -115,6 +116,14 @@ namespace sql
         TypedTable& operator=(TypedTable&&) = default;
 
         ////////////////////////////////////////////////////////////////
+        // Getters.
+        ////////////////////////////////////////////////////////////////
+
+        Table& getTable() noexcept { return *table; }
+
+        [[nodiscard]] const Table& getTable() const noexcept { return *table; }
+
+        ////////////////////////////////////////////////////////////////
         // Columns.
         ////////////////////////////////////////////////////////////////
 
@@ -127,7 +136,7 @@ namespace sql
         requires(in_column_range<column_count, Index>)
           [[nodiscard]] ColumnExpression<table_t, Index> col() const noexcept
         {
-            return ColumnExpression<table_t, Index>();
+            return ColumnExpression<table_t, Index>(*table);
         }
 
         ////////////////////////////////////////////////////////////////
@@ -436,15 +445,15 @@ namespace sql
             return Insert<table_t, Indices...>(std::move(stmt));
         }
 
-        [[nodiscard]] auto delImpl(SingleFilterExpressionPtr<table_t>              fExpr,
+        [[nodiscard]] auto delImpl(BaseFilterExpressionPtr                         fExpr,
                                    const std::optional<OrderByExpression<table_t>> oExpr,
                                    const std::optional<LimitExpression>            lExpr,
                                    const BindParameters                            bind)
         {
             // Generate format arguments.
             auto        index   = 0;
-            std::string e       = fExpr ? "WHERE " + fExpr->toString(*table, index) : "";
-            std::string orderBy = oExpr ? oExpr->toString(*table) : "";
+            std::string e       = fExpr ? "WHERE " + fExpr->toString(index) : "";
+            std::string orderBy = oExpr ? oExpr->toString() : "";
             std::string limit   = lExpr ? lExpr->toString() : "";
 
             // Format SQL statement.
@@ -465,7 +474,7 @@ namespace sql
         }
 
         template<typename R, size_t... Indices>
-        [[nodiscard]] auto selectImpl(SingleFilterExpressionPtr<table_t>              fExpr,
+        [[nodiscard]] auto selectImpl(BaseFilterExpressionPtr                         fExpr,
                                       const std::optional<OrderByExpression<table_t>> oExpr,
                                       const std::optional<LimitExpression>            lExpr,
                                       BindParameters                                  bind)
@@ -473,8 +482,8 @@ namespace sql
             // Generate format arguments.
             auto        index   = 0;
             std::string cs      = formatColumns(*table, {Indices...});
-            std::string e       = fExpr ? "WHERE " + fExpr->toString(*table, index) : "";
-            std::string orderBy = oExpr ? oExpr->toString(*table) : "";
+            std::string e       = fExpr ? "WHERE " + fExpr->toString(index) : "";
+            std::string orderBy = oExpr ? oExpr->toString() : "";
             std::string limit   = lExpr ? lExpr->toString() : "";
 
             // Format SQL statement.
@@ -498,7 +507,7 @@ namespace sql
             return Select<table_t, R, Indices...>(std::move(stmt), std::move(fExpr));
         }
 
-        [[nodiscard]] auto countImpl(SingleFilterExpressionPtr<table_t> fExpr, BindParameters bind)
+        [[nodiscard]] auto countImpl(BaseFilterExpressionPtr fExpr, BindParameters bind)
         {
             std::string sql;
 
@@ -506,8 +515,7 @@ namespace sql
             if (fExpr)
             {
                 auto index = 0;
-                sql =
-                  std::format("SELECT COUNT(*) FROM {0} WHERE {1};", table->getName(), fExpr->toString(*table, index));
+                sql = std::format("SELECT COUNT(*) FROM {0} WHERE {1};", table->getName(), fExpr->toString(index));
             }
             else
                 sql = std::format("SELECT COUNT(*) FROM {0};", table->getName());
@@ -526,7 +534,7 @@ namespace sql
         }
 
         template<size_t... Indices>
-        [[nodiscard]] auto updateImpl(SingleFilterExpressionPtr<table_t>              fExpr,
+        [[nodiscard]] auto updateImpl(BaseFilterExpressionPtr                         fExpr,
                                       const std::optional<OrderByExpression<table_t>> oExpr,
                                       const std::optional<LimitExpression>            lExpr,
                                       BindParameters                                  bind)
@@ -535,8 +543,8 @@ namespace sql
 
             // Generate format arguments.
             auto        index    = static_cast<int32_t>(sizeof...(Indices));
-            std::string e        = fExpr ? "WHERE " + fExpr->toString(*table, index) : "";
-            std::string orderBy  = oExpr ? oExpr->toString(*table) : "";
+            std::string e        = fExpr ? "WHERE " + fExpr->toString(index) : "";
+            std::string orderBy  = oExpr ? oExpr->toString() : "";
             std::string limit    = lExpr ? lExpr->toString() : "";
             std::string colNames = formatColumns(*table, {Indices...});
             std::string cs       = "?1";
@@ -589,6 +597,7 @@ namespace sql
     template<typename T>
     using tuple_to_table_t = typename tuple_to_table<T>::type;
 
+#if 0
     /**
      * \brief Get the return type of a call to the insert method of the given table class with the given parameters.
      * \tparam T Table.
@@ -663,4 +672,5 @@ namespace sql
      */
     template<typename T, typename R, size_t... Indices>
     using select_all_t = decltype(std::declval<T>().template selectAll<R, Indices...>());
+#endif
 }  // namespace sql

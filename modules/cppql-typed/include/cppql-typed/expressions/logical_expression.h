@@ -13,29 +13,27 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/expressions/bind_parameters.h"
-#include "cppql-typed/expressions/single_filter_expression.h"
+#include "cppql-typed/expressions/filter_expression.h"
 
 namespace sql
 {
-    ////////////////////////////////////////////////////////////////
-    // LogicalExpression class.
-    ////////////////////////////////////////////////////////////////
-
-    /**
-     * \brief The LogicalExpression class holds two sub
-     * SingleFilterExpression that are combined using either the AND or
-     * OR operator.
-     * \tparam T Table type.
-     */
-    template<typename T>
-    class LogicalExpression final : public SingleFilterExpression<T>
+    template<is_filter_expression L, is_filter_expression R>
+    class LogicalExpression : public FilterExpression<tuple_merge_t<typename L::table_list_t, typename R::table_list_t>>
     {
     public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
         enum class Operator
         {
             Or,
             And
         };
+
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
 
         LogicalExpression() = delete;
 
@@ -43,7 +41,7 @@ namespace sql
 
         LogicalExpression(LogicalExpression&& other) noexcept;
 
-        LogicalExpression(SingleFilterExpression<T> lhs, SingleFilterExpression<T> rhs, Operator o);
+        LogicalExpression(L lhs, R rhs, Operator o);
 
         ~LogicalExpression() override = default;
 
@@ -51,23 +49,26 @@ namespace sql
 
         LogicalExpression& operator=(LogicalExpression&& other) noexcept;
 
-        [[nodiscard]] std::string toString(const Table& table, int32_t& pIndex) override;
+        ////////////////////////////////////////////////////////////////
+        // Generate.
+        ////////////////////////////////////////////////////////////////
+
+        [[nodiscard]] std::string toString(int32_t& pIndex) override;
 
         void bind(Statement& stmt, BindParameters bind) const override;
-
-        [[nodiscard]] std::unique_ptr<SingleFilterExpression<T>> clone() const override;
 
     private:
         /**
          * \brief Left hand side of expression.
          */
-        SingleFilterExpression<T> left;
+        L left;
 
         /**
          * \brief Right hand side of expression.
          */
-        SingleFilterExpression<T> right;
+        R right;
 
+        // TODO: This can perhaps be turned into a template parameter.
         /**
          * \brief Logical operator.
          */
@@ -78,37 +79,35 @@ namespace sql
     // Implementation.
     ////////////////////////////////////////////////////////////////
 
-    template<typename T>
-    LogicalExpression<T>::LogicalExpression(const LogicalExpression& other) :
-        left(other.left->clone()), right(other.right->clone()), op(other.op)
+    template<is_filter_expression L, is_filter_expression R>
+    LogicalExpression<L, R>::LogicalExpression(const LogicalExpression& other) :
+        left(other.left), right(other.right), op(other.op)
     {
     }
 
-    template<typename T>
-    LogicalExpression<T>::LogicalExpression(LogicalExpression&& other) noexcept :
+    template<is_filter_expression L, is_filter_expression R>
+    LogicalExpression<L, R>::LogicalExpression(LogicalExpression&& other) noexcept :
         left(std::move(other.left)), right(std::move(other.right)), op(other.op)
     {
     }
 
-    template<typename T>
-    LogicalExpression<T>::LogicalExpression(SingleFilterExpression<T> lhs,
-                                            SingleFilterExpression<T> rhs,
-                                            const Operator            o) :
+    template<is_filter_expression L, is_filter_expression R>
+    LogicalExpression<L, R>::LogicalExpression(L lhs, R rhs, const Operator o) :
         left(std::move(lhs)), right(std::move(rhs)), op(o)
     {
     }
 
-    template<typename T>
-    LogicalExpression<T>& LogicalExpression<T>::operator=(const LogicalExpression& other)
+    template<is_filter_expression L, is_filter_expression R>
+    LogicalExpression<L, R>& LogicalExpression<L, R>::operator=(const LogicalExpression& other)
     {
-        left  = other.left->clone();
-        right = other.right->clone();
+        left  = other.left;
+        right = other.right;
         op    = other.op;
         return *this;
     }
 
-    template<typename T>
-    LogicalExpression<T>& LogicalExpression<T>::operator=(LogicalExpression&& other) noexcept
+    template<is_filter_expression L, is_filter_expression R>
+    LogicalExpression<L, R>& LogicalExpression<L, R>::operator=(LogicalExpression&& other) noexcept
     {
         left  = std::move(other.left);
         right = std::move(other.right);
@@ -116,49 +115,41 @@ namespace sql
         return *this;
     }
 
-    template<typename T>
-    std::string LogicalExpression<T>::toString(const Table& table, int32_t& pIndex)
+    template<is_filter_expression L, is_filter_expression R>
+    std::string LogicalExpression<L, R>::toString(int32_t& pIndex)
     {
-        auto l = left->toString(table, pIndex);
+        auto l = left.toString(pIndex);
         auto o = op == Operator::And ? std::string("AND") : std::string("OR");
-        auto r = right->toString(table, pIndex);
+        auto r = right.toString(pIndex);
         return std::format("({0} {1} {2})", std::move(l), std::move(o), std::move(r));
     }
 
-    template<typename T>
-    void LogicalExpression<T>::bind(Statement& stmt, const BindParameters bind) const
+    template<is_filter_expression L, is_filter_expression R>
+    void LogicalExpression<L, R>::bind(Statement& stmt, const BindParameters bind) const
     {
-        left->bind(stmt, bind);
-        right->bind(stmt, bind);
-    }
-
-    template<typename T>
-    std::unique_ptr<SingleFilterExpression<T>> LogicalExpression<T>::clone() const
-    {
-        return std::make_unique<LogicalExpression<T>>(*this);
+        left.bind(stmt, bind);
+        right.bind(stmt, bind);
     }
 
     ////////////////////////////////////////////////////////////////
     // AND (&&).
     ////////////////////////////////////////////////////////////////
 
-    template<_is_single_filter_expression E1, _is_single_filter_expression E2>
-    requires(same_table<E1, E2>) auto operator&&(E1&& lhs, E2&& rhs)
+    template<is_filter_expression L, is_filter_expression R>
+    auto operator&&(L&& lhs, R&& rhs)
     {
-        using L = LogicalExpression<typename E1::table_t>;
-        return L(
-          std::make_unique<E1>(std::forward<E1>(lhs)), std::make_unique<E2>(std::forward<E2>(rhs)), L::Operator::And);
+        using t = LogicalExpression<L, R>;
+        return t(std::forward<L>(lhs), std::forward<R>(rhs), t::Operator::And);
     }
 
     ////////////////////////////////////////////////////////////////
     // OR (||).
     ////////////////////////////////////////////////////////////////
 
-    template<_is_single_filter_expression E1, _is_single_filter_expression E2>
-    requires(same_table<E1, E2>) auto operator||(E1&& lhs, E2&& rhs)
+    template<is_filter_expression L, is_filter_expression R>
+    auto operator||(L&& lhs, R&& rhs)
     {
-        using L = LogicalExpression<typename E1::table_t>;
-        return L(
-          std::make_unique<E1>(std::forward<E1>(lhs)), std::make_unique<E2>(std::forward<E2>(rhs)), L::Operator::Or);
+        using t = LogicalExpression<L, R>;
+        return t(std::forward<L>(lhs), std::forward<R>(rhs), t::Operator::Or);
     }
 }  // namespace sql

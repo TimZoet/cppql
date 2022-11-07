@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include <string>
+#include <tuple>
 
 ////////////////////////////////////////////////////////////////
 // Module includes.
@@ -12,36 +13,29 @@
 
 #include "cppql-core/table.h"
 
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql-typed/expressions/filter_expression.h"
+
 namespace sql
 {
-    template<typename T>
-    class BaseColumnExpression
-    {
-    public:
-        using table_t = T;
-
-        BaseColumnExpression() = default;
-
-        BaseColumnExpression(const BaseColumnExpression&) = default;
-
-        BaseColumnExpression(BaseColumnExpression&&) noexcept = default;
-
-        virtual ~BaseColumnExpression() = default;
-
-        BaseColumnExpression& operator=(const BaseColumnExpression&) = default;
-
-        BaseColumnExpression& operator=(BaseColumnExpression&&) noexcept = default;
-
-        [[nodiscard]] virtual std::string toString(const Table& table) const = 0;
-
-        [[nodiscard]] virtual std::unique_ptr<BaseColumnExpression<T>> clone() const = 0;
-    };
-
+    // TODO: T must be TypedTable, I a valid index
     template<typename T, size_t Index>
-    class ColumnExpression final : public BaseColumnExpression<T>
+    class ColumnExpression : public FilterExpression<std::tuple<T>>
     {
     public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
+        using table_t                 = T;
         static constexpr size_t index = Index;
+
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
 
         ColumnExpression() = default;
 
@@ -49,26 +43,29 @@ namespace sql
 
         ColumnExpression(ColumnExpression&&) noexcept = default;
 
+        explicit ColumnExpression(Table& t) : FilterExpression<std::tuple<T>>(t) {}
+
         ~ColumnExpression() override = default;
 
         ColumnExpression& operator=(const ColumnExpression&) = default;
 
         ColumnExpression& operator=(ColumnExpression&&) noexcept = default;
 
-        [[nodiscard]] std::string toString(const Table& table) const override
+        ////////////////////////////////////////////////////////////////
+        // Generate.
+        ////////////////////////////////////////////////////////////////
+
+        [[nodiscard]] std::string toString(int32_t&) override
         {
-            return table.getColumn(Index).getName();
+            return std::format("{}.{}", this->table->getName(), this->table->getColumn(Index).getName());
         }
 
-        [[nodiscard]] std::unique_ptr<BaseColumnExpression<T>> clone() const override
-        {
-            return std::make_unique<ColumnExpression<T, Index>>(*this);
-        }
+        void bind(Statement&, BindParameters) const override {}
     };
 
     template<typename T>
-    concept is_column_expression = std::derived_from<T, BaseColumnExpression<typename T::table_t>>;
+    concept is_column_expression = std::same_as<std::decay_t<T>, ColumnExpression<typename T::table_t, T::index>>;
 
-    template<typename T>
-    using BaseColumnExpressionPtr = std::unique_ptr<BaseColumnExpression<T>>;
+    template<typename C, typename Tables>
+    concept is_valid_column_expression = is_column_expression<C> && tuple_contains_type<typename C::table_t, Tables>;
 }  // namespace sql
