@@ -382,6 +382,8 @@ namespace sql
                                                                                       L&&            limitExpression,
                                                                                       BindParameters bind)
         {
+            // TODO: In all of these filters, there could technically be expressions referencing columns from different table instances that just so happen to have the same column types.
+            // That should proably result in a runtime error.
             if constexpr (sizeof...(Indices))
             {
                 return updateImpl<Indices...>(optionalToPtr(std::forward<F>(filterExpression)),

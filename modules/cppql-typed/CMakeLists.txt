@@ -9,6 +9,9 @@ set(SRC_DIR "src")
 set(HEADERS
     ${INCLUDE_DIR}/type_traits.h
     ${INCLUDE_DIR}/typed_table.h
+    ${INCLUDE_DIR}/clauses/columns.h
+    ${INCLUDE_DIR}/clauses/order_by.h
+    ${INCLUDE_DIR}/clauses/where.h
     ${INCLUDE_DIR}/expressions/bind_parameters.h
     ${INCLUDE_DIR}/expressions/column_comparison_expression.h
     ${INCLUDE_DIR}/expressions/column_expression.h
@@ -20,8 +23,8 @@ set(HEADERS
     ${INCLUDE_DIR}/expressions/order_by_expression.h
     ${INCLUDE_DIR}/expressions/single_filter_expression.h
     ${INCLUDE_DIR}/joins/inner_join.h
-    ${INCLUDE_DIR}/joins/join_select.h
     ${INCLUDE_DIR}/joins/type_traits.h
+    ${INCLUDE_DIR}/queries/complex_select.h
     ${INCLUDE_DIR}/queries/count.h
     ${INCLUDE_DIR}/queries/delete.h
     ${INCLUDE_DIR}/queries/insert.h

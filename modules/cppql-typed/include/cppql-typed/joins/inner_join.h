@@ -18,18 +18,13 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/clauses/columns.h"
 #include "cppql-typed/expressions/filter_expression.h"
-#include "cppql-typed/joins/join_select.h"
 #include "cppql-typed/joins/type_traits.h"
+#include "cppql-typed/queries/complex_select.h"
 
 namespace sql
 {
-    //template<typename F, typename Tables>
-    //concept is_valid_single_filter_expression =
-    //  _is_single_filter_expression<F> && tuple_contains_type<typename F::table_t, Tables>;
-    //unique_table_list_t
-
-
     ////////////////////////////////////////////////////////////////
 
     template<typename T>
@@ -39,7 +34,8 @@ namespace sql
     };
 
     template<typename T>
-    requires(is_join<T>) struct get_table_list<T>
+        requires(is_join<T>)
+    struct get_table_list<T>
     {
         using table_list_t = typename T::table_list_t;
     };
@@ -80,10 +76,10 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         static constexpr bool recursive = is_join<L>;
-        using left_t                    = std::conditional_t<recursive, L, Table*>;
-        using table_t                   = R;
-        using table_list_t              = tuple_cat_t<get_table_list_t<L>, R>;
-        using filter_list_t             = lazy_filter_list_t<recursive, left_t, F>;
+        using left_t = std::conditional_t<recursive, L, Table*>;
+        using table_t = R;
+        using table_list_t = tuple_cat_t<get_table_list_t<L>, R>;
+        using filter_list_t = lazy_filter_list_t<recursive, left_t, F>;
 
         left_t left;
         Table* right;
@@ -108,16 +104,16 @@ namespace sql
 
         InnerJoin& operator=(const InnerJoin& other)
         {
-            left   = other.left;
-            right  = other.right;
+            left = other.left;
+            right = other.right;
             filter = other.filter;
             return *this;
         }
 
         InnerJoin& operator=(InnerJoin&& other) noexcept
         {
-            left   = std::move(other.left);
-            right  = other.right;
+            left = std::move(other.left);
+            right = other.right;
             filter = std::move(other.filter);
             return *this;
         }
@@ -135,13 +131,16 @@ namespace sql
         }
 
         template<typename Self,
-                 is_valid_column_expression<table_list_t> C,
-                 is_valid_column_expression<table_list_t>... Cs>
+            is_valid_column_expression<table_list_t> C,
+            is_valid_column_expression<table_list_t>... Cs>
         auto select(this Self&& self, C&& c, Cs&&... cs)
         {
             // TODO: Check table instances in columns match tables in joins.
 
-            return JoinSelect(std::forward<Self>(self), std::forward<C>(c), std::forward<Cs>(cs)...);
+            return ComplexSelect<std::decay_t<Self>, std::nullopt_t, std::nullopt_t, std::decay_t<C>, std::decay_t<Cs>...>(
+                std::forward<Self>(self),
+                Columns<C, Cs...>(std::make_tuple(std::forward<C>(c), std::forward<Cs>(cs)...))
+            );
         }
 
         ////////////////////////////////////////////////////////////////
@@ -162,13 +161,13 @@ namespace sql
             {
                 // Left contains more joins that must be stringified.
                 return std::format(
-                  "{0} INNER JOIN {1} ON {2}", left.toString(pIndex), right->getName(), filter.toString(pIndex));
+                    "{0} INNER JOIN {1} ON {2}", left.toString(pIndex), right->getName(), filter.toString(pIndex));
             }
             else
             {
                 // Left-most side of the join sequence. Left and right are both tables.
                 return std::format(
-                  "{0} INNER JOIN {1} ON {2}", left->getName(), right->getName(), filter.toString(pIndex));
+                    "{0} INNER JOIN {1} ON {2}", left->getName(), right->getName(), filter.toString(pIndex));
             }
         }
     };

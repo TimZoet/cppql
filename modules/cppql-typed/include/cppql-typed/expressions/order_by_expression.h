@@ -20,26 +20,6 @@
 namespace sql
 {
     ////////////////////////////////////////////////////////////////
-    // Type traits.
-    ////////////////////////////////////////////////////////////////
-
-    template<typename T>
-    class OrderByExpression;
-
-    template<typename T>
-    using OrderByExpressionPtr = std::unique_ptr<OrderByExpression<T>>;
-
-    template<typename T>
-    concept _is_order_by_expression = std::same_as<T, OrderByExpression<typename T::table_t>>;
-
-    template<typename T, typename Table>
-    concept is_order_by_expression = std::same_as<T, OrderByExpression<Table>>;
-
-    template<typename T, typename Table>
-    concept is_order_by_expression_or_none =
-      is_order_by_expression<T, Table> || std::same_as<std::remove_cvref_t<T>, std::nullopt_t>;
-
-    ////////////////////////////////////////////////////////////////
     // OrderByExpression class.
     ////////////////////////////////////////////////////////////////
 
@@ -56,6 +36,7 @@ namespace sql
         Last
     };
 
+    // TODO: Rework to be templated on a list of columns to avoid dynamic allocations, allowing ordering on multiple cols.
     /**
      * \brief The OrderByExpression class is used in conjunction
      * with query objects to order rows. It holds a (sequence of)
@@ -88,7 +69,7 @@ namespace sql
             Nulls nulls = Nulls::None;
         };
 
-        OrderByExpression() = delete;
+        OrderByExpression() = default;
 
         OrderByExpression(const OrderByExpression& other);
 
@@ -137,7 +118,7 @@ namespace sql
     template<typename T>
     OrderByExpression<T>& OrderByExpression<T>::operator=(const OrderByExpression& other)
     {
-        for (const auto& elem : other.elements) elements.emplace_back(elem.column->clone(), elem.order, elem.nulls);
+        for (const auto& elem : other.elements) elements.emplace_back(elem);
         return *this;
     }
 
@@ -166,6 +147,26 @@ namespace sql
         }
         return s.str();
     }
+
+    ////////////////////////////////////////////////////////////////
+    // Type traits.
+    ////////////////////////////////////////////////////////////////
+
+    template<typename T>
+    using OrderByExpressionPtr = std::unique_ptr<OrderByExpression<T>>;
+
+    template<typename T>
+    concept _is_order_by_expression = std::same_as<T, OrderByExpression<typename T::table_t>>;
+
+    template<typename T, typename Table>
+    concept is_order_by_expression = std::same_as<T, OrderByExpression<Table>>;
+
+    template<typename T, typename Table>
+    concept is_order_by_expression_or_none =
+        is_order_by_expression<T, Table> || std::same_as<std::remove_cvref_t<T>, std::nullopt_t>;
+
+    template<typename T, typename Tables>
+    concept is_valid_order_by_expression = _is_order_by_expression<T> && tuple_contains_type<typename T::table_t, Tables>;// TODO: Make list checker again.
 
     ////////////////////////////////////////////////////////////////
     // Order.
@@ -202,7 +203,7 @@ namespace sql
     template<_is_order_by_expression T>
     auto operator+(T lhs, T rhs)
     {
-        for (auto& elem : rhs.elements) lhs.elements.emplace_back(std::move(elem));
+        for (auto& elem : rhs.elements) lhs.elements.emplace_back(elem);
         return std::forward<T>(lhs);
     }
 

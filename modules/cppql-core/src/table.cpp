@@ -116,7 +116,10 @@ namespace sql
 
     Column& Table::getColumn(const std::string& columnName) const { return *columns[columnMap.at(columnName)]; }
 
-    Column& Table::getColumn(const size_t index) const { return *columns[index]; }
+    Column& Table::getColumn(const size_t index) const
+    {
+        return *columns[index];
+    }
 
     ////////////////////////////////////////////////////////////////
     // Columns.

@@ -86,7 +86,7 @@ namespace sql
 
     template<typename T>
     concept is_filter_expression =
-      std::derived_from<T, FilterExpression<typename T::table_list_t>>;
+      std::derived_from<std::decay_t<T>, FilterExpression<typename std::decay_t<T>::table_list_t>>;
 
     template<typename T, typename Table>
     concept is_single_filter_expression =
@@ -94,8 +94,8 @@ namespace sql
 
     template<typename T, typename Table>
     concept is_single_filter_expression_or_none =
-      is_single_filter_expression<T, Table> || std::same_as<std::remove_cvref_t<T>, std::nullopt_t>;
+      is_single_filter_expression<T, Table> || std::same_as<std::decay_t<T>, std::nullopt_t>;
 
     template<typename F, typename Tables>
-    concept is_valid_filter_expression = is_filter_expression<F> && tuple_is_subset<typename F::unique_table_list_t, Tables>;
+    concept is_valid_filter_expression = is_filter_expression<F> && tuple_is_subset<typename std::decay_t<F>::unique_table_list_t, Tables>;
 }  // namespace sql

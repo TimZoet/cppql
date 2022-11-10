@@ -1,0 +1,110 @@
+#pragma once
+
+////////////////////////////////////////////////////////////////
+// Standard includes.
+////////////////////////////////////////////////////////////////
+
+#include <optional>
+#include <type_traits>
+
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql-typed/expressions/order_by_expression.h"
+
+namespace sql
+{
+    template<typename O>
+    class OrderBy
+    {
+    public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+        
+        static constexpr bool valid = false;
+
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
+
+        OrderBy() = delete;
+
+        OrderBy(const OrderBy& other) = default;
+
+        OrderBy(OrderBy&& other) noexcept = default;
+
+        explicit OrderBy(std::nullopt_t) : order(std::nullopt) {}
+
+        virtual ~OrderBy()noexcept = default;
+
+        OrderBy& operator=(const OrderBy& other) = default;
+
+        OrderBy& operator=(OrderBy&& other) noexcept = default;
+
+        ////////////////////////////////////////////////////////////////
+        // ...
+        ////////////////////////////////////////////////////////////////
+
+        template<typename Self>
+        [[nodiscard]] std::string toString(this Self&&)
+        {
+            return {};
+        }
+
+    private:
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
+
+        std::nullopt_t order;
+    };
+
+    template<_is_order_by_expression O>
+    class OrderBy<O>
+    {
+    public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
+        static constexpr bool valid = true;
+        using order_t = O;
+
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
+
+        OrderBy() = default;
+
+        OrderBy(const OrderBy& other) = default;
+
+        OrderBy(OrderBy&& other) noexcept = default;
+
+        explicit OrderBy(order_t o) : order(std::move(o)) {}
+
+        virtual ~OrderBy()noexcept = default;
+
+        OrderBy& operator=(const OrderBy& other) = default;
+
+        OrderBy& operator=(OrderBy&& other) noexcept = default;
+
+        ////////////////////////////////////////////////////////////////
+        // ...
+        ////////////////////////////////////////////////////////////////
+
+        template<typename Self>
+        [[nodiscard]] std::string toString(this Self&& self)
+        {
+            return std::forward<Self>(self).order.toString();
+        }
+
+    private:
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
+
+        order_t order;
+    };
+}  // namespace sql
