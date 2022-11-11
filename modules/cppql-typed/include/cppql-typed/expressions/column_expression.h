@@ -31,6 +31,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         using table_t                 = T;
+        using value_t                 = col_t<Index, T>;
         static constexpr size_t index = Index;
 
         ////////////////////////////////////////////////////////////////

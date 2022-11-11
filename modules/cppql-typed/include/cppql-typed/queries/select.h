@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include <iterator>
+#include <tuple>
 
 ////////////////////////////////////////////////////////////////
 // Module includes.
@@ -26,19 +27,13 @@ namespace sql
      * \brief The Select class wraps a SELECT <cols> FROM <table> WHERE <expr> statement.
      * The statement is executed when calling the begin() method. Iterating over the
      * object will return all rows that matched the expression.
-     * \tparam T Table type.
      * \tparam R Return type.
-     * \tparam Indices 0-based indices of the columns to retrieve. Duplicate values and reordering are allowed.
+     * \tparam Cs Types of the columns to retrieve.
      */
-    template<typename T, typename R, size_t... Indices>
-    requires(constructible_from<R, T, Indices...>) class Select
+    template<typename R, typename... Cs>
+    requires(constructible_from<R, Cs...>) class Select
     {
     public:
-        /**
-         * \brief Table type.
-         */
-        using table_t = T;
-
         /**
          * \brief Row return type.
          */
@@ -84,7 +79,7 @@ namespace sql
 
             reference operator*() const
             {
-                using return_tuple_t = std::tuple<get_column_return_t<col_t<Indices, T>>...>;
+                using return_tuple_t = std::tuple<get_column_return_t<Cs>...>;
 
                 auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>)
                 {
@@ -94,7 +89,7 @@ namespace sql
                 };
 
                 // Call f with 0, 1, sizeof...(Indices) - 1.
-                return f(std::make_index_sequence<sizeof...(Indices)>{});
+                return f(std::index_sequence_for<Cs...>());
             }
         };
 

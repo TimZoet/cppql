@@ -10,6 +10,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/typed_table.h"
 #include "cppql-typed/expressions/column_expression.h"
 
 namespace sql
@@ -23,6 +24,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         
         using row_t = std::tuple<C, Cs...>;
+        using table_t = TypedTable<typename C::value_t, typename Cs::value_t...>;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.

@@ -57,11 +57,11 @@ namespace sql
     template<typename T, size_t... Indices>
     class Insert;
 
-    template<typename T, typename R, size_t... Indices>
-    requires(constructible_from<R, T, Indices...>) class Select;
+    template<typename R, typename... Cs>
+    requires(constructible_from<R, Cs...>) class Select;
 
-    template<typename T, typename R, size_t... Indices>
-    requires(constructible_from<R, T, Indices...>) class SelectOne;
+    template<typename R, typename... Cs>
+    requires(constructible_from<R, Cs...>) class SelectOne;
 
     template<typename T, size_t... Indices>
     class Update;
@@ -327,7 +327,7 @@ namespace sql
         {
             if constexpr (sizeof...(Indices))
             {
-                return SelectOne<table_t, R, Indices...>(
+                return SelectOne<R, col_t<Indices, table_t>...>(
                   select<R, Indices...>(std::forward<F>(filterExpression), std::nullopt, std::nullopt, bind));
             }
             else
@@ -504,9 +504,9 @@ namespace sql
 
             // Bind parameters.
             if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
-
+            
             // Construct Select.
-            return Select<table_t, R, Indices...>(std::move(stmt), std::move(fExpr));
+            return Select<R, col_t<Indices, table_t>...>(std::move(stmt), std::move(fExpr));
         }
 
         [[nodiscard]] auto countImpl(BaseFilterExpressionPtr fExpr, BindParameters bind)

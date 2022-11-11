@@ -8,13 +8,6 @@
 #include <type_traits>
 
 ////////////////////////////////////////////////////////////////
-// Module includes.
-////////////////////////////////////////////////////////////////
-
-#include "common/type_traits.h"
-#include "cppql-core/table.h"
-
-////////////////////////////////////////////////////////////////
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
@@ -24,7 +17,7 @@
 #include "cppql-typed/expressions/column_expression.h"
 #include "cppql-typed/expressions/filter_expression.h"
 #include "cppql-typed/expressions/limit_expression.h"
-#include "cppql-typed/joins/type_traits.h"
+#include "cppql-typed/queries/select.h"
 
 namespace sql
 {
@@ -117,9 +110,11 @@ namespace sql
             );
         }
 
+        // TODO: Aggregates.
         // TODO: Group by.
         // TODO: Having.
         // TODO: Unions.
+        // TODO: Aliases.
 
         template<typename Self>
         auto&& limitOffset(this Self&& self, LimitExpression limitExpression)
@@ -144,6 +139,27 @@ namespace sql
             );
 
             return sql;
+        }
+
+        template<typename Self>
+        [[nodiscard]] auto compile(this Self&& self)
+        {
+            auto select = []<std::size_t... Is>(auto&& self, std::index_sequence<Is...>)
+            {
+                auto f = optionalToPtr(std::forward<Self>(self).filter.filter);
+                
+                auto stmt = std::make_unique<Statement>(std::forward<Self>(self).join.right->getDatabase(), std::forward<Self>(self).toString(), true);
+                if (!stmt->isPrepared())
+                    throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
+                        stmt->getResult()->code);
+
+                // TODO: Bind parameters properly.
+                if (f) f->bind(*stmt, BindParameters::All);
+                
+                return Select<typename columns_t::table_t::row_t, col_t<Is, typename columns_t::table_t>...>(std::move(stmt), std::move(f));
+            };
+
+            return select(std::forward<Self>(self), std::index_sequence_for<C, Cs...>());
         }
     };
 }  // namespace sql

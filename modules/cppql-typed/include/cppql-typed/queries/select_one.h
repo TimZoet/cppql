@@ -17,17 +17,16 @@ namespace sql
 {
     /**
      * \brief The SelectOne class wraps around a Select instance. It uses the instance to return just one result row.
-     * \tparam T Table type.
      * \tparam R Return type.
-     * \tparam Indices 0-based indices of the columns to retrieve. Duplicate values and reordering are allowed.
+     * \tparam Cs Types of the columns to retrieve.
      */
-    template<typename T, typename R, size_t... Indices>
-    requires(constructible_from<R, T, Indices...>) class SelectOne
+    template<typename R, typename... Cs>
+    requires(constructible_from<R, Cs...>) class SelectOne
     {
     public:
-        using select_t = Select<T, R, Indices...>;
+        using select_t = Select<R, Cs...>;
 
-        template<typename C, typename... Cs>
+        template<typename U, typename... Us>
         friend class TypedTable;
 
         SelectOne() = delete;

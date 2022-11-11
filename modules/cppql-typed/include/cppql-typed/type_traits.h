@@ -23,8 +23,10 @@ namespace sql
     template<typename T, typename... Ts>
     concept same_table = ((std::same_as<typename T::table_t, typename Ts::table_t>)&&...);
 
-    template<typename R, typename T, size_t... Indices>
-    concept constructible_from = std::constructible_from<R, get_column_return_t<col_t<Indices, T>>...>;
+    /*template<typename R, typename T, size_t... Indices>
+    concept constructible_from = std::constructible_from<R, get_column_return_t<col_t<Indices, T>>...>;*/
+    template<typename R, typename... Cs>
+    concept constructible_from = std::constructible_from<R, get_column_return_t<Cs>...>;
 
     /**
      * \brief Forward value to std::make_unique or return nullptr if it is of type std::nullopt_t.
@@ -38,7 +40,7 @@ namespace sql
         if constexpr (std::same_as<std::remove_cvref_t<T>, std::nullopt_t>)
             return nullptr;
         else
-            return std::make_unique<T>(std::forward<T>(val));
+            return std::make_unique<std::remove_cvref_t<T>>(std::forward<T>(val));
     }
 
     // TODO: Move some of these type traits into common library.
