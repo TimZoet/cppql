@@ -49,6 +49,8 @@ namespace sql
     // Forward declarations.
     ////////////////////////////////////////////////////////////////
 
+    // TODO: Move these to separate locations?
+
     template<typename T>
     class CountStatement;
 
@@ -59,16 +61,66 @@ namespace sql
     class InsertStatement;
 
     template<typename R, typename... Cs>
-    requires(constructible_from<R, Cs...>) class SelectStatement;
+        requires(constructible_from<R, Cs...>)
+    class SelectStatement;
 
     template<typename R, typename... Cs>
-    requires(constructible_from<R, Cs...>) class SelectOneStatement;
+        requires(constructible_from<R, Cs...>)
+    class SelectOneStatement;
 
     template<typename T, size_t... Indices>
     class UpdateStatement;
 
-    template<typename R, typename J, typename F, typename O, is_column_expression C, is_column_expression... Cs> requires (constructible_from_or_none<R, typename C::value_t, typename Cs::value_t...>)
+    template<typename R, typename J, typename F, typename O, is_column_expression C, is_column_expression... Cs>
+        requires(constructible_from_or_none<R, typename C::value_t, typename Cs::value_t...>)
     class ComplexSelect;
+
+    enum class JoinType
+    {
+        Cross,
+        Left,
+        Right,
+        Full,
+        Inner,
+        NaturalLeft,
+        NaturalRight,
+        NaturalFull,
+        NaturalInner
+    };
+
+    template<JoinType J>
+    struct JoinTypeWrapper
+    {
+        static constexpr JoinType type = J;
+    };
+
+    using CrossJoin        = JoinTypeWrapper<JoinType::Cross>;
+    using LeftJoin         = JoinTypeWrapper<JoinType::Left>;
+    using RightJoin        = JoinTypeWrapper<JoinType::Right>;
+    using FullJoin         = JoinTypeWrapper<JoinType::Full>;
+    using InnerJoin        = JoinTypeWrapper<JoinType::Inner>;
+    using NaturalLeftJoin  = JoinTypeWrapper<JoinType::NaturalLeft>;
+    using NaturalRightJoin = JoinTypeWrapper<JoinType::NaturalRight>;
+    using NaturalFullJoin  = JoinTypeWrapper<JoinType::NaturalFull>;
+    using NaturalInnerJoin = JoinTypeWrapper<JoinType::NaturalInner>;
+
+    // TODO: Require J to be a JoinTypeWrapper, L to be a join or TypedTable and R to a TypedTable. Require F to be a FilterExpression.
+    template<typename J, typename L, typename R, typename F, typename... Cs>
+    class Join;
+
+    template<typename J, typename... Ts>
+    struct _is_join : std::false_type
+    {
+    };
+
+    template<typename J, typename L, typename R, typename F, typename... Cs>
+    struct _is_join<Join<J, L, R, F, Cs...>> : std::true_type
+    {
+    };
+
+    template<typename T>
+    concept is_join = _is_join<T>::value;
+
 
     ////////////////////////////////////////////////////////////////
     // TypedTable class.
@@ -127,10 +179,7 @@ namespace sql
 
         [[nodiscard]] const Table& getTable() const noexcept { return *table; }
 
-        [[nodiscard]] std::string toString(int32_t&)
-        {
-            return table->getName();
-        }
+        [[nodiscard]] std::string toString(int32_t&) { return table->getName(); }
 
         ////////////////////////////////////////////////////////////////
         // Columns.
@@ -142,8 +191,8 @@ namespace sql
          * \return Column expression.
          */
         template<size_t Index>
-        requires(in_column_range<column_count, Index>)
-          [[nodiscard]] ColumnExpression<table_t, Index> col() const noexcept
+            requires(in_column_range<column_count, Index>)
+        [[nodiscard]] ColumnExpression<table_t, Index> col() const noexcept
         {
             return ColumnExpression<table_t, Index>(*table);
         }
@@ -208,13 +257,15 @@ namespace sql
         [[nodiscard]] auto select()
         {
             if constexpr (sizeof...(Indices))
-                return ComplexSelect<std::nullopt_t, table_t, std::nullopt_t, std::nullopt_t, ColumnExpression<table_t, Indices>...>(*this, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
+                return ComplexSelect<std::nullopt_t,
+                                     table_t,
+                                     std::nullopt_t,
+                                     std::nullopt_t,
+                                     ColumnExpression<table_t, Indices>...>(
+                  *this, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
             else
             {
-                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>)
-                {
-                    return select<Is...>();
-                };
+                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return select<Is...>(); };
 
                 return f(std::index_sequence_for<C, Cs...>{});
             }
@@ -224,13 +275,11 @@ namespace sql
         [[nodiscard]] auto select()
         {
             if constexpr (sizeof...(Indices))
-                return ComplexSelect<R, table_t, std::nullopt_t, std::nullopt_t, ColumnExpression<table_t, Indices>...>(*this, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
+                return ComplexSelect<R, table_t, std::nullopt_t, std::nullopt_t, ColumnExpression<table_t, Indices>...>(
+                  *this, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
             else
             {
-                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>)
-                {
-                    return select<R, Is...>();
-                };
+                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return select<R, Is...>(); };
 
                 return f(std::index_sequence_for<C, Cs...>{});
             }
@@ -273,10 +322,8 @@ namespace sql
                  is_single_filter_expression_or_none<table_t> F,
                  is_order_by_expression_or_none<table_t>      O,
                  is_limit_expression_or_none                  L>
-        requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto update(F&&            filterExpression,
-                                                                                      O&&            orderByExpression,
-                                                                                      L&&            limitExpression,
-                                                                                      BindParameters bind)
+            requires(in_column_range<column_count, Indices...>)
+        [[nodiscard]] auto update(F&& filterExpression, O&& orderByExpression, L&& limitExpression, BindParameters bind)
         {
             // TODO: In all of these filters, there could technically be expressions referencing columns from different table instances that just so happen to have the same column types.
             // That should proably result in a runtime error.
@@ -298,6 +345,17 @@ namespace sql
                 };
                 return f(std::index_sequence_for<C, Cs...>{});
             }
+        }
+
+        ////////////////////////////////////////////////////////////////
+        // Join.
+        ////////////////////////////////////////////////////////////////
+
+        // TODO: Require J to be JoinWrapper and R to be TypedTable.
+        template<typename J, typename R>
+        Join<J, table_t, R, std::nullopt_t> join(J&&, R& rhs)
+        {
+            return Join<J, table_t, R, std::nullopt_t>(*table, rhs.getTable());
         }
 
     private:

@@ -18,11 +18,14 @@
 #include "cppql-typed/expressions/filter_expression.h"
 #include "cppql-typed/expressions/filter_expression_list.h"
 #include "cppql-typed/expressions/limit_expression.h"
-#include "cppql-typed/joins/type_traits.h"
 #include "cppql-typed/statements/select_statement.h"
 
 namespace sql
 {
+    
+
+    ////////////////////////////////////////////////////////////////
+
     template<typename T>
     struct lazy_table_list
     {
@@ -39,7 +42,7 @@ namespace sql
     using lazy_table_list_t = typename lazy_table_list<T>::type;
 
     template<typename R, typename J, typename F, typename O, is_column_expression C, is_column_expression... Cs> requires (constructible_from_or_none<R, typename C::value_t, typename Cs::value_t...>)
-    class ComplexSelect
+        class ComplexSelect
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -67,7 +70,7 @@ namespace sql
 
         ComplexSelect(const ComplexSelect& other) = default;
 
-        ComplexSelect(ComplexSelect&& other) noexcept  = default;
+        ComplexSelect(ComplexSelect&& other) noexcept = default;
 
         ComplexSelect(join_t j, columns_t cs) : join(std::move(j)), columns(std::move(cs)), filter(std::nullopt), order(std::nullopt)
         {
@@ -96,7 +99,7 @@ namespace sql
          * \return ComplexSelect with filter expression.
          */
         template<typename Self, is_valid_filter_expression<table_list_t> Filter> requires (!filter_t::valid)
-        [[nodiscard]] auto where(this Self&& self, Filter&& filter)
+            [[nodiscard]] auto where(this Self&& self, Filter&& filter)
         {
             // TODO: Check table instances in filter match tables in joins.
 
@@ -105,7 +108,7 @@ namespace sql
                 std::forward<Self>(self).columns,
                 Where<std::decay_t<Filter>>(std::forward<Filter>(filter)),
                 std::forward<Self>(self).order
-            );
+                );
         }
 
         /**
@@ -117,7 +120,7 @@ namespace sql
          * \return ComplexSelect with filter expression.
          */
         template<typename Self, is_valid_order_by_expression<table_list_t> Order> requires (!order_t::valid)
-        [[nodiscard]] auto orderBy(this Self&& self, Order&& order)
+            [[nodiscard]] auto orderBy(this Self&& self, Order&& order)
         {
             // TODO: Check table instances in filter match tables in joins.
 
@@ -126,7 +129,7 @@ namespace sql
                 std::forward<Self>(self).columns,
                 std::forward<Self>(self).filter,
                 OrderBy<std::decay_t<Order>>(std::forward<Order>(order))
-            );
+                );
         }
 
         // TODO: Aggregates.
@@ -141,7 +144,7 @@ namespace sql
             std::forward<Self>(self).limit = std::move(limitExpression);
             return std::forward<Self>(self);
         }
-        
+
         template<typename Self>
         [[nodiscard]] std::string toString(this Self&& self)
         {
@@ -163,7 +166,7 @@ namespace sql
         template<typename Self>
         [[nodiscard]] auto operator()(this Self&& self, BindParameters bind)
         {
-            auto select = []<std::size_t... Is>(auto&& self, std::index_sequence<Is...>, const BindParameters b)
+            auto select = []<std::size_t... Is>(auto && self, std::index_sequence<Is...>, const BindParameters b)
             {
                 // Construct statement. Note: This generates the bind indices of all filter expressions
                 // and should therefore happen before the BaseFilterExpressionPtr construction below.
@@ -178,12 +181,17 @@ namespace sql
                     if constexpr (filter_t::valid)
                         f = std::make_unique<typename filter_t::filter_t>(std::forward<Self>(self).filter.filter);
                 }
-                else
+                else if constexpr (join_t::has_filter_list)
                 {
                     if constexpr (filter_t::valid)
                         f = std::make_unique<FilterExpressionList<tuple_cat_t<typename join_t::filter_list_t, F>>>(std::tuple_cat(std::forward<Self>(self).join.getFilters(), std::tuple<F>(std::forward<Self>(self).filter.filter)));
                     else
                         f = std::make_unique<FilterExpressionList<typename join_t::filter_list_t>>(std::forward<Self>(self).join.getFilters());
+                }
+                else
+                {
+                    if constexpr (filter_t::valid)
+                        f = std::make_unique<typename filter_t::filter_t>(std::forward<Self>(self).filter.filter);
                 }
 
                 // Bind parameters.

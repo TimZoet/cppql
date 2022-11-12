@@ -7,12 +7,19 @@
 #include <format>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <type_traits>
+
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql-typed/expressions/column_expression.h"
 
 namespace sql
 {
-    template<typename F>
-    class Where
+    template<typename... Cs>
+    class Using
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -25,26 +32,26 @@ namespace sql
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        Where() = delete;
+        Using() = delete;
 
-        Where(const Where& other) = default;
+        Using(const Using& other) = default;
 
-        Where(Where&& other) noexcept = default;
+        Using(Using&& other) noexcept = default;
 
-        explicit Where(std::nullopt_t) : filter(std::nullopt) {}
+        explicit Using(std::nullopt_t) : columns(std::nullopt) {}
 
-        virtual ~Where() noexcept = default;
+        virtual ~Using() noexcept = default;
 
-        Where& operator=(const Where& other) = default;
+        Using& operator=(const Using& other) = default;
 
-        Where& operator=(Where&& other) noexcept = default;
+        Using& operator=(Using&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
         // ...
         ////////////////////////////////////////////////////////////////
 
         template<typename Self>
-        [[nodiscard]] std::string toString(this Self&&, int32_t&)
+        [[nodiscard]] std::string toString(this Self&&)
         {
             return {};
         }
@@ -53,11 +60,11 @@ namespace sql
         // Member variables.
         ////////////////////////////////////////////////////////////////
         
-        std::nullopt_t filter;
+        std::nullopt_t columns;
     };
 
-    template<typename F> requires (!std::same_as<std::nullopt_t, F>) // TODO: Test for filterexpression?
-    class Where<F>
+    template<is_column_expression C, is_column_expression... Cs>
+    class Using<C, Cs...>
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -65,40 +72,48 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         static constexpr bool valid = true;
-        using filter_t = F;
+        using row_t = std::tuple<C, Cs...>;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        Where() = default;
+        Using() = default;
 
-        Where(const Where& other) = default;
+        Using(const Using& other) = default;
 
-        Where(Where&& other) noexcept = default;
+        Using(Using&& other) noexcept = default;
 
-        explicit Where(filter_t f) : filter(std::move(f)) {}
+        Using(C c, Cs... cs) : columns(std::make_tuple(std::move(c), std::move(cs)...)) {}
 
-        virtual ~Where() noexcept = default;
+        virtual ~Using() noexcept = default;
 
-        Where& operator=(const Where& other) = default;
+        Using& operator=(const Using& other) = default;
 
-        Where& operator=(Where&& other) noexcept = default;
+        Using& operator=(Using&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
         // ...
         ////////////////////////////////////////////////////////////////
 
         template<typename Self>
-        [[nodiscard]] std::string toString(this Self&& self, int32_t& pIndex)
+        [[nodiscard]] std::string toString(this Self&& self)
         {
-            return std::format(" WHERE {}", std::forward<Self>(self).filter.toString(pIndex));
+            auto cols = [&self]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
+            {
+                if constexpr (sizeof...(Is) == 0)
+                    return "USING (" + std::get<I>(self.columns).toString() + ")";
+                else
+                    return "USING (" + std::get<I>(self.columns).toString() + (... + ("," + std::get<Is>(self.columns).toString())) + ")";
+            };
+
+            return cols(std::index_sequence_for<C, Cs...>());
         }
 
         ////////////////////////////////////////////////////////////////
         // Member variables.
         ////////////////////////////////////////////////////////////////
 
-        filter_t filter;
+        row_t columns;
     };
 }  // namespace sql

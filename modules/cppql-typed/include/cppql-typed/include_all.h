@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/complex_select.h"
+#include "cppql-typed/join.h"
 #include "cppql-typed/type_traits.h"
 #include "cppql-typed/typed_table.h"
 #include "cppql-typed/clauses/columns.h"
@@ -21,8 +22,6 @@
 #include "cppql-typed/expressions/logical_expression.h"
 #include "cppql-typed/expressions/order_by_expression.h"
 #include "cppql-typed/expressions/single_filter_expression.h"
-#include "cppql-typed/joins/inner_join.h"
-#include "cppql-typed/joins/type_traits.h"
 #include "cppql-typed/statements/count_statement.h"
 #include "cppql-typed/statements/delete_statement.h"
 #include "cppql-typed/statements/insert_statement.h"

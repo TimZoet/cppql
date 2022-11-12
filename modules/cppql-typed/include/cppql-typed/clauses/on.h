@@ -12,7 +12,7 @@
 namespace sql
 {
     template<typename F>
-    class Where
+    class On
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -25,19 +25,19 @@ namespace sql
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        Where() = delete;
+        On() = delete;
 
-        Where(const Where& other) = default;
+        On(const On& other) = default;
 
-        Where(Where&& other) noexcept = default;
+        On(On&& other) noexcept = default;
 
-        explicit Where(std::nullopt_t) : filter(std::nullopt) {}
+        explicit On(std::nullopt_t) : filter(std::nullopt) {}
 
-        virtual ~Where() noexcept = default;
+        virtual ~On() noexcept = default;
 
-        Where& operator=(const Where& other) = default;
+        On& operator=(const On& other) = default;
 
-        Where& operator=(Where&& other) noexcept = default;
+        On& operator=(On&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
         // ...
@@ -57,7 +57,7 @@ namespace sql
     };
 
     template<typename F> requires (!std::same_as<std::nullopt_t, F>) // TODO: Test for filterexpression?
-    class Where<F>
+    class On<F>
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -71,19 +71,19 @@ namespace sql
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        Where() = default;
+        On() = default;
 
-        Where(const Where& other) = default;
+        On(const On& other) = default;
 
-        Where(Where&& other) noexcept = default;
+        On(On&& other) noexcept = default;
 
-        explicit Where(filter_t f) : filter(std::move(f)) {}
+        explicit On(filter_t f) : filter(std::move(f)) {}
 
-        virtual ~Where() noexcept = default;
+        virtual ~On() noexcept = default;
 
-        Where& operator=(const Where& other) = default;
+        On& operator=(const On& other) = default;
 
-        Where& operator=(Where&& other) noexcept = default;
+        On& operator=(On&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
         // ...
@@ -92,7 +92,7 @@ namespace sql
         template<typename Self>
         [[nodiscard]] std::string toString(this Self&& self, int32_t& pIndex)
         {
-            return std::format(" WHERE {}", std::forward<Self>(self).filter.toString(pIndex));
+            return std::format(" ON {}", std::forward<Self>(self).filter.toString(pIndex));
         }
 
         ////////////////////////////////////////////////////////////////

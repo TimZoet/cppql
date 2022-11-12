@@ -61,6 +61,11 @@ namespace sql
             return std::format("{}.{}", this->table->getName(), this->table->getColumn(Index).getName());
         }
 
+        [[nodiscard]] std::string toString()
+        {
+            return std::format("{}", this->table->getColumn(Index).getName());
+        }
+
         void bind(Statement&, BindParameters) const override {}
     };
 

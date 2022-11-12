@@ -42,6 +42,7 @@
 #include "cppql_test/insert/insert_default.h"
 #include "cppql_test/insert/insert_null.h"
 #include "cppql_test/insert/insert_tuple.h"
+#include "cppql_test/join/inner_join.h"
 #include "cppql_test/select/select.h"
 #include "cppql_test/select/select_all.h"
 #include "cppql_test/select/select_blob.h"
@@ -123,6 +124,7 @@ int main(const int argc, char** argv)
             InsertDefault,
             InsertNull,
             InsertTuple,
+            InnerJoin,
             Select,
             SelectAll,
             SelectBlob,
