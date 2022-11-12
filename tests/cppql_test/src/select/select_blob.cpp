@@ -1,8 +1,6 @@
 #include "cppql_test/select/select_blob.h"
 
-#include "cppql-typed/typed_table.h"
-#include "cppql-typed/queries/insert.h"
-#include "cppql-typed/queries/select_one.h"
+#include "cppql-typed/include_all.h"
 
 using namespace std::string_literals;
 
@@ -48,7 +46,7 @@ void SelectBlob::operator()()
     });
 
     // Create select.
-    auto sel = table.select<1, 2, 3>(table.col<0>() > 0, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel = table.select<1, 2, 3>().where(table.col<0>() > 0)(sql::BindParameters::All);
     const std::vector<std::tuple<std::vector<int32_t>, Foo, std::vector<Foo>>> rows(sel.begin(), sel.end());
 
     // Check first row.

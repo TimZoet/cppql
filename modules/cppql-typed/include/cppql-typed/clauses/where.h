@@ -7,12 +7,6 @@
 #include <optional>
 #include <type_traits>
 
-////////////////////////////////////////////////////////////////
-// Current target includes.
-////////////////////////////////////////////////////////////////
-
-#include "cppql-typed/expressions/filter_expression.h"
-
 namespace sql
 {
     template<typename F>
@@ -48,7 +42,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         template<typename Self>
-        [[nodiscard]] std::string toString(this Self&&)
+        [[nodiscard]] std::string toString(this Self&&, int32_t&)
         {
             return {};
         }

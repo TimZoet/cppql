@@ -1,8 +1,6 @@
 #include "cppql_test/select/select_all.h"
 
-#include "cppql-typed/typed_table.h"
-#include "cppql-typed/queries/insert.h"
-#include "cppql-typed/queries/select.h"
+#include "cppql-typed/include_all.h"
 
 using namespace std::string_literals;
 
@@ -27,7 +25,7 @@ void SelectAll::operator()()
     expectNoThrow([&insert] { insert(40, 100.0f, sql::toText("aaaa")); });
 
     // Check rows.
-    auto select = table.select(std::nullopt, std::nullopt, std::nullopt, sql::BindParameters::None);
+    auto select = table.select()(sql::BindParameters::None);
     const std::vector<std::tuple<int64_t, float, std::string>> rows(select.begin(), select.end());
     compareEQ(rows.size(), static_cast<size_t>(4)).fatal("");
     compareEQ(10, std::get<0>(rows[0]));

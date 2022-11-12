@@ -1,8 +1,6 @@
 #include "cppql_test/select/select_one.h"
 
-#include "cppql-typed/typed_table.h"
-#include "cppql-typed/queries/insert.h"
-#include "cppql-typed/queries/select_one.h"
+#include "cppql-typed/include_all.h"
 
 using namespace std::string_literals;
 
@@ -29,7 +27,7 @@ void SelectOne::operator()()
 
     // Create select one.
     int64_t id  = 0;
-    auto    sel = table.selectOne<0, 1, 2>(table.col<0>() == &id, sql::BindParameters::None);
+    auto    sel = table.select<0, 1, 2>().where(table.col<0>() == &id).one(sql::BindParameters::None);
 
     // Select by several IDs that should result in exactly one row.
     expectNoThrow([&id, &sel] {

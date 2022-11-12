@@ -1,8 +1,6 @@
 #include "cppql_test/insert/insert_default.h"
 
-#include "cppql-typed/typed_table.h"
-#include "cppql-typed/queries/insert.h"
-#include "cppql-typed/queries/select_one.h"
+#include "cppql-typed/include_all.h"
 
 using namespace std::string_literals;
 
@@ -33,7 +31,7 @@ void InsertDefault::operator()()
     insert();
 
     // Get row.
-    auto row = typedTable.selectOne(typedTable.col<0>() > 0, sql::BindParameters::All)(sql::BindParameters::None);
+    auto row = typedTable.select().where(typedTable.col<0>() > 0).one(sql::BindParameters::None)(sql::BindParameters::All);
     const std::vector<uint8_t> bytes = {255, 170, 85, 0};
 
     // Compare.

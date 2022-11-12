@@ -1,8 +1,6 @@
 #include "cppql_test/select/select_custom_return_type.h"
 
-#include "cppql-typed/typed_table.h"
-#include "cppql-typed/queries/insert.h"
-#include "cppql-typed/queries/select.h"
+#include "cppql-typed/include_all.h"
 
 using namespace std::string_literals;
 
@@ -39,7 +37,7 @@ void SelectCustomReturnType::operator()()
     expectNoThrow([&insert] { insert(40, 100.0f, sql::toText("aaaa")); });
 
     // Create select query with custom return type.
-    auto sel = table.select<Row, 0, 1, 2>(table.col<0>() <= 20, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel = table.select<Row, 0, 1, 2>().where(table.col<0>() <= 20)(sql::BindParameters::All);
 
     // Select with unbound id.
     const std::vector<Row> vals(sel.begin(), sel.end());

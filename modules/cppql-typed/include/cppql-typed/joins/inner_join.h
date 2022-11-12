@@ -119,6 +119,14 @@ namespace sql
         }
 
         ////////////////////////////////////////////////////////////////
+        // Getters.
+        ////////////////////////////////////////////////////////////////
+
+        Table& getTable() noexcept { return *right; }
+
+        [[nodiscard]] const Table& getTable() const noexcept { return *right; }
+
+        ////////////////////////////////////////////////////////////////
         // ...
         ////////////////////////////////////////////////////////////////
 
@@ -137,7 +145,7 @@ namespace sql
         {
             // TODO: Check table instances in columns match tables in joins.
 
-            return ComplexSelect<std::decay_t<Self>, std::nullopt_t, std::nullopt_t, std::decay_t<C>, std::decay_t<Cs>...>(
+            return ComplexSelect<std::nullopt_t, std::decay_t<Self>, std::nullopt_t, std::nullopt_t, std::decay_t<C>, std::decay_t<Cs>...>(
                 std::forward<Self>(self),
                 Columns<C, Cs...>(std::make_tuple(std::forward<C>(c), std::forward<Cs>(cs)...))
             );

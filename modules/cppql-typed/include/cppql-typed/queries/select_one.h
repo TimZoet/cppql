@@ -35,6 +35,8 @@ namespace sql
 
         SelectOne(SelectOne&& other) noexcept : stmt(std::move(other.stmt)) {}
 
+        explicit SelectOne(select_t&& select) : stmt(std::move(select)) {}
+
         ~SelectOne() = default;
 
         SelectOne& operator=(const SelectOne&) = delete;
@@ -71,7 +73,6 @@ namespace sql
         }
 
     private:
-        explicit SelectOne(select_t&& select) : stmt(std::move(select)) {}
 
         /**
          * \brief Select statement.

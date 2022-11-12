@@ -25,6 +25,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/type_traits.h"
+#include "cppql-typed/clauses/columns.h"
 #include "cppql-typed/expressions/bind_parameters.h"
 #include "cppql-typed/expressions/column_comparison_expression.h"
 #include "cppql-typed/expressions/column_expression.h"
@@ -65,6 +66,9 @@ namespace sql
 
     template<typename T, size_t... Indices>
     class Update;
+
+    template<typename R, typename J, typename F, typename O, is_column_expression C, is_column_expression... Cs> requires (constructible_from_or_none<R, typename C::value_t, typename Cs::value_t...>)
+    class ComplexSelect;
 
     ////////////////////////////////////////////////////////////////
     // TypedTable class.
@@ -107,13 +111,13 @@ namespace sql
 
         TypedTable(const TypedTable&) = default;
 
-        TypedTable(TypedTable&&) = default;
+        TypedTable(TypedTable&&) noexcept = default;
 
-        ~TypedTable() = default;
+        ~TypedTable() noexcept = default;
 
         TypedTable& operator=(const TypedTable&) = default;
 
-        TypedTable& operator=(TypedTable&&) = default;
+        TypedTable& operator=(TypedTable&&) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
         // Getters.
@@ -122,6 +126,11 @@ namespace sql
         Table& getTable() noexcept { return *table; }
 
         [[nodiscard]] const Table& getTable() const noexcept { return *table; }
+
+        [[nodiscard]] std::string toString(int32_t&)
+        {
+            return table->getName();
+        }
 
         ////////////////////////////////////////////////////////////////
         // Columns.
@@ -195,147 +204,34 @@ namespace sql
         // Select.
         ////////////////////////////////////////////////////////////////
 
-        /**
-         * \brief Create a SELECT query. Creates an iterable object that returns rows as tuples.
-         * \tparam Indices Indices of the columns to select. If empty, all columns are selected.
-         * \tparam F SingleFilterExpression type or std::nullopt_t.
-         * \tparam O OrderByExpression type or std::nullopt_t.
-         * \tparam L LimitExpression type or std::nullopt_t.
-         * \param filterExpression Expression to filter results by. If std::nullopt, results are not filtered.
-         * \param orderByExpression Expression to order results by. If std::nullopt, results are not ordered.
-         * \param limitExpression Expression to limit results by. If std::nullopt, results are not limited.
-         * \param bind Parameters to bind.
-         * \return Select object.
-         */
-        template<size_t... Indices,
-                 is_single_filter_expression_or_none<table_t> F,
-                 is_order_by_expression_or_none<table_t>      O,
-                 is_limit_expression_or_none                  L>
-        requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto select(F&&            filterExpression,
-                                                                                      O&&            orderByExpression,
-                                                                                      L&&            limitExpression,
-                                                                                      BindParameters bind)
+        template<size_t... Indices>
+        [[nodiscard]] auto select()
         {
             if constexpr (sizeof...(Indices))
-            {
-                using return_t = std::tuple<get_column_return_t<col_t<Indices, table_t>>...>;
-                return selectImpl<return_t, Indices...>(optionalToPtr(std::forward<F>(filterExpression)),
-                                                        std::forward<O>(orderByExpression),
-                                                        std::forward<L>(limitExpression),
-                                                        bind);
-            }
+                return ComplexSelect<std::nullopt_t, table_t, std::nullopt_t, std::nullopt_t, ColumnExpression<table_t, Indices>...>(*this, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
             else
             {
-                const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
+                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>)
                 {
-                    return select<Is...>(std::forward<F>(filterExpression),
-                                         std::forward<O>(orderByExpression),
-                                         std::forward<L>(limitExpression),
-                                         bind);
+                    return select<Is...>();
                 };
+
                 return f(std::index_sequence_for<C, Cs...>{});
             }
         }
 
-        /**
-         * \brief Create a SELECT query. Creates an iterable object that returns rows as objects of type R.
-         * \tparam R Row return type.
-         * \tparam Indices Indices of the columns to select. If empty, all columns are selected.
-         * \tparam F SingleFilterExpression type or std::nullopt_t.
-         * \tparam O OrderByExpression type or std::nullopt_t.
-         * \tparam L LimitExpression type or std::nullopt_t.
-         * \param filterExpression Expression to filter results by. If std::nullopt, results are not filtered.
-         * \param orderByExpression Expression to order results by. If std::nullopt, results are not ordered.
-         * \param limitExpression Expression to limit results by. If std::nullopt, results are not limited.
-         * \param bind Parameters to bind.
-         * \return Select object.
-         */
-        template<typename R,
-                 size_t... Indices,
-                 is_single_filter_expression_or_none<table_t> F,
-                 is_order_by_expression_or_none<table_t>      O,
-                 is_limit_expression_or_none                  L>
-        requires(in_column_range<column_count, Indices...>) [[nodiscard]] auto select(F&&            filterExpression,
-                                                                                      O&&            orderByExpression,
-                                                                                      L&&            limitExpression,
-                                                                                      BindParameters bind)
+        template<typename R, size_t... Indices>
+        [[nodiscard]] auto select()
         {
             if constexpr (sizeof...(Indices))
-            {
-                return selectImpl<R, Indices...>(optionalToPtr(std::forward<F>(filterExpression)),
-                                                 std::forward<O>(orderByExpression),
-                                                 std::forward<L>(limitExpression),
-                                                 bind);
-            }
+                return ComplexSelect<R, table_t, std::nullopt_t, std::nullopt_t, ColumnExpression<table_t, Indices>...>(*this, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
             else
             {
-                const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
+                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>)
                 {
-                    return select<R, Is...>(std::forward<F>(filterExpression),
-                                            std::forward<O>(orderByExpression),
-                                            std::forward<L>(limitExpression),
-                                            bind);
+                    return select<R, Is...>();
                 };
-                return f(std::index_sequence_for<C, Cs...>{});
-            }
-        }
 
-
-        ////////////////////////////////////////////////////////////////
-        // SelectOne.
-        ////////////////////////////////////////////////////////////////
-
-        /**
-         * \brief Create a SELECT query. Creates a callable object that returns a single row as a tuple. Will throw if there are 0 or more than 1 results.
-         * \tparam Indices Indices of the columns to select. If empty, all columns are selected.
-         * \tparam F SingleFilterExpression type.
-         * \param filterExpression Expression to filter results by.
-         * \param bind Parameters to bind.
-         * \return SelectOne object.
-         */
-        template<size_t... Indices, is_single_filter_expression<table_t> F>
-        requires(in_column_range<column_count, Indices...>)
-          [[nodiscard]] auto selectOne(F&& filterExpression, BindParameters bind)
-        {
-            if constexpr (sizeof...(Indices))
-            {
-                using return_t = std::tuple<get_column_return_t<col_t<Indices, table_t>>...>;
-                return selectOne<return_t, Indices...>(std::forward<F>(filterExpression), bind);
-            }
-            else
-            {
-                const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
-                {
-                    return selectOne<Is...>(std::forward<F>(filterExpression), bind);
-                };
-                return f(std::index_sequence_for<C, Cs...>{});
-            }
-        }
-
-        /**
-         * \brief Create a SELECT query. Creates a callable object that returns a single row as an object of type R. Will throw if there are 0 or more than 1 results.
-         * \tparam R Row return type.
-         * \tparam Indices Indices of the columns to select. If empty, all columns are selected.
-         * \tparam F SingleFilterExpression type.
-         * \param filterExpression Expression to filter results by.
-         * \param bind Parameters to bind.
-         * \return SelectOne object.
-         */
-        template<typename R, size_t... Indices, is_single_filter_expression<table_t> F>
-        requires(in_column_range<column_count, Indices...>)
-          [[nodiscard]] auto selectOne(F&& filterExpression, BindParameters bind)
-        {
-            if constexpr (sizeof...(Indices))
-            {
-                return SelectOne<R, col_t<Indices, table_t>...>(
-                  select<R, Indices...>(std::forward<F>(filterExpression), std::nullopt, std::nullopt, bind));
-            }
-            else
-            {
-                const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
-                {
-                    return selectOne<R, Is...>(std::forward<F>(filterExpression), bind);
-                };
                 return f(std::index_sequence_for<C, Cs...>{});
             }
         }
@@ -473,40 +369,6 @@ namespace sql
 
             // Construct Delete.
             return Delete<table_t>(std::move(stmt), std::move(fExpr));
-        }
-
-        template<typename R, size_t... Indices>
-        [[nodiscard]] auto selectImpl(BaseFilterExpressionPtr                         fExpr,
-                                      const std::optional<OrderByExpression<table_t>> oExpr,
-                                      const std::optional<LimitExpression>            lExpr,
-                                      BindParameters                                  bind)
-        {
-            // Generate format arguments.
-            auto        index   = 0;
-            std::string cs      = formatColumns(*table, {Indices...});
-            std::string e       = fExpr ? "WHERE " + fExpr->toString(index) : "";
-            std::string orderBy = oExpr ? oExpr->toString() : "";
-            std::string limit   = lExpr ? lExpr->toString() : "";
-
-            // Format SQL statement.
-            auto sql = std::format("SELECT {0} FROM {1} {2} {3} {4};",
-                                   std::move(cs),
-                                   table->getName(),
-                                   std::move(e),
-                                   std::move(orderBy),
-                                   std::move(limit));
-
-            // Create and prepare statement.
-            auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
-            if (!stmt->isPrepared())
-                throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
-                                  stmt->getResult()->code);
-
-            // Bind parameters.
-            if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
-            
-            // Construct Select.
-            return Select<R, col_t<Indices, table_t>...>(std::move(stmt), std::move(fExpr));
         }
 
         [[nodiscard]] auto countImpl(BaseFilterExpressionPtr fExpr, BindParameters bind)

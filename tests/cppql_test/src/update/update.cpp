@@ -1,9 +1,6 @@
 #include "cppql_test/update/update.h"
 
-#include "cppql-typed/typed_table.h"
-#include "cppql-typed/queries/insert.h"
-#include "cppql-typed/queries/select_one.h"
-#include "cppql-typed/queries/update.h"
+#include "cppql-typed/include_all.h"
 
 using namespace std::string_literals;
 
@@ -30,7 +27,8 @@ void Update::operator()()
     {
         int64_t param = 0;
         auto update = table.update<1>(table.col<0>() == &param, std::nullopt, std::nullopt, sql::BindParameters::None);
-        auto select = table.selectOne<float, 1>(table.col<0>() == &param, sql::BindParameters::None);
+        //auto select = table.selectOne<float, 1>(table.col<0>() == &param, sql::BindParameters::None);
+        auto select = table.select<float, 1>().where(table.col<0>() == &param).one(sql::BindParameters::None);
 
         param = 10;
         expectNoThrow([&] { update(sql::BindParameters::All, 5.0f); });
@@ -59,7 +57,7 @@ void Update::operator()()
         int64_t param = 0;
         auto    update =
           table.update<1, 2>(table.col<0>() == &param, std::nullopt, std::nullopt, sql::BindParameters::None);
-        auto select = table.selectOne<1, 2>(table.col<0>() == &param, sql::BindParameters::None);
+        auto select = table.select<1, 2>().where(table.col<0>() == &param).one(sql::BindParameters::None);
 
         param = 10;
         expectNoThrow([&] { update(sql::BindParameters::All, 1000.0f, sql::toText("val0")); });

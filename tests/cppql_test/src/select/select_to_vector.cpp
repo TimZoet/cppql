@@ -1,8 +1,6 @@
 #include "cppql_test/select/select_to_vector.h"
 
-#include "cppql-typed/typed_table.h"
-#include "cppql-typed/queries/insert.h"
-#include "cppql-typed/queries/select.h"
+#include "cppql-typed/include_all.h"
 
 using namespace std::string_literals;
 
@@ -57,8 +55,8 @@ void SelectToVector::operator()()
     });
 
     // Create select queries.
-    auto sel0 = table.select<0, 1, 2>(table.col<0>() >= 20, std::nullopt, std::nullopt, sql::BindParameters::All);
-    auto sel1 = table.select<Foo, 0, 1, 2>(table.col<0>() >= 20, std::nullopt, std::nullopt, sql::BindParameters::All);
+    auto sel0 = table.select<0, 1, 2>().where(table.col<0>() >= 20)(sql::BindParameters::All);
+    auto sel1 = table.select<Foo, 0, 1, 2>().where(table.col<0>() >= 20)(sql::BindParameters::All);
 
     // Select to vectors.
     const std::vector<std::tuple<int64_t, float, std::string>> vals0(sel0.begin(), sel0.end());

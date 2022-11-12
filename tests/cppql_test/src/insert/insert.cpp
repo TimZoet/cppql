@@ -1,9 +1,6 @@
 #include "cppql_test/insert/insert.h"
 
-#include "cppql-typed/typed_table.h"
-#include "cppql-typed/queries/insert.h"
-
-#include "cppql_test/binding/bind.h"
+#include "cppql-typed/include_all.h"
 
 using namespace std::string_literals;
 

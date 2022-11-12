@@ -7,6 +7,7 @@ set(INCLUDE_DIR "include/cppql-typed")
 set(SRC_DIR "src")
 
 set(HEADERS
+    ${INCLUDE_DIR}/include_all.h
     ${INCLUDE_DIR}/type_traits.h
     ${INCLUDE_DIR}/typed_table.h
     ${INCLUDE_DIR}/clauses/columns.h
@@ -17,6 +18,7 @@ set(HEADERS
     ${INCLUDE_DIR}/expressions/column_expression.h
     ${INCLUDE_DIR}/expressions/comparison_expression.h
     ${INCLUDE_DIR}/expressions/filter_expression.h
+    ${INCLUDE_DIR}/expressions/filter_expression_list.h
     ${INCLUDE_DIR}/expressions/like_expression.h
     ${INCLUDE_DIR}/expressions/limit_expression.h
     ${INCLUDE_DIR}/expressions/logical_expression.h
