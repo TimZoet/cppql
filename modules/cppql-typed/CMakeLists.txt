@@ -7,6 +7,7 @@ set(INCLUDE_DIR "include/cppql-typed")
 set(SRC_DIR "src")
 
 set(HEADERS
+    ${INCLUDE_DIR}/complex_select.h
     ${INCLUDE_DIR}/include_all.h
     ${INCLUDE_DIR}/type_traits.h
     ${INCLUDE_DIR}/typed_table.h
@@ -26,13 +27,12 @@ set(HEADERS
     ${INCLUDE_DIR}/expressions/single_filter_expression.h
     ${INCLUDE_DIR}/joins/inner_join.h
     ${INCLUDE_DIR}/joins/type_traits.h
-    ${INCLUDE_DIR}/queries/complex_select.h
-    ${INCLUDE_DIR}/queries/count.h
-    ${INCLUDE_DIR}/queries/delete.h
-    ${INCLUDE_DIR}/queries/insert.h
-    ${INCLUDE_DIR}/queries/select.h
-    ${INCLUDE_DIR}/queries/select_one.h
-    ${INCLUDE_DIR}/queries/update.h
+    ${INCLUDE_DIR}/statements/count_statement.h
+    ${INCLUDE_DIR}/statements/delete_statement.h
+    ${INCLUDE_DIR}/statements/insert_statement.h
+    ${INCLUDE_DIR}/statements/select_statement.h
+    ${INCLUDE_DIR}/statements/select_one_statement.h
+    ${INCLUDE_DIR}/statements/update_statement.h
 )
 
 set(SOURCES

@@ -22,7 +22,7 @@ namespace sql
      * \tparam Indices 0-based indices of the columns to update.
      */
     template<typename T, size_t... Indices>
-    class Update
+    class UpdateStatement
     {
     public:
         /**
@@ -30,22 +30,22 @@ namespace sql
          */
         using table_t = T;
 
-        Update() = default;
+        UpdateStatement() = default;
 
-        Update(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
+        UpdateStatement(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
 
-        Update(const Update&) = delete;
+        UpdateStatement(const UpdateStatement&) = delete;
 
-        Update(Update&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
+        UpdateStatement(UpdateStatement&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
 
-        ~Update() = default;
+        ~UpdateStatement() = default;
 
-        Update& operator=(const Update&) = delete;
+        UpdateStatement& operator=(const UpdateStatement&) = delete;
 
-        Update& operator=(Update&& other) noexcept
+        UpdateStatement& operator=(UpdateStatement&& other) noexcept
         {
             stmt = std::move(other.stmt);
             exp  = std::move(other.exp);

@@ -4,6 +4,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/complex_select.h"
 #include "cppql-typed/type_traits.h"
 #include "cppql-typed/typed_table.h"
 #include "cppql-typed/clauses/columns.h"
@@ -22,10 +23,9 @@
 #include "cppql-typed/expressions/single_filter_expression.h"
 #include "cppql-typed/joins/inner_join.h"
 #include "cppql-typed/joins/type_traits.h"
-#include "cppql-typed/queries/complex_select.h"
-#include "cppql-typed/queries/count.h"
-#include "cppql-typed/queries/delete.h"
-#include "cppql-typed/queries/insert.h"
-#include "cppql-typed/queries/select.h"
-#include "cppql-typed/queries/select_one.h"
-#include "cppql-typed/queries/update.h"
+#include "cppql-typed/statements/count_statement.h"
+#include "cppql-typed/statements/delete_statement.h"
+#include "cppql-typed/statements/insert_statement.h"
+#include "cppql-typed/statements/select_statement.h"
+#include "cppql-typed/statements/select_one_statement.h"
+#include "cppql-typed/statements/update_statement.h"

@@ -21,7 +21,7 @@ namespace sql
      * \tparam Indices 0-based indices of the columns to insert.
      */
     template<typename T, size_t... Indices>
-    class Insert
+    class InsertStatement
     {
     public:
         /**
@@ -29,19 +29,19 @@ namespace sql
          */
         using table_t = T;
 
-        Insert() = default;
+        InsertStatement() = default;
 
-        explicit Insert(StatementPtr statement) : stmt(std::move(statement)) {}
+        explicit InsertStatement(StatementPtr statement) : stmt(std::move(statement)) {}
 
-        Insert(const Insert&) = delete;
+        InsertStatement(const InsertStatement&) = delete;
 
-        Insert(Insert&& other) noexcept : stmt(std::move(other.stmt)) {}
+        InsertStatement(InsertStatement&& other) noexcept : stmt(std::move(other.stmt)) {}
 
-        ~Insert() = default;
+        ~InsertStatement() = default;
 
-        Insert& operator=(const Insert&) = delete;
+        InsertStatement& operator=(const InsertStatement&) = delete;
 
-        Insert& operator=(Insert&& other) noexcept
+        InsertStatement& operator=(InsertStatement&& other) noexcept
         {
             stmt = std::move(other.stmt);
             return *this;

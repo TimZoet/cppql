@@ -11,37 +11,37 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/expressions/bind_parameters.h"
-#include "cppql-typed/queries/select.h"
+#include "cppql-typed/statements/select_statement.h"
 
 namespace sql
 {
     /**
-     * \brief The SelectOne class wraps around a Select instance. It uses the instance to return just one result row.
+     * \brief The SelectOneStatement class wraps around a Select instance. It uses the instance to return just one result row.
      * \tparam R Return type.
      * \tparam Cs Types of the columns to retrieve.
      */
     template<typename R, typename... Cs>
-    requires(constructible_from<R, Cs...>) class SelectOne
+    requires(constructible_from<R, Cs...>) class SelectOneStatement
     {
     public:
-        using select_t = Select<R, Cs...>;
+        using select_t = SelectStatement<R, Cs...>;
 
         template<typename U, typename... Us>
         friend class TypedTable;
 
-        SelectOne() = delete;
+        SelectOneStatement() = delete;
 
-        SelectOne(const SelectOne&) = delete;
+        SelectOneStatement(const SelectOneStatement&) = delete;
 
-        SelectOne(SelectOne&& other) noexcept : stmt(std::move(other.stmt)) {}
+        SelectOneStatement(SelectOneStatement&& other) noexcept : stmt(std::move(other.stmt)) {}
 
-        explicit SelectOne(select_t&& select) : stmt(std::move(select)) {}
+        explicit SelectOneStatement(select_t&& select) : stmt(std::move(select)) {}
 
-        ~SelectOne() = default;
+        ~SelectOneStatement() = default;
 
-        SelectOne& operator=(const SelectOne&) = delete;
+        SelectOneStatement& operator=(const SelectOneStatement&) = delete;
 
-        SelectOne& operator=(SelectOne&& other) noexcept
+        SelectOneStatement& operator=(SelectOneStatement&& other) noexcept
         {
             stmt = std::move(other.stmt);
             return *this;

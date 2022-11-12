@@ -1,8 +1,6 @@
 #include "cppql_test/delete/delete_rows.h"
 
-#include "cppql-typed/typed_table.h"
-#include "cppql-typed/queries/delete.h"
-#include "cppql-typed/queries/insert.h"
+#include "cppql-typed/include_all.h"
 
 using namespace std::string_literals;
 

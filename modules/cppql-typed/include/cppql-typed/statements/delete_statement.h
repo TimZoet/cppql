@@ -22,7 +22,7 @@ namespace sql
      * \tparam T Table type.
      */
     template<typename T>
-    class Delete
+    class DeleteStatement
     {
     public:
         /**
@@ -30,24 +30,24 @@ namespace sql
          */
         using table_t = T;
 
-        Delete() = default;
+        DeleteStatement() = default;
 
-        Delete(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
+        DeleteStatement(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
 
-        explicit Delete(StatementPtr statement) : stmt(std::move(statement)) {}
+        explicit DeleteStatement(StatementPtr statement) : stmt(std::move(statement)) {}
 
-        Delete(const Delete&) = delete;
+        DeleteStatement(const DeleteStatement&) = delete;
 
-        Delete(Delete&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
+        DeleteStatement(DeleteStatement&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
 
-        ~Delete() = default;
+        ~DeleteStatement() = default;
 
-        Delete& operator=(const Delete&) = delete;
+        DeleteStatement& operator=(const DeleteStatement&) = delete;
 
-        Delete& operator=(Delete&& other) noexcept
+        DeleteStatement& operator=(DeleteStatement&& other) noexcept
         {
             stmt = std::move(other.stmt);
             exp  = std::move(other.exp);

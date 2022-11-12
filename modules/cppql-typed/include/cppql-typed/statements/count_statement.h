@@ -21,7 +21,7 @@ namespace sql
      * \tparam T Table type.
      */
     template<typename T>
-    class Count
+    class CountStatement
     {
     public:
         /**
@@ -29,24 +29,24 @@ namespace sql
          */
         using table_t = T;
 
-        Count() = default;
+        CountStatement() = default;
 
-        Count(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
+        CountStatement(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
 
-        explicit Count(StatementPtr statement) : stmt(std::move(statement)) {}
+        explicit CountStatement(StatementPtr statement) : stmt(std::move(statement)) {}
 
-        Count(const Count&) = delete;
+        CountStatement(const CountStatement&) = delete;
 
-        Count(Count&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
+        CountStatement(CountStatement&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
 
-        ~Count() = default;
+        ~CountStatement() = default;
 
-        Count& operator=(const Count&) = delete;
+        CountStatement& operator=(const CountStatement&) = delete;
 
-        Count& operator=(Count&& other) noexcept
+        CountStatement& operator=(CountStatement&& other) noexcept
         {
             stmt = std::move(other.stmt);
             exp  = std::move(other.exp);

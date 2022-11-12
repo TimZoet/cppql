@@ -50,22 +50,22 @@ namespace sql
     ////////////////////////////////////////////////////////////////
 
     template<typename T>
-    class Count;
+    class CountStatement;
 
     template<typename T>
-    class Delete;
+    class DeleteStatement;
 
     template<typename T, size_t... Indices>
-    class Insert;
+    class InsertStatement;
 
     template<typename R, typename... Cs>
-    requires(constructible_from<R, Cs...>) class Select;
+    requires(constructible_from<R, Cs...>) class SelectStatement;
 
     template<typename R, typename... Cs>
-    requires(constructible_from<R, Cs...>) class SelectOne;
+    requires(constructible_from<R, Cs...>) class SelectOneStatement;
 
     template<typename T, size_t... Indices>
-    class Update;
+    class UpdateStatement;
 
     template<typename R, typename J, typename F, typename O, is_column_expression C, is_column_expression... Cs> requires (constructible_from_or_none<R, typename C::value_t, typename Cs::value_t...>)
     class ComplexSelect;
@@ -191,7 +191,7 @@ namespace sql
         template<is_single_filter_expression_or_none<table_t> F,
                  is_order_by_expression_or_none<table_t>      O,
                  is_limit_expression_or_none                  L>
-        [[nodiscard]] Delete<table_t>
+        [[nodiscard]] DeleteStatement<table_t>
           del(F&& filterExpression, O&& orderByExpression, L&& limitExpression, BindParameters bind)
         {
             return delImpl(optionalToPtr(std::forward<F>(filterExpression)),
@@ -340,7 +340,7 @@ namespace sql
                                   stmt->getResult()->code);
 
             // Construct Insert.
-            return Insert<table_t, Indices...>(std::move(stmt));
+            return InsertStatement<table_t, Indices...>(std::move(stmt));
         }
 
         [[nodiscard]] auto delImpl(BaseFilterExpressionPtr                         fExpr,
@@ -368,7 +368,7 @@ namespace sql
             if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
 
             // Construct Delete.
-            return Delete<table_t>(std::move(stmt), std::move(fExpr));
+            return DeleteStatement<table_t>(std::move(stmt), std::move(fExpr));
         }
 
         [[nodiscard]] auto countImpl(BaseFilterExpressionPtr fExpr, BindParameters bind)
@@ -394,7 +394,7 @@ namespace sql
             if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
 
             // Construct Delete.
-            return Count<table_t>(std::move(stmt), std::move(fExpr));
+            return CountStatement<table_t>(std::move(stmt), std::move(fExpr));
         }
 
         template<size_t... Indices>
@@ -433,7 +433,7 @@ namespace sql
             if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
 
             // Construct Update.
-            return Update<table_t, Indices...>(std::move(stmt), std::move(fExpr));
+            return UpdateStatement<table_t, Indices...>(std::move(stmt), std::move(fExpr));
         }
 
         Table* table;

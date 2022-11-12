@@ -18,10 +18,10 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/complex_select.h"
 #include "cppql-typed/clauses/columns.h"
 #include "cppql-typed/expressions/filter_expression.h"
 #include "cppql-typed/joins/type_traits.h"
-#include "cppql-typed/queries/complex_select.h"
 
 namespace sql
 {

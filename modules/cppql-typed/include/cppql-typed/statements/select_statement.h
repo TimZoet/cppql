@@ -24,14 +24,14 @@
 namespace sql
 {
     /**
-     * \brief The Select class wraps a SELECT <cols> FROM <table> WHERE <expr> statement.
+     * \brief The SelectStatement class wraps a SELECT <cols> FROM <table> WHERE <expr> statement.
      * The statement is executed when calling the begin() method. Iterating over the
      * object will return all rows that matched the expression.
      * \tparam R Return type.
      * \tparam Cs Types of the columns to retrieve.
      */
     template<typename R, typename... Cs>
-    requires(constructible_from<R, Cs...>) class Select
+    requires(constructible_from<R, Cs...>) class SelectStatement
     {
     public:
         /**
@@ -93,24 +93,24 @@ namespace sql
             }
         };
 
-        Select() = default;
+        SelectStatement() = default;
 
-        Select(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
+        SelectStatement(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
 
-        explicit Select(StatementPtr statement) : stmt(std::move(statement)) {}
+        explicit SelectStatement(StatementPtr statement) : stmt(std::move(statement)) {}
 
-        Select(const Select&) = delete;
+        SelectStatement(const SelectStatement&) = delete;
 
-        Select(Select&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
+        SelectStatement(SelectStatement&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
 
-        ~Select() = default;
+        ~SelectStatement() = default;
 
-        Select& operator=(const Select&) = delete;
+        SelectStatement& operator=(const SelectStatement&) = delete;
 
-        Select& operator=(Select&& other) noexcept
+        SelectStatement& operator=(SelectStatement&& other) noexcept
         {
             stmt = std::move(other.stmt);
             exp  = std::move(other.exp);
@@ -133,7 +133,7 @@ namespace sql
          * \param bind Parameters to bind.
          * \return *this.
          */
-        Select& operator()(const BindParameters bind)
+        SelectStatement& operator()(const BindParameters bind)
         {
             // Reset statement.
             if (const auto res = stmt->reset(); !res)

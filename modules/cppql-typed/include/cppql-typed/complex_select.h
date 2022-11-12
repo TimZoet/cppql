@@ -19,7 +19,7 @@
 #include "cppql-typed/expressions/filter_expression_list.h"
 #include "cppql-typed/expressions/limit_expression.h"
 #include "cppql-typed/joins/type_traits.h"
-#include "cppql-typed/queries/select.h"
+#include "cppql-typed/statements/select_statement.h"
 
 namespace sql
 {
@@ -190,7 +190,7 @@ namespace sql
                 if (f && any(b)) f->bind(*stmt, b);
 
                 // Construct typed statement.
-                return Select<return_t, typename C::value_t, typename Cs::value_t...>(std::move(stmt), std::move(f));
+                return SelectStatement<return_t, typename C::value_t, typename Cs::value_t...>(std::move(stmt), std::move(f));
             };
 
             return select(std::forward<Self>(self), std::index_sequence_for<C, Cs...>(), bind);
@@ -199,7 +199,7 @@ namespace sql
         template<typename Self>
         [[nodiscard]] auto one(this Self&& self, BindParameters bind)
         {
-            return SelectOne(std::forward<Self>(self)(bind));
+            return SelectOneStatement(std::forward<Self>(self)(bind));
         }
     };
 }  // namespace sql
