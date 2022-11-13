@@ -65,7 +65,7 @@ namespace sql
          * \brief Get column-name.
          * \return Column name.
          */
-        [[nodiscard]] std::string name()
+        [[nodiscard]] std::string name() const
         {
             return this->table->getColumn(Index).getName();
         }
@@ -74,7 +74,7 @@ namespace sql
          * \brief Get table-name.column-name.
          * \return Column name.
          */
-        [[nodiscard]] std::string fullName()
+        [[nodiscard]] std::string fullName() const
         {
             return std::format("{}.{}", this->table->getName(), this->table->getColumn(Index).getName());
         }

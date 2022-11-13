@@ -18,7 +18,7 @@ void DeleteRowsAll::operator()()
     sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
-    auto insert = table.insert();
+    auto insert = table.insert()();
     expectNoThrow([&insert] { insert(10, 11.0f, sql::toText("abc")); });
     expectNoThrow([&insert] { insert(20, 12.0f, sql::toText("def")); });
     expectNoThrow([&insert] { insert(30, 13.0f, sql::toText("ghi")); });

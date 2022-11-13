@@ -7,7 +7,6 @@ set(INCLUDE_DIR "include/cppql-typed")
 set(SRC_DIR "src")
 
 set(HEADERS
-    ${INCLUDE_DIR}/complex_select.h
     ${INCLUDE_DIR}/include_all.h
     ${INCLUDE_DIR}/join.h
     ${INCLUDE_DIR}/join_type.h
@@ -30,7 +29,11 @@ set(HEADERS
     ${INCLUDE_DIR}/expressions/logical_expression.h
     ${INCLUDE_DIR}/expressions/order_by_expression.h
     ${INCLUDE_DIR}/expressions/single_filter_expression.h
+    ${INCLUDE_DIR}/queries/count_query.h
     ${INCLUDE_DIR}/queries/delete_query.h
+    ${INCLUDE_DIR}/queries/insert_query.h
+    ${INCLUDE_DIR}/queries/select_query.h
+    ${INCLUDE_DIR}/queries/update_query.h
     ${INCLUDE_DIR}/statements/count_statement.h
     ${INCLUDE_DIR}/statements/delete_statement.h
     ${INCLUDE_DIR}/statements/insert_statement.h

@@ -20,7 +20,7 @@ namespace sql
      * \tparam T Table type.
      * \tparam Indices 0-based indices of the columns to insert.
      */
-    template<typename T, size_t... Indices>
+    template<typename T, typename... Cols>
     class InsertStatement
     {
     public:
@@ -28,6 +28,8 @@ namespace sql
          * \brief Table type.
          */
         using table_t = T;
+
+        static constexpr size_t column_count = sizeof...(Cols);
 
         InsertStatement() = default;
 
@@ -53,13 +55,13 @@ namespace sql
          * \param values Values.
          */
         template<bindable... Cs>
-        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(Cs... values)
+        requires(sizeof...(Cs) == column_count) void operator()(Cs... values)
         {
             if (const auto res = stmt->reset(); !res)
                 throw SqliteError(std::format("Failed to reset insert statement."), res.code);
 
             // Only rebind if there are parameters.
-            if constexpr (sizeof...(Indices) > 0)
+            if constexpr (column_count > 0)
             {
                 if (const auto res = stmt->bind(Statement::getFirstBindIndex(), std::move(values)...); !res)
                     throw SqliteError(std::format("Failed to bind parameters to insert statement."), res.code);
@@ -75,7 +77,7 @@ namespace sql
          * \param values Values.
          */
         template<bindable... Cs>
-        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(const std::tuple<Cs...>& values)
+        requires(sizeof...(Cs) == column_count) void operator()(const std::tuple<Cs...>& values)
         {
             // Call unpack function.
             this->operator()(values, std::index_sequence_for<Cs...>{});

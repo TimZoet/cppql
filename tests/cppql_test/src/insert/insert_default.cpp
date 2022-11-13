@@ -27,7 +27,7 @@ void InsertDefault::operator()()
     sql::TypedTable<int32_t, float, std::string, std::vector<uint8_t>> typedTable(*table);
 
     // Insert all default values.
-    auto insert = typedTable.insert<>();
+    auto insert = typedTable.insert<>()();
     insert();
 
     // Get row.

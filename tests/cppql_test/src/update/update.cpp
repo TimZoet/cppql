@@ -18,17 +18,16 @@ void Update::operator()()
     sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
-    auto insert = table.insert();
+    auto insert = table.insert()();
     expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
     expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
     expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
 
     // Update one column at a time.
     {
-        int64_t param = 0;
-        auto update = table.update<1>(table.col<0>() == &param, std::nullopt, std::nullopt, sql::BindParameters::None);
-        //auto select = table.selectOne<float, 1>(table.col<0>() == &param, sql::BindParameters::None);
-        auto select = table.select<float, 1>().where(table.col<0>() == &param).one(sql::BindParameters::None);
+        int64_t param  = 0;
+        auto    update = table.update<1>().where(table.col<0>() == &param)(sql::BindParameters::None);
+        auto    select = table.select<float, 1>().where(table.col<0>() == &param).one(sql::BindParameters::None);
 
         param = 10;
         expectNoThrow([&] { update(sql::BindParameters::All, 5.0f); });
@@ -54,10 +53,9 @@ void Update::operator()()
 
     // Update multiple columns at a time.
     {
-        int64_t param = 0;
-        auto    update =
-          table.update<1, 2>(table.col<0>() == &param, std::nullopt, std::nullopt, sql::BindParameters::None);
-        auto select = table.select<1, 2>().where(table.col<0>() == &param).one(sql::BindParameters::None);
+        int64_t param  = 0;
+        auto    update = table.update<1, 2>().where(table.col<0>() == &param)(sql::BindParameters::None);
+        auto    select = table.select<1, 2>().where(table.col<0>() == &param).one(sql::BindParameters::None);
 
         param = 10;
         expectNoThrow([&] { update(sql::BindParameters::All, 1000.0f, sql::toText("val0")); });

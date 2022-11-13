@@ -18,7 +18,7 @@ void InsertTuple::operator()()
     sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
-    auto insert = table.insert();
+    auto insert = table.insert()();
     expectNoThrow([&insert] { insert(std::make_tuple<int64_t, float, sql::Text>(10, 20.0f, sql::toText("abc"))); });
     expectNoThrow([&insert] { insert(std::make_tuple<int64_t, float, sql::Text>(20, 40.5f, sql::toText("def"))); });
     expectNoThrow([&insert] { insert(std::make_tuple<int64_t, float, sql::Text>(30, 80.2f, sql::toText("ghij"))); });

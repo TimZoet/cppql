@@ -16,7 +16,7 @@
 
 namespace sql
 {
-    template<is_column_expression C, is_column_expression... Cs>
+    template<is_column_expression... Cs>
     class Columns
     {
     public:
@@ -24,7 +24,8 @@ namespace sql
         // Types.
         ////////////////////////////////////////////////////////////////
         
-        using row_t = std::tuple<C, Cs...>;
+        using row_t = std::tuple<Cs...>;
+        static constexpr size_t size = sizeof...(Cs);
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
@@ -49,6 +50,7 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
+        // TODO: All these toStrings probably don't need Self and can just be made const. No members are forwarded out of this method.
         /**
          * \brief Generate comma-separated list of column names.
          * \tparam Self Self.
@@ -66,7 +68,20 @@ namespace sql
                     return std::get<I>(self.columns).fullName() + (... + ("," + std::get<Is>(self.columns).fullName()));
             };
 
-            return cols(std::index_sequence_for<C, Cs...>());
+            return cols(std::index_sequence_for<Cs...>());
+        }
+
+        [[nodiscard]] std::string toStringSimple() const
+        {
+            auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
+            {
+                if constexpr (sizeof...(Is) == 0)
+                    return std::get<I>(columns).name();
+                else
+                    return std::get<I>(columns).name() + (... + ("," + std::get<Is>(columns).name()));
+            };
+
+            return cols(std::index_sequence_for<Cs...>());
         }
 
     private:

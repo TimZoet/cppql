@@ -58,7 +58,7 @@ namespace sql
     template<typename T>
     class DeleteStatement;
 
-    template<typename T, size_t... Indices>
+    template<typename T, typename... Cs>
     class InsertStatement;
 
     template<typename R, typename... Cs>
@@ -69,15 +69,32 @@ namespace sql
         requires(constructible_from<R, Cs...>)
     class SelectOneStatement;
 
-    template<typename T, size_t... Indices>
+    template<typename T, typename... Cs>
     class UpdateStatement;
 
-    template<typename R, typename J, typename F, typename O, is_column_expression C, is_column_expression... Cs>
-        requires(constructible_from_or_none<R, typename C::value_t, typename Cs::value_t...>)
-    class ComplexSelect;
+
+
+    template<typename T, typename F>
+    class CountQuery;
 
     template<typename T, typename F, typename O, typename L>
     class DeleteQuery;
+
+    template<typename T, is_column_expression... Cs>
+    class InsertQuery;
+
+    template<typename R,
+             typename J,
+             typename F,
+             typename O,
+             typename L,
+             is_column_expression C,
+             is_column_expression... Cs>
+        requires(constructible_from_or_none<R, typename C::value_t, typename Cs::value_t...>)
+    class SelectQuery;
+
+    template<typename T, typename F, typename O, typename L, is_column_expression C, is_column_expression... Cs>
+    class UpdateQuery;
 
     ////////////////////////////////////////////////////////////////
     // TypedTable class.
@@ -159,24 +176,16 @@ namespace sql
         // Insert.
         ////////////////////////////////////////////////////////////////
 
-        /**
-         * \brief Create an INSERT INTO query. Creates a callable object that will insert the passed values for each specified column and default values for the rest.
-         * \tparam Indices Indices of the columns for which to explicitly bind values. Leave empty to insert all default values.
-         * \return Insert object.
-         */
         template<size_t... Indices>
-        [[nodiscard]] auto insert()
+        [[nodiscard]] auto insert() const
         {
-            return insertImpl<Indices...>();
+            return InsertQuery<table_t, ColumnExpression<table_t, Indices>...>(
+              *table, Columns(std::make_tuple(col<Indices>()...)));
         }
 
-        /**
-         * \brief Create an INSERT INTO query. Creates a callable object that will insert the passed values.
-         * \return Insert object.
-         */
-        [[nodiscard]] auto insert()
+        [[nodiscard]] auto insert() const
         {
-            const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return insertImpl<Is...>(); };
+            const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return insert<Is...>(); };
             return f(std::index_sequence_for<C, Cs...>{});
         }
 
@@ -184,7 +193,10 @@ namespace sql
         // Delete.
         ////////////////////////////////////////////////////////////////
 
-        auto del() { return DeleteQuery<table_t, std::nullopt_t, std::nullopt_t, std::nullopt_t>(*table); }
+        [[nodiscard]] auto del() const
+        {
+            return DeleteQuery<table_t, std::nullopt_t, std::nullopt_t, std::nullopt_t>(*table);
+        }
 
         ////////////////////////////////////////////////////////////////
         // Select.
@@ -194,11 +206,12 @@ namespace sql
         [[nodiscard]] auto select()
         {
             if constexpr (sizeof...(Indices))
-                return ComplexSelect<std::nullopt_t,
-                                     table_t,
-                                     std::nullopt_t,
-                                     std::nullopt_t,
-                                     ColumnExpression<table_t, Indices>...>(
+                return SelectQuery<std::nullopt_t,
+                                   table_t,
+                                   std::nullopt_t,
+                                   std::nullopt_t,
+                                   std::nullopt_t,
+                                   ColumnExpression<table_t, Indices>...>(
                   *this, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
             else
             {
@@ -212,7 +225,12 @@ namespace sql
         [[nodiscard]] auto select()
         {
             if constexpr (sizeof...(Indices))
-                return ComplexSelect<R, table_t, std::nullopt_t, std::nullopt_t, ColumnExpression<table_t, Indices>...>(
+                return SelectQuery<R,
+                                   table_t,
+                                   std::nullopt_t,
+                                   std::nullopt_t,
+                                   std::nullopt_t,
+                                   ColumnExpression<table_t, Indices>...>(
                   *this, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
             else
             {
@@ -226,60 +244,27 @@ namespace sql
         // Count.
         ////////////////////////////////////////////////////////////////
 
-        /**
-         * \brief Create a COUNT query. Creates a callable object that returns the number of rows that match the filter expression.
-         * \tparam F SingleFilterExpression type.
-         * \param filterExpression Expression to filter results by.
-         * \param bind Parameters to bind.
-         * \return Count object.
-         */
-        template<is_single_filter_expression_or_none<table_t> F>
-        [[nodiscard]] auto count(F&& filterExpression, BindParameters bind)
-        {
-            return countImpl(optionalToPtr(std::forward<F>(filterExpression)), bind);
-        }
+        [[nodiscard]] auto count() const { return CountQuery<table_t, std::nullopt_t>(*table); }
 
         ////////////////////////////////////////////////////////////////
         // Update.
         ////////////////////////////////////////////////////////////////
 
-        /**
-         * \brief Create an UPDATE query. Creates a callable object that will update the specified columns of matching rows with the passed values.
-         * \tparam Indices Indices of the columns to update.
-         * \tparam F SingleFilterExpression type or std::nullopt_t.
-         * \tparam O OrderByExpression type or std::nullopt_t.
-         * \tparam L LimitExpression type or std::nullopt_t.
-         * \param filterExpression Expression to filter the rows that will be updated. If std::nullopt, rows are not filtered.
-         * \param orderByExpression Expression to order rows by. If std::nullopt, rows are not ordered.
-         * \param limitExpression Expression to limit rows by. If std::nullopt, rows are not limited.
-         * \param bind Parameters to bind.
-         * \return Update object.
-         */
-        template<size_t... Indices,
-                 is_single_filter_expression_or_none<table_t> F,
-                 is_order_by_expression_or_none<table_t>      O,
-                 is_limit_expression_or_none                  L>
-            requires(in_column_range<column_count, Indices...>)
-        [[nodiscard]] auto update(F&& filterExpression, O&& orderByExpression, L&& limitExpression, BindParameters bind)
+        template<size_t... Indices>
+        [[nodiscard]] auto update() const
         {
-            // TODO: In all of these filters, there could technically be expressions referencing columns from different table instances that just so happen to have the same column types.
-            // That should proably result in a runtime error.
             if constexpr (sizeof...(Indices))
-            {
-                return updateImpl<Indices...>(optionalToPtr(std::forward<F>(filterExpression)),
-                                              std::forward<O>(orderByExpression),
-                                              std::forward<L>(limitExpression),
-                                              bind);
-            }
+                return UpdateQuery<table_t,
+
+                                   std::nullopt_t,
+                                   std::nullopt_t,
+                                   std::nullopt_t,
+                                   ColumnExpression<table_t, Indices>...>(
+                  *table, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
             else
             {
-                const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>)
-                {
-                    return update<Is...>(std::forward<F>(filterExpression),
-                                         std::forward<O>(orderByExpression),
-                                         std::forward<L>(limitExpression),
-                                         bind);
-                };
+                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return update<Is...>(); };
+
                 return f(std::index_sequence_for<C, Cs...>{});
             }
         }
@@ -290,7 +275,7 @@ namespace sql
 
         // TODO: Require J to be JoinWrapper and R to be TypedTable.
         template<typename J, typename R>
-        Join<J, table_t, R, std::nullopt_t> join(J&&, R& rhs)
+        [[nodiscard]] auto join(J&&, R& rhs) const
         {
             return Join<J, table_t, R, std::nullopt_t>(*table, rhs.getTable());
         }
@@ -303,104 +288,6 @@ namespace sql
 
             // Recurse.
             if constexpr (sizeof...(Us) > 0) validate<Index + 1, Us...>();
-        }
-
-        template<size_t... Indices>
-        [[nodiscard]] auto insertImpl()
-        {
-            std::string sql;
-
-            // If there are no indices, create statement to insert all default values.
-            if constexpr (sizeof...(Indices) == 0)
-            {
-                sql = std::format("INSERT INTO {0} DEFAULT VALUES", table->getName());
-            }
-            // Otherwise, construct an INSERT INTO <table> (<cols>) VALUES <vals> query.
-            else
-            {
-                // Generate format arguments.
-                std::string colNames = formatColumns(*table, {Indices...});
-                std::string cs       = "?";
-                for (size_t i = 1; i < sizeof...(Indices); i++) cs += ",?";
-
-                // Format SQL statement.
-                sql = std::format(
-                  "INSERT INTO {0} ({1}) VALUES ({2});", table->getName(), std::move(colNames), std::move(cs));
-            }
-
-            // Create and prepare statement.
-            auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
-            if (!stmt->isPrepared())
-                throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
-                                  stmt->getResult()->code);
-
-            // Construct Insert.
-            return InsertStatement<table_t, Indices...>(std::move(stmt));
-        }
-
-        [[nodiscard]] auto countImpl(BaseFilterExpressionPtr fExpr, BindParameters bind)
-        {
-            std::string sql;
-
-            // Format SQL statement.
-            if (fExpr)
-            {
-                auto index = 0;
-                sql = std::format("SELECT COUNT(*) FROM {0} WHERE {1};", table->getName(), fExpr->toString(index));
-            }
-            else
-                sql = std::format("SELECT COUNT(*) FROM {0};", table->getName());
-
-            // Create and prepare statement.
-            auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
-            if (!stmt->isPrepared())
-                throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
-                                  stmt->getResult()->code);
-
-            // Bind parameters.
-            if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
-
-            // Construct Delete.
-            return CountStatement<table_t>(std::move(stmt), std::move(fExpr));
-        }
-
-        template<size_t... Indices>
-        [[nodiscard]] auto updateImpl(BaseFilterExpressionPtr                         fExpr,
-                                      const std::optional<OrderByExpression<table_t>> oExpr,
-                                      const std::optional<LimitExpression>            lExpr,
-                                      BindParameters                                  bind)
-        {
-            // Construct an UPDATE <table> SET (<cols>) = (<vals>) WHERE <filter> ORDER BY <expr> LIMIT <expr> OFFSET <expr> query.
-
-            // Generate format arguments.
-            auto        index    = static_cast<int32_t>(sizeof...(Indices));
-            std::string e        = fExpr ? "WHERE " + fExpr->toString(index) : "";
-            std::string orderBy  = oExpr ? oExpr->toString() : "";
-            std::string limit    = lExpr ? lExpr->toString() : "";
-            std::string colNames = formatColumns(*table, {Indices...});
-            std::string cs       = "?1";
-            for (size_t i = 1; i < sizeof...(Indices); i++) cs += std::format(",?{0}", i + 1);
-
-            // Format SQL statement.
-            std::string sql = std::format("UPDATE {0} SET ({1}) = ({2}) {3} {4} {5};",
-                                          table->getName(),
-                                          std::move(colNames),
-                                          std::move(cs),
-                                          std::move(e),
-                                          std::move(orderBy),
-                                          std::move(limit));
-
-            // Create and prepare statement.
-            auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
-            if (!stmt->isPrepared())
-                throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
-                                  stmt->getResult()->code);
-
-            // Bind parameters.
-            if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
-
-            // Construct Update.
-            return UpdateStatement<table_t, Indices...>(std::move(stmt), std::move(fExpr));
         }
 
         Table* table;

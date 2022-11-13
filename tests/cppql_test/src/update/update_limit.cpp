@@ -29,9 +29,8 @@ void UpdateLimit::operator()()
     expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
 
     {
-        auto update = table.update<1>(
-          std::nullopt, ascending(table.col<0>()), sql::LimitExpression{.limit = 2}, sql::BindParameters::None);
-        auto select = table.selectAll<float, 1>();
+        auto update = table.update<1>().orderBy(ascending(table.col<0>())).limitOffset(2, 0)(sql::BindParameters::None);
+        auto select = table.select<float, 1>()(sql::BindParameters::None);
 
         expectNoThrow([&] { update(sql::BindParameters::All, 5.0f); });
         const std::vector<float> rows(select.begin(), select.end());
@@ -42,11 +41,11 @@ void UpdateLimit::operator()()
     }
 
     {
-        auto update = table.update<1>(table.col<0>() <= 20,
-                                      ascending(table.col<0>()),
-                                      sql::LimitExpression{.limit = 1, .offset = 1},
-                                      sql::BindParameters::All);
-        auto select = table.selectAll<float, 1>();
+        auto update = table.update<1>()
+                        .where(table.col<0>() <= 20)
+                        .orderBy(ascending(table.col<0>()))
+                        .limitOffset(1, 1)(sql::BindParameters::All);
+        auto select = table.select<float, 1>()(sql::BindParameters::None);
 
         expectNoThrow([&] { update(sql::BindParameters::All, 11.0f); });
         const std::vector<float> rows(select.begin(), select.end());
@@ -57,9 +56,8 @@ void UpdateLimit::operator()()
     }
 
     {
-        auto update = table.update<1>(
-          std::nullopt, descending(table.col<0>()), sql::LimitExpression{.limit = 2}, sql::BindParameters::None);
-        auto select = table.selectAll<float, 1>();
+        auto update = table.update<1>().orderBy(descending(table.col<0>())).limitOffset(2, 0)(sql::BindParameters::None);
+        auto select = table.select<float, 1>()(sql::BindParameters::None);
 
         expectNoThrow([&] { update(sql::BindParameters::All, 13.0f); });
         const std::vector<float> rows(select.begin(), select.end());

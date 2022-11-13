@@ -21,7 +21,7 @@ namespace sql
      * \tparam T Table type.
      * \tparam Indices 0-based indices of the columns to update.
      */
-    template<typename T, size_t... Indices>
+    template<typename T, typename... Cols>
     class UpdateStatement
     {
     public:
@@ -29,6 +29,8 @@ namespace sql
          * \brief Table type.
          */
         using table_t = T;
+
+        static constexpr size_t column_count = sizeof...(Cols);
 
         UpdateStatement() = default;
 
@@ -58,7 +60,8 @@ namespace sql
          * \param values Values.
          */
         template<bindable... Cs>
-        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(Cs&&... values)
+            requires(sizeof...(Cs) == column_count)
+        void operator()(Cs&&... values)
         {
             this->operator()(BindParameters::None, std::forward<Cs>(values)...);
         }
@@ -70,7 +73,8 @@ namespace sql
          * \param values Values.
          */
         template<bindable... Cs>
-        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(BindParameters bind, Cs... values)
+            requires(sizeof...(Cs) == column_count)
+        void operator()(BindParameters bind, Cs... values)
         {
             if (const auto res = stmt->reset(); !res)
                 throw SqliteError(std::format("Failed to reset count statement."), res.code);
@@ -92,7 +96,8 @@ namespace sql
          * \param values Values.
          */
         template<bindable... Cs>
-        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(const std::tuple<Cs...>& values)
+            requires(sizeof...(Cs) == column_count)
+        void operator()(const std::tuple<Cs...>& values)
         {
             this->operator()(BindParameters::None, values);
         }
@@ -104,8 +109,8 @@ namespace sql
          * \param values Values.
          */
         template<bindable... Cs>
-        requires(sizeof...(Cs) == sizeof...(Indices)) void operator()(BindParameters           bind,
-                                                                      const std::tuple<Cs...>& values)
+            requires(sizeof...(Cs) == column_count)
+        void operator()(BindParameters bind, const std::tuple<Cs...>& values)
         {
             // Call unpack function.
             this->operator()(bind, values, std::index_sequence_for<Cs...>{});

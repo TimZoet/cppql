@@ -20,7 +20,7 @@ void SelectOrderBy::operator()()
     // Generate and insert a bunch of vals.
     std::vector<std::tuple<int64_t, int64_t, int64_t>> vals;
     for (int64_t i = 0; i < 100; i++) vals.emplace_back(i, -i, i % 10);
-    auto insert = table.insert();
+    auto insert = table.insert()();
     expectNoThrow([&] {
         for (const auto& r : vals) insert(r);
     });

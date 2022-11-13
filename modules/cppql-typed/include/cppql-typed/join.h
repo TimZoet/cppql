@@ -18,12 +18,12 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql-typed/complex_select.h"
 #include "cppql-typed/join_type.h"
 #include "cppql-typed/clauses/columns.h"
 #include "cppql-typed/clauses/on.h"
 #include "cppql-typed/clauses/using.h"
 #include "cppql-typed/expressions/filter_expression.h"
+#include "cppql-typed/queries/select_query.h"
 
 namespace sql
 {
@@ -184,12 +184,12 @@ namespace sql
         {
             // TODO: Check table instances in columns match tables in joins.
 
-            return ComplexSelect<std::nullopt_t,
-                                 std::decay_t<Self>,
-                                 std::nullopt_t,
-                                 std::nullopt_t,
-                                 std::decay_t<C>,
-                                 std::decay_t<Cs>...>(
+            return SelectQuery<std::nullopt_t,
+                               std::decay_t<Self>,
+                               std::nullopt_t,
+                               std::nullopt_t,
+                               std::decay_t<C>,
+                               std::decay_t<Cs>...>(
               std::forward<Self>(self),
               Columns<C, Cs...>(std::make_tuple(std::forward<C>(c), std::forward<Cs>(cs)...)));
         }
