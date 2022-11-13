@@ -82,10 +82,7 @@ namespace sql
 
         SelectQuery(SelectQuery&& other) noexcept = default;
 
-        SelectQuery(join_t j, columns_t cs) :
-            join(std::move(j)), columns(std::move(cs)), filter(std::nullopt), order(std::nullopt), limit(std::nullopt)
-        {
-        }
+        SelectQuery(join_t j, columns_t cs) : join(std::move(j)), columns(std::move(cs)) {}
 
         SelectQuery(join_t j, columns_t cs, filter_t f, order_t o, limit_t l) :
             join(std::move(j)), columns(std::move(cs)), filter(std::move(f)), order(std::move(o)), limit(std::move(l))
@@ -170,7 +167,7 @@ namespace sql
 
             // SELECT <cols> FROM <table> JOIN <tables...> WHERE <expr> ORDER BY <expr> LIMIT <val> OFFSET <val>;
             auto sql = std::format("SELECT {0} FROM {1} {2} {3} {4};",
-                                   std::forward<Self>(self).columns.toString(),
+                                   std::forward<Self>(self).columns.toStringFull(),
                                    std::forward<Self>(self).join.toString(index),
                                    std::forward<Self>(self).filter.toString(index),
                                    std::forward<Self>(self).order.toString(),

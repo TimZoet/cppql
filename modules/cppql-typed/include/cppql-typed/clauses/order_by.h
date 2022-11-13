@@ -22,55 +22,8 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         // Types.
         ////////////////////////////////////////////////////////////////
-        
+
         static constexpr bool valid = false;
-
-        ////////////////////////////////////////////////////////////////
-        // Constructors.
-        ////////////////////////////////////////////////////////////////
-
-        OrderBy() = delete;
-
-        OrderBy(const OrderBy& other) = default;
-
-        OrderBy(OrderBy&& other) noexcept = default;
-
-        explicit OrderBy(std::nullopt_t) : order(std::nullopt) {}
-
-        virtual ~OrderBy()noexcept = default;
-
-        OrderBy& operator=(const OrderBy& other) = default;
-
-        OrderBy& operator=(OrderBy&& other) noexcept = default;
-
-        ////////////////////////////////////////////////////////////////
-        // ...
-        ////////////////////////////////////////////////////////////////
-
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&&)
-        {
-            return {};
-        }
-
-    private:
-        ////////////////////////////////////////////////////////////////
-        // Member variables.
-        ////////////////////////////////////////////////////////////////
-
-        std::nullopt_t order;
-    };
-
-    template<_is_order_by_expression O>
-    class OrderBy<O>
-    {
-    public:
-        ////////////////////////////////////////////////////////////////
-        // Types.
-        ////////////////////////////////////////////////////////////////
-
-        static constexpr bool valid = true;
-        using order_t = O;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
@@ -82,23 +35,57 @@ namespace sql
 
         OrderBy(OrderBy&& other) noexcept = default;
 
-        explicit OrderBy(order_t o) : order(std::move(o)) {}
-
-        virtual ~OrderBy()noexcept = default;
+        ~OrderBy() noexcept = default;
 
         OrderBy& operator=(const OrderBy& other) = default;
 
         OrderBy& operator=(OrderBy&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Generate.
         ////////////////////////////////////////////////////////////////
 
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&& self)
-        {
-            return std::forward<Self>(self).order.toString();
-        }
+        [[nodiscard]] static std::string toString() { return {}; }
+    };
+
+    template<_is_order_by_expression O>
+    class OrderBy<O>
+    {
+    public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
+        static constexpr bool valid = true;
+        using order_t               = O;
+
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
+
+        OrderBy() = delete;
+
+        OrderBy(const OrderBy& other) = default;
+
+        OrderBy(OrderBy&& other) noexcept = default;
+
+        explicit OrderBy(order_t o) : order(std::move(o)) {}
+
+        ~OrderBy() noexcept = default;
+
+        OrderBy& operator=(const OrderBy& other) = default;
+
+        OrderBy& operator=(OrderBy&& other) noexcept = default;
+
+        ////////////////////////////////////////////////////////////////
+        // Generate.
+        ////////////////////////////////////////////////////////////////
+
+        /**
+         * \brief Generate ORDER BY clause.
+         * \return String with format "ORDER BY table-name.column-name[0] <ASC|DESC>,...,table-name.column-name[N] <ASC|DESC>".
+         */
+        [[nodiscard]] std::string toString() const { return order.toString(); }
 
     private:
         ////////////////////////////////////////////////////////////////

@@ -24,13 +24,11 @@ namespace sql
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        Limit() = delete;
+        Limit() = default;
 
         Limit(const Limit& other) = default;
 
         Limit(Limit&& other) noexcept = default;
-
-        explicit Limit(std::nullopt_t) {};
 
         ~Limit() noexcept = default;
 
@@ -42,11 +40,7 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&&)
-        {
-            return {};
-        }
+        [[nodiscard]] static std::string toString() { return {}; }
     };
 
     template<std::same_as<std::true_type> T>
@@ -81,11 +75,11 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&& self)
-        {
-            return std::format("LIMIT {0} OFFSET {1}", std::forward<Self>(self).limit, std::forward<Self>(self).offset);
-        }
+        /**
+         * \brief Generate LIMIT OFFSET clause.
+         * \return String with format "LIMIT <val> OFFSET <val>".
+         */
+        [[nodiscard]] std::string toString() const { return std::format("LIMIT {0} OFFSET {1}", limit, offset); }
 
     private:
         ////////////////////////////////////////////////////////////////

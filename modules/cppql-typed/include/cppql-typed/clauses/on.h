@@ -25,13 +25,11 @@ namespace sql
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        On() = delete;
+        On() = default;
 
         On(const On& other) = default;
 
         On(On&& other) noexcept = default;
-
-        explicit On(std::nullopt_t) : filter(std::nullopt) {}
 
         ~On() noexcept = default;
 
@@ -40,20 +38,13 @@ namespace sql
         On& operator=(On&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Generate.
         ////////////////////////////////////////////////////////////////
 
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&&, int32_t&)
+        [[nodiscard]] static std::string toString(int32_t&)
         {
             return {};
         }
-
-        ////////////////////////////////////////////////////////////////
-        // Member variables.
-        ////////////////////////////////////////////////////////////////
-
-        std::nullopt_t filter;
     };
 
     template<typename F>
@@ -87,13 +78,17 @@ namespace sql
         On& operator=(On&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Generate.
         ////////////////////////////////////////////////////////////////
 
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&& self, int32_t& pIndex)
+        /**
+         * \brief Generate ON clause with filter expression.
+         * \param pIndex Counter.
+         * \return String with format "ON <expr>".
+         */
+        [[nodiscard]] std::string toString(int32_t& pIndex)
         {
-            return std::format("ON {}", std::forward<Self>(self).filter.toString(pIndex));
+            return std::format("ON {}", filter.toString(pIndex));
         }
 
         ////////////////////////////////////////////////////////////////

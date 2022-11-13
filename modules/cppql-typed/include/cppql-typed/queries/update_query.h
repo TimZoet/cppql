@@ -52,7 +52,7 @@ namespace sql
         UpdateQuery(UpdateQuery&& other) noexcept = default;
 
         UpdateQuery(Table& t, columns_t cs) :
-            table(&t), columns(std::move(cs)), filter(std::nullopt), order(std::nullopt), limit(std::nullopt)
+            table(&t), columns(std::move(cs))
         {
         }
 
@@ -120,7 +120,7 @@ namespace sql
             // UPDATE <table> SET (<cols>) = (<vals>) WHERE <expr> ORDER BY <expr> LIMIT <val> OFFSET <val>
             auto sql = std::format("UPDATE {0} SET ({1}) = ({2}) {3} {4};",
                                    table->getName(),
-                                   columns.toStringSimple(),
+                                   columns.toString(),
                                    std::move(vals),
                                    filter.toString(index),
                                    order.toString(),

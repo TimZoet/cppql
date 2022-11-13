@@ -16,6 +16,8 @@
 
 namespace sql
 {
+    // TODO: Is this class ever instantiated with 0 arguments? E.g. when doing a default insert? Will toString even work then?
+    // Or should this class get a specialization for non-zero column count?
     template<is_column_expression... Cs>
     class Columns
     {
@@ -23,22 +25,19 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         // Types.
         ////////////////////////////////////////////////////////////////
-        
-        using row_t = std::tuple<Cs...>;
+
+        using row_t                  = std::tuple<Cs...>;
         static constexpr size_t size = sizeof...(Cs);
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        Columns() = delete;
-
         Columns(const Columns& other) = default;
 
         Columns(Columns&& other) noexcept = default;
 
-        // TODO: Construct from C, Cs... instead and do make_tuple in here instead of at call site.
-        explicit Columns(row_t cs) : columns(std::move(cs)) {}
+        explicit Columns(Cs... cs) : columns(std::make_tuple(std::move(cs)...)) {}
 
         ~Columns() noexcept = default;
 
@@ -50,30 +49,13 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        // TODO: All these toStrings probably don't need Self and can just be made const. No members are forwarded out of this method.
         /**
          * \brief Generate comma-separated list of column names.
-         * \tparam Self Self.
-         * \param self Self.
-         * \return String with format "table-name.column-name[0],...,table-name.column-name[N]".
+         * \return String with format "column-name[0],...,column-name[N]".
          */
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&& self)
+        [[nodiscard]] std::string toString() const
         {
-            auto cols = [&self]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
-            {
-                if constexpr (sizeof...(Is) == 0)
-                    return std::get<I>(self.columns).fullName();
-                else
-                    return std::get<I>(self.columns).fullName() + (... + ("," + std::get<Is>(self.columns).fullName()));
-            };
-
-            return cols(std::index_sequence_for<Cs...>());
-        }
-
-        [[nodiscard]] std::string toStringSimple() const
-        {
-            auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
+            const auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
             {
                 if constexpr (sizeof...(Is) == 0)
                     return std::get<I>(columns).name();
@@ -84,7 +66,23 @@ namespace sql
             return cols(std::index_sequence_for<Cs...>());
         }
 
-    private:
+        /**
+         * \brief Generate comma-separated list of column names including table names.
+         * \return String with format "table-name.column-name[0],...,table-name.column-name[N]".
+         */
+        [[nodiscard]] std::string toStringFull() const
+        {
+            const auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
+            {
+                if constexpr (sizeof...(Is) == 0)
+                    return std::get<I>(columns).fullName();
+                else
+                    return std::get<I>(columns).fullName() + (... + ("," + std::get<Is>(columns).fullName()));
+            };
+
+            return cols(std::index_sequence_for<Cs...>());
+        }
+
         ////////////////////////////////////////////////////////////////
         // Member variables.
         ////////////////////////////////////////////////////////////////

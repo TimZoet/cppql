@@ -32,13 +32,11 @@ namespace sql
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        Using() = delete;
+        Using() = default;
 
         Using(const Using& other) = default;
 
         Using(Using&& other) noexcept = default;
-
-        explicit Using(std::nullopt_t) : columns(std::nullopt) {}
 
         ~Using() noexcept = default;
 
@@ -47,20 +45,13 @@ namespace sql
         Using& operator=(Using&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Generate.
         ////////////////////////////////////////////////////////////////
 
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&&)
+        [[nodiscard]] static std::string toString()
         {
             return {};
         }
-
-        ////////////////////////////////////////////////////////////////
-        // Member variables.
-        ////////////////////////////////////////////////////////////////
-        
-        std::nullopt_t columns;
     };
 
     template<is_column_expression C, is_column_expression... Cs>
@@ -72,7 +63,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         static constexpr bool valid = true;
-        using row_t = std::tuple<C, Cs...>;
+        using                 row_t = std::tuple<C, Cs...>;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
@@ -98,25 +89,21 @@ namespace sql
 
         /**
          * \brief Generate USING clause from columns.
-         * \tparam Self Self.
-         * \param self Self.
          * \return String with format "USING(column-name[0],...,column-name[N])".
          */
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&& self)
+        [[nodiscard]] std::string toString() const
         {
-            auto cols = [&self]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
+            auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
             {
                 if constexpr (sizeof...(Is) == 0)
-                    return "USING (" + std::get<I>(self.columns).name() + ")";
+                    return "USING(" + std::get<I>(columns).name() + ")";
                 else
-                    return "USING (" + std::get<I>(self.columns).name() + (... + ("," + std::get<Is>(self.columns).name())) + ")";
+                    return "USING(" + std::get<I>(columns).name() + (... + ("," + std::get<Is>(columns).name())) + ")";
             };
 
             return cols(std::index_sequence_for<C, Cs...>());
         }
 
-    private:
         ////////////////////////////////////////////////////////////////
         // Member variables.
         ////////////////////////////////////////////////////////////////

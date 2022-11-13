@@ -92,6 +92,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         static constexpr bool recursive       = is_join<L>;
+        using joint_t                         = J;
         using left_t                          = std::conditional_t<recursive, L, Table*>;
         using table_t                         = R;
         using filter_t                        = On<F>;
@@ -115,19 +116,13 @@ namespace sql
 
         Join(Join&& other) noexcept = default;
 
-        Join(Table& l, Table& r) : left(&l), right(&r), filter(std::nullopt), usingCols(std::nullopt) {}
+        Join(Table& l, Table& r) : left(&l), right(&r) {}
 
-        Join(left_t l, Table& r, filter_t f) :
-            left(std::move(l)), right(&r), filter(std::move(f)), usingCols(std::nullopt)
-        {
-        }
+        Join(left_t l, Table& r, filter_t f) : left(std::move(l)), right(&r), filter(std::move(f)) {}
 
-        Join(left_t l, Table& r, using_t u) :
-            left(std::move(l)), right(&r), filter(std::nullopt), usingCols(std::move(u))
-        {
-        }
+        Join(left_t l, Table& r, using_t u) : left(std::move(l)), right(&r), usingCols(std::move(u)) {}
 
-        Join(left_t l, Table& r) : left(std::move(l)), right(&r), filter(std::nullopt), usingCols(std::nullopt) {}
+        Join(left_t l, Table& r) : left(std::move(l)), right(&r) {}
 
         ~Join() noexcept = default;
 
@@ -156,22 +151,22 @@ namespace sql
         }
 
         template<typename Self, is_valid_filter_expression<table_list_t> F2>
-            requires(!filter_t::valid && !using_t::valid && !J::natural)
+            requires(!filter_t::valid && !using_t::valid && !joint_t::natural)
         auto on(this Self&& self, F2&& filter)
         {
             // TODO: Check table instances in filter match tables in joins.
-            return Join<J, L, R, std::decay_t<F2>>(
+            return Join<joint_t, L, R, std::decay_t<F2>>(
               std::forward<Self>(self).left, *self.right, On<std::decay_t<F2>>(std::forward<F2>(filter)));
         }
 
         template<typename Self, is_column_expression C, is_column_expression... Cs>
-            requires(!filter_t::valid && !using_t::valid && !J::natural)
+            requires(!filter_t::valid && !using_t::valid && !joint_t::natural)
         auto usings(this Self&& self, C&& c, Cs&&... cs)
         {
             // TODO: Detect duplicates.
             // TODO: Check column types in left typedtable.
             // TODO: Runtime check column names are in left and right table.
-            return Join<J, L, R, std::nullopt_t, std::decay_t<C>, std::decay_t<Cs>...>(
+            return Join<joint_t, L, R, std::nullopt_t, std::decay_t<C>, std::decay_t<Cs>...>(
               std::forward<Self>(self).left,
               *self.right,
               Using<std::decay_t<C>, std::decay_t<Cs>...>(std::forward<C>(c), std::forward<Cs>(cs)...));
@@ -188,10 +183,10 @@ namespace sql
                                std::decay_t<Self>,
                                std::nullopt_t,
                                std::nullopt_t,
+                               std::nullopt_t,
                                std::decay_t<C>,
-                               std::decay_t<Cs>...>(
-              std::forward<Self>(self),
-              Columns<C, Cs...>(std::make_tuple(std::forward<C>(c), std::forward<Cs>(cs)...)));
+                               std::decay_t<Cs>...>(std::forward<Self>(self),
+                                                    Columns<C, Cs...>(std::forward<C>(c), std::forward<Cs>(cs)...));
         }
 
         ////////////////////////////////////////////////////////////////
@@ -220,7 +215,7 @@ namespace sql
                 // Left contains more joins that must be stringified.
                 return std::format("{0} {1} {2} {3}{4}",
                                    left.toString(pIndex),
-                                   J::name,
+                                   joint_t::name,
                                    right->getName(),
                                    filter.toString(pIndex),
                                    usingCols.toString());
@@ -230,7 +225,7 @@ namespace sql
                 // Left-most side of the join sequence. Left and right are both tables.
                 return std::format("{0} {1} {2} {3}{4}",
                                    left->getName(),
-                                   J::name,
+                                   joint_t::name,
                                    right->getName(),
                                    filter.toString(pIndex),
                                    usingCols.toString());

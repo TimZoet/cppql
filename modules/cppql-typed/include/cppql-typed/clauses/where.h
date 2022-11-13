@@ -18,54 +18,8 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         // Types.
         ////////////////////////////////////////////////////////////////
-        
+
         static constexpr bool valid = false;
-
-        ////////////////////////////////////////////////////////////////
-        // Constructors.
-        ////////////////////////////////////////////////////////////////
-
-        Where() = delete;
-
-        Where(const Where& other) = default;
-
-        Where(Where&& other) noexcept = default;
-
-        explicit Where(std::nullopt_t) : filter(std::nullopt) {}
-
-        virtual ~Where() noexcept = default;
-
-        Where& operator=(const Where& other) = default;
-
-        Where& operator=(Where&& other) noexcept = default;
-
-        ////////////////////////////////////////////////////////////////
-        // ...
-        ////////////////////////////////////////////////////////////////
-
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&&, int32_t&)
-        {
-            return {};
-        }
-
-        ////////////////////////////////////////////////////////////////
-        // Member variables.
-        ////////////////////////////////////////////////////////////////
-        
-        std::nullopt_t filter;
-    };
-
-    template<typename F> requires (!std::same_as<std::nullopt_t, F>) // TODO: Test for filterexpression?
-    class Where<F>
-    {
-    public:
-        ////////////////////////////////////////////////////////////////
-        // Types.
-        ////////////////////////////////////////////////////////////////
-
-        static constexpr bool valid = true;
-        using filter_t = F;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
@@ -77,23 +31,61 @@ namespace sql
 
         Where(Where&& other) noexcept = default;
 
-        explicit Where(filter_t f) : filter(std::move(f)) {}
-
-        virtual ~Where() noexcept = default;
+        ~Where() noexcept = default;
 
         Where& operator=(const Where& other) = default;
 
         Where& operator=(Where&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Generate.
         ////////////////////////////////////////////////////////////////
 
+        [[nodiscard]] static std::string toString(int32_t&) { return {}; }
+    };
 
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&& self, int32_t& pIndex)
+    template<typename F>
+        requires(!std::same_as<std::nullopt_t, F>)  // TODO: Test for filterexpression?
+    class Where<F>
+    {
+    public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
+        static constexpr bool valid = true;
+        using filter_t              = F;
+
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
+
+        Where() = delete;
+
+        Where(const Where& other) = default;
+
+        Where(Where&& other) noexcept = default;
+
+        explicit Where(filter_t f) : filter(std::move(f)) {}
+
+        ~Where() noexcept = default;
+
+        Where& operator=(const Where& other) = default;
+
+        Where& operator=(Where&& other) noexcept = default;
+
+        ////////////////////////////////////////////////////////////////
+        // Generate.
+        ////////////////////////////////////////////////////////////////
+
+        /**
+         * \brief Generate WHERE clause with filter expression.
+         * \param pIndex Counter.
+         * \return String with format "WHERE <expr>".
+         */
+        [[nodiscard]] std::string toString(int32_t& pIndex)
         {
-            return std::format(" WHERE {}", std::forward<Self>(self).filter.toString(pIndex));
+            return std::format(" WHERE {}", filter.toString(pIndex));
         }
 
         ////////////////////////////////////////////////////////////////

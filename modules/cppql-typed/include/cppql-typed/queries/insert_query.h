@@ -65,7 +65,7 @@ namespace sql
                 std::string vals = "?1";
                 for (size_t i = 1; i < columns_t::size; i++) vals += std::format(",?{0}", i + 1);
                 return std::format(
-                  "INSERT INTO {0} ({1}) VALUES ({2})", table->getName(), columns.toStringSimple(), std::move(vals));
+                  "INSERT INTO {0} ({1}) VALUES ({2})", table->getName(), columns.toString(), std::move(vals));
             }
         }
 

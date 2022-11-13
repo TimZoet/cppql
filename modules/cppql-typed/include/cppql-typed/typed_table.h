@@ -179,8 +179,7 @@ namespace sql
         template<size_t... Indices>
         [[nodiscard]] auto insert() const
         {
-            return InsertQuery<table_t, ColumnExpression<table_t, Indices>...>(
-              *table, Columns(std::make_tuple(col<Indices>()...)));
+            return InsertQuery<table_t, ColumnExpression<table_t, Indices>...>(*table, Columns(col<Indices>()...));
         }
 
         [[nodiscard]] auto insert() const
@@ -212,7 +211,7 @@ namespace sql
                                    std::nullopt_t,
                                    std::nullopt_t,
                                    ColumnExpression<table_t, Indices>...>(
-                  *this, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
+                  *this, Columns<ColumnExpression<table_t, Indices>...>(col<Indices>()...));
             else
             {
                 const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return select<Is...>(); };
@@ -231,7 +230,7 @@ namespace sql
                                    std::nullopt_t,
                                    std::nullopt_t,
                                    ColumnExpression<table_t, Indices>...>(
-                  *this, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
+                  *this, Columns<ColumnExpression<table_t, Indices>...>(col<Indices>()...));
             else
             {
                 const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return select<R, Is...>(); };
@@ -260,7 +259,7 @@ namespace sql
                                    std::nullopt_t,
                                    std::nullopt_t,
                                    ColumnExpression<table_t, Indices>...>(
-                  *table, Columns<ColumnExpression<table_t, Indices>...>(std::make_tuple(col<Indices>()...)));
+                  *table, Columns<ColumnExpression<table_t, Indices>...>(col<Indices>()...));
             else
             {
                 const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return update<Is...>(); };

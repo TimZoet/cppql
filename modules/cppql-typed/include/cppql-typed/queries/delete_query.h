@@ -47,7 +47,7 @@ namespace sql
 
         DeleteQuery(DeleteQuery&& other) noexcept = default;
 
-        explicit DeleteQuery(Table& t) : table(&t), filter(std::nullopt), order(std::nullopt), limit(std::nullopt) {}
+        explicit DeleteQuery(Table& t) : table(&t) {}
 
         DeleteQuery(Table& t, filter_t f, order_t o, limit_t l) :
             table(&t), filter(std::move(f)), order(std::move(o)), limit(std::move(l))
