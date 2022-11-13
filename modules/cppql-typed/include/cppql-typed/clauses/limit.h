@@ -5,59 +5,52 @@
 ////////////////////////////////////////////////////////////////
 
 #include <format>
-#include <optional>
 #include <string>
 #include <type_traits>
 
 namespace sql
 {
-    template<typename F>
-    class Where
+    template<typename T>
+    class Limit
     {
     public:
         ////////////////////////////////////////////////////////////////
         // Types.
         ////////////////////////////////////////////////////////////////
-        
+
         static constexpr bool valid = false;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        Where() = delete;
+        Limit() = delete;
 
-        Where(const Where& other) = default;
+        Limit(const Limit& other) = default;
 
-        Where(Where&& other) noexcept = default;
+        Limit(Limit&& other) noexcept = default;
 
-        explicit Where(std::nullopt_t) : filter(std::nullopt) {}
+        explicit Limit(std::nullopt_t) {};
 
-        virtual ~Where() noexcept = default;
+        ~Limit() noexcept = default;
 
-        Where& operator=(const Where& other) = default;
+        Limit& operator=(const Limit& other) = default;
 
-        Where& operator=(Where&& other) noexcept = default;
+        Limit& operator=(Limit&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Generate.
         ////////////////////////////////////////////////////////////////
 
         template<typename Self>
-        [[nodiscard]] std::string toString(this Self&&, int32_t&)
+        [[nodiscard]] std::string toString(this Self&&)
         {
             return {};
         }
-
-        ////////////////////////////////////////////////////////////////
-        // Member variables.
-        ////////////////////////////////////////////////////////////////
-        
-        std::nullopt_t filter;
     };
 
-    template<typename F> requires (!std::same_as<std::nullopt_t, F>) // TODO: Test for filterexpression?
-    class Where<F>
+    template<std::same_as<std::true_type> T>
+    class Limit<T>
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -65,41 +58,41 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         static constexpr bool valid = true;
-        using filter_t = F;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        Where() = default;
+        Limit() = delete;
 
-        Where(const Where& other) = default;
+        Limit(const Limit& other) = default;
 
-        Where(Where&& other) noexcept = default;
+        Limit(Limit&& other) noexcept = default;
 
-        explicit Where(filter_t f) : filter(std::move(f)) {}
+        Limit(const int64_t l, const int64_t o) : limit(l), offset(o) {}
 
-        virtual ~Where() noexcept = default;
+        ~Limit() noexcept = default;
 
-        Where& operator=(const Where& other) = default;
+        Limit& operator=(const Limit& other) = default;
 
-        Where& operator=(Where&& other) noexcept = default;
+        Limit& operator=(Limit&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Generate.
         ////////////////////////////////////////////////////////////////
-
 
         template<typename Self>
-        [[nodiscard]] std::string toString(this Self&& self, int32_t& pIndex)
+        [[nodiscard]] std::string toString(this Self&& self)
         {
-            return std::format(" WHERE {}", std::forward<Self>(self).filter.toString(pIndex));
+            return std::format("LIMIT {0} OFFSET {1}", std::forward<Self>(self).limit, std::forward<Self>(self).offset);
         }
 
+    private:
         ////////////////////////////////////////////////////////////////
         // Member variables.
         ////////////////////////////////////////////////////////////////
 
-        filter_t filter;
+        int64_t limit;
+        int64_t offset;
     };
 }  // namespace sql

@@ -55,7 +55,7 @@ namespace sql
         using return_t = std::conditional_t<std::same_as<R, std::nullopt_t>, std::tuple<typename C::value_t, typename Cs::value_t...>, R>;
         using filter_t = Where<F>;
         using order_t = OrderBy<O>;
-        using limit_t = std::optional<LimitExpression>;
+        using limit_t = std::optional<LimitExpression>;// TODO: Create Limit clause.
         using table_list_t = lazy_table_list_t<join_t>;
 
         join_t    join;
@@ -67,6 +67,8 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         // Constructors.
         ////////////////////////////////////////////////////////////////
+
+        ComplexSelect() = delete;
 
         ComplexSelect(const ComplexSelect& other) = default;
 
@@ -153,7 +155,7 @@ namespace sql
             // SELECT <cols> FROM <table> JOIN <tables...> WHERE <expr> ORDER BY <expr> LIMIT <val> OFFSET <val>;
             auto sql = std::format(
                 "SELECT {0} FROM {1} {2} {3} {4};",
-                std::forward<Self>(self).columns.toString(index),
+                std::forward<Self>(self).columns.toString(),
                 std::forward<Self>(self).join.toString(index),
                 std::forward<Self>(self).filter.toString(index),
                 std::forward<Self>(self).order.toString(),
@@ -170,7 +172,7 @@ namespace sql
             {
                 // Construct statement. Note: This generates the bind indices of all filter expressions
                 // and should therefore happen before the BaseFilterExpressionPtr construction below.
-                auto stmt = std::make_unique<Statement>(std::forward<Self>(self).join.getTable().getDatabase(), std::forward<Self>(self).toString(), true);
+                auto stmt = std::make_unique<Statement>(self.join.getTable().getDatabase(), self.toString(), true);
                 if (!stmt->isPrepared())
                     throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()), stmt->getResult()->code);
 
@@ -184,7 +186,7 @@ namespace sql
                 else if constexpr (join_t::has_filter_list)
                 {
                     if constexpr (filter_t::valid)
-                        f = std::make_unique<FilterExpressionList<tuple_cat_t<typename join_t::filter_list_t, F>>>(std::tuple_cat(std::forward<Self>(self).join.getFilters(), std::tuple<F>(std::forward<Self>(self).filter.filter)));
+                        f = std::make_unique<FilterExpressionList<tuple_cat_t<typename join_t::filter_list_t, F>>>(std::tuple_cat(self.join.getFilters(), std::tuple<F>(std::forward<Self>(self).filter.filter)));
                     else
                         f = std::make_unique<FilterExpressionList<typename join_t::filter_list_t>>(std::forward<Self>(self).join.getFilters());
                 }

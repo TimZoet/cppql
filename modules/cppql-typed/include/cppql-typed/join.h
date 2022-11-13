@@ -19,6 +19,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/complex_select.h"
+#include "cppql-typed/join_type.h"
 #include "cppql-typed/clauses/columns.h"
 #include "cppql-typed/clauses/on.h"
 #include "cppql-typed/clauses/using.h"
@@ -90,8 +91,7 @@ namespace sql
         // Types.
         ////////////////////////////////////////////////////////////////
 
-        static constexpr JoinType join_type   = J::type;
-        static constexpr bool     recursive   = is_join<L>;
+        static constexpr bool recursive       = is_join<L>;
         using left_t                          = std::conditional_t<recursive, L, Table*>;
         using table_t                         = R;
         using filter_t                        = On<F>;
@@ -155,9 +155,8 @@ namespace sql
             return Join<J2, Self, T, std::nullopt_t>(std::forward<Self>(self), table.getTable());
         }
 
-        // TODO: Disable if NATURAL join.
         template<typename Self, is_valid_filter_expression<table_list_t> F2>
-            requires(!filter_t::valid && !using_t::valid)
+            requires(!filter_t::valid && !using_t::valid && !J::natural)
         auto on(this Self&& self, F2&& filter)
         {
             // TODO: Check table instances in filter match tables in joins.
@@ -165,14 +164,13 @@ namespace sql
               std::forward<Self>(self).left, *self.right, On<std::decay_t<F2>>(std::forward<F2>(filter)));
         }
 
-        // TODO: Disable if NATURAL join.
         template<typename Self, is_column_expression C, is_column_expression... Cs>
-            requires(!filter_t::valid && !using_t::valid)
+            requires(!filter_t::valid && !using_t::valid && !J::natural)
         auto usings(this Self&& self, C&& c, Cs&&... cs)
         {
             // TODO: Detect duplicates.
-            // TODO: Check column types are in left or right typedtable.
-            // TODO: Check column names are in left and right table.
+            // TODO: Check column types in left typedtable.
+            // TODO: Runtime check column names are in left and right table.
             return Join<J, L, R, std::nullopt_t, std::decay_t<C>, std::decay_t<Cs>...>(
               std::forward<Self>(self).left,
               *self.right,
@@ -220,8 +218,9 @@ namespace sql
             if constexpr (recursive)
             {
                 // Left contains more joins that must be stringified.
-                return std::format("{0} INNER JOIN {1} {2}{3}",
+                return std::format("{0} {1} {2} {3}{4}",
                                    left.toString(pIndex),
+                                   J::name,
                                    right->getName(),
                                    filter.toString(pIndex),
                                    usingCols.toString());
@@ -229,8 +228,9 @@ namespace sql
             else
             {
                 // Left-most side of the join sequence. Left and right are both tables.
-                return std::format("{0} INNER JOIN {1} {2}{3}",
+                return std::format("{0} {1} {2} {3}{4}",
                                    left->getName(),
+                                   J::name,
                                    right->getName(),
                                    filter.toString(pIndex),
                                    usingCols.toString());

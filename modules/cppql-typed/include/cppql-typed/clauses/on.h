@@ -18,7 +18,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         // Types.
         ////////////////////////////////////////////////////////////////
-        
+
         static constexpr bool valid = false;
 
         ////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ namespace sql
 
         explicit On(std::nullopt_t) : filter(std::nullopt) {}
 
-        virtual ~On() noexcept = default;
+        ~On() noexcept = default;
 
         On& operator=(const On& other) = default;
 
@@ -52,11 +52,12 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         // Member variables.
         ////////////////////////////////////////////////////////////////
-        
+
         std::nullopt_t filter;
     };
 
-    template<typename F> requires (!std::same_as<std::nullopt_t, F>) // TODO: Test for filterexpression?
+    template<typename F>
+        requires(!std::same_as<std::nullopt_t, F>)  // TODO: Test for filterexpression?
     class On<F>
     {
     public:
@@ -65,13 +66,13 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         static constexpr bool valid = true;
-        using filter_t = F;
+        using filter_t              = F;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        On() = default;
+        On() = delete;
 
         On(const On& other) = default;
 
@@ -79,7 +80,7 @@ namespace sql
 
         explicit On(filter_t f) : filter(std::move(f)) {}
 
-        virtual ~On() noexcept = default;
+        ~On() noexcept = default;
 
         On& operator=(const On& other) = default;
 
@@ -92,7 +93,7 @@ namespace sql
         template<typename Self>
         [[nodiscard]] std::string toString(this Self&& self, int32_t& pIndex)
         {
-            return std::format(" ON {}", std::forward<Self>(self).filter.toString(pIndex));
+            return std::format("ON {}", std::forward<Self>(self).filter.toString(pIndex));
         }
 
         ////////////////////////////////////////////////////////////////

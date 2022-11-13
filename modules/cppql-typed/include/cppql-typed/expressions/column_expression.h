@@ -61,9 +61,22 @@ namespace sql
             return std::format("{}.{}", this->table->getName(), this->table->getColumn(Index).getName());
         }
 
-        [[nodiscard]] std::string toString()
+        /**
+         * \brief Get column-name.
+         * \return Column name.
+         */
+        [[nodiscard]] std::string name()
         {
-            return std::format("{}", this->table->getColumn(Index).getName());
+            return this->table->getColumn(Index).getName();
+        }
+
+        /**
+         * \brief Get table-name.column-name.
+         * \return Column name.
+         */
+        [[nodiscard]] std::string fullName()
+        {
+            return std::format("{}.{}", this->table->getName(), this->table->getColumn(Index).getName());
         }
 
         void bind(Statement&, BindParameters) const override {}

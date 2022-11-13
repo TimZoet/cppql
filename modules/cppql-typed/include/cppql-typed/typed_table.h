@@ -24,6 +24,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/join_type.h"
 #include "cppql-typed/type_traits.h"
 #include "cppql-typed/clauses/columns.h"
 #include "cppql-typed/expressions/bind_parameters.h"
@@ -75,52 +76,8 @@ namespace sql
         requires(constructible_from_or_none<R, typename C::value_t, typename Cs::value_t...>)
     class ComplexSelect;
 
-    enum class JoinType
-    {
-        Cross,
-        Left,
-        Right,
-        Full,
-        Inner,
-        NaturalLeft,
-        NaturalRight,
-        NaturalFull,
-        NaturalInner
-    };
-
-    template<JoinType J>
-    struct JoinTypeWrapper
-    {
-        static constexpr JoinType type = J;
-    };
-
-    using CrossJoin        = JoinTypeWrapper<JoinType::Cross>;
-    using LeftJoin         = JoinTypeWrapper<JoinType::Left>;
-    using RightJoin        = JoinTypeWrapper<JoinType::Right>;
-    using FullJoin         = JoinTypeWrapper<JoinType::Full>;
-    using InnerJoin        = JoinTypeWrapper<JoinType::Inner>;
-    using NaturalLeftJoin  = JoinTypeWrapper<JoinType::NaturalLeft>;
-    using NaturalRightJoin = JoinTypeWrapper<JoinType::NaturalRight>;
-    using NaturalFullJoin  = JoinTypeWrapper<JoinType::NaturalFull>;
-    using NaturalInnerJoin = JoinTypeWrapper<JoinType::NaturalInner>;
-
-    // TODO: Require J to be a JoinTypeWrapper, L to be a join or TypedTable and R to a TypedTable. Require F to be a FilterExpression.
-    template<typename J, typename L, typename R, typename F, typename... Cs>
-    class Join;
-
-    template<typename J, typename... Ts>
-    struct _is_join : std::false_type
-    {
-    };
-
-    template<typename J, typename L, typename R, typename F, typename... Cs>
-    struct _is_join<Join<J, L, R, F, Cs...>> : std::true_type
-    {
-    };
-
-    template<typename T>
-    concept is_join = _is_join<T>::value;
-
+    template<typename T, typename F, typename O, typename L>
+    class DeleteQuery;
 
     ////////////////////////////////////////////////////////////////
     // TypedTable class.
@@ -179,6 +136,7 @@ namespace sql
 
         [[nodiscard]] const Table& getTable() const noexcept { return *table; }
 
+        // TODO: Try to delete int& param.
         [[nodiscard]] std::string toString(int32_t&) { return table->getName(); }
 
         ////////////////////////////////////////////////////////////////
@@ -226,28 +184,7 @@ namespace sql
         // Delete.
         ////////////////////////////////////////////////////////////////
 
-        /**
-         * \brief Create a DELETE FROM query. Creates a callable object that will delete all rows that match the filter expression.
-         * \tparam F SingleFilterExpression type or std::nullopt_t.
-         * \tparam O OrderByExpression type or std::nullopt_t.
-         * \tparam L LimitExpression type or std::nullopt_t.
-         * \param filterExpression Expression to filter rows that are deleted. If std::nullopt, all rows are deleted.
-         * \param orderByExpression Expression to order results by. If std::nullopt, results are not ordered.
-         * \param limitExpression Expression to limit results by. If std::nullopt, results are not limited.
-         * \param bind Parameters to bind.
-         * \return Delete object.
-         */
-        template<is_single_filter_expression_or_none<table_t> F,
-                 is_order_by_expression_or_none<table_t>      O,
-                 is_limit_expression_or_none                  L>
-        [[nodiscard]] DeleteStatement<table_t>
-          del(F&& filterExpression, O&& orderByExpression, L&& limitExpression, BindParameters bind)
-        {
-            return delImpl(optionalToPtr(std::forward<F>(filterExpression)),
-                           std::forward<O>(orderByExpression),
-                           std::forward<L>(limitExpression),
-                           bind);
-        }
+        auto del() { return DeleteQuery<table_t, std::nullopt_t, std::nullopt_t, std::nullopt_t>(*table); }
 
         ////////////////////////////////////////////////////////////////
         // Select.
@@ -399,34 +336,6 @@ namespace sql
 
             // Construct Insert.
             return InsertStatement<table_t, Indices...>(std::move(stmt));
-        }
-
-        [[nodiscard]] auto delImpl(BaseFilterExpressionPtr                         fExpr,
-                                   const std::optional<OrderByExpression<table_t>> oExpr,
-                                   const std::optional<LimitExpression>            lExpr,
-                                   const BindParameters                            bind)
-        {
-            // Generate format arguments.
-            auto        index   = 0;
-            std::string e       = fExpr ? "WHERE " + fExpr->toString(index) : "";
-            std::string orderBy = oExpr ? oExpr->toString() : "";
-            std::string limit   = lExpr ? lExpr->toString() : "";
-
-            // Format SQL statement.
-            auto sql = std::format(
-              "DELETE FROM {0} {1} {2} {3};", table->getName(), std::move(e), std::move(orderBy), std::move(limit));
-
-            // Create and prepare statement.
-            auto stmt = std::make_unique<Statement>(table->getDatabase(), std::move(sql), true);
-            if (!stmt->isPrepared())
-                throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
-                                  stmt->getResult()->code);
-
-            // Bind parameters.
-            if (fExpr && any(bind)) fExpr->bind(*stmt, bind);
-
-            // Construct Delete.
-            return DeleteStatement<table_t>(std::move(stmt), std::move(fExpr));
         }
 
         [[nodiscard]] auto countImpl(BaseFilterExpressionPtr fExpr, BindParameters bind)

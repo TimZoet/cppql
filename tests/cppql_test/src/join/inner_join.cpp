@@ -31,7 +31,7 @@ void InnerJoin::operator()()
     sql::TypedTable<int64_t, float, int32_t>     table2(*t2);
 
 
-    auto select = table0.join(sql::InnerJoin{}, table1).usings(table0.col<0>(), table0.col<1>()).join(sql::InnerJoin{}, table2).on(table0.col<1>() == table2.col<1>()).select(table0.col<0>())(sql::BindParameters::All);
+    auto select = table0.join(sql::InnerJoin{}, table1).usings(table0.col<0>(), table0.col<1>());// .join(sql::InnerJoin{}, table2).on(table0.col<1>() == table2.col<1>()).select(table0.col<0>())(sql::BindParameters::All);
     //constexpr bool x = decltype(select)::has_filter_list;
     //static_cast<void>(x);
 }

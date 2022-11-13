@@ -10,6 +10,7 @@
 
 namespace sql
 {
+    // TODO: Discard this whole file and type once Limit clause is used everywhere.
     struct LimitExpression
     {
         int64_t limit  = 0;

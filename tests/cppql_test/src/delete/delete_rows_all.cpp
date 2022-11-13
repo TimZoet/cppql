@@ -25,7 +25,7 @@ void DeleteRowsAll::operator()()
     expectNoThrow([&insert] { insert(40, 14.0f, sql::toText("jkl")); });
 
     // Delete all rows.
-    const auto del = table.del(std::nullopt, std::nullopt, std::nullopt, sql::BindParameters::None);
+    const auto del = table.del()(sql::BindParameters::None);
     del();
 
     // Check row count.
