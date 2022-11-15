@@ -19,10 +19,15 @@
 #include "cppql-typed/expressions/filter_expression.h"
 #include "cppql-typed/expressions/filter_expression_list.h"
 #include "cppql-typed/statements/select_statement.h"
+#include "cppql-typed/statements/select_one_statement.h"
 
 namespace sql
 {
-
+    // TODO: Aggregates.
+    // TODO: Group by.
+    // TODO: Having.
+    // TODO: Unions.
+    // TODO: Aliases.
 
     ////////////////////////////////////////////////////////////////
 
@@ -48,7 +53,7 @@ namespace sql
              typename L,
              is_column_expression C,
              is_column_expression... Cs>
-        requires(constructible_from_or_none<R, typename C::value_t, typename Cs::value_t...>)
+        requires(constructible_from<R, typename C::value_t, typename Cs::value_t...>)
     class SelectQuery
     {
     public:
@@ -59,12 +64,11 @@ namespace sql
         static constexpr bool is_table = !is_join<J>;
         using join_t                   = J;
         using columns_t                = Columns<C, Cs...>;
-        using return_t                 = std::
-          conditional_t<std::same_as<R, std::nullopt_t>, std::tuple<typename C::value_t, typename Cs::value_t...>, R>;
-        using filter_t     = Where<F>;
-        using order_t      = OrderBy<O>;
-        using limit_t      = Limit<L>;
-        using table_list_t = lazy_table_list_t<join_t>;
+        using return_t                 = R;
+        using filter_t                 = Where<F>;
+        using order_t                  = OrderBy<O>;
+        using limit_t                  = Limit<L>;
+        using table_list_t             = lazy_table_list_t<join_t>;
 
         join_t    join;
         columns_t columns;
@@ -96,11 +100,11 @@ namespace sql
         SelectQuery& operator=(SelectQuery&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Query.
         ////////////////////////////////////////////////////////////////
 
         /**
-         * \brief Filter results by an expression. This select should not have a filter applied yet.
+         * \brief Filter results by an expression. This query should not have a filter applied yet.
          * \tparam Self Self type.
          * \tparam Filter FilterExpression type.
          * \param self Self.
@@ -111,44 +115,46 @@ namespace sql
             requires(!filter_t::valid)
         [[nodiscard]] auto where(this Self&& self, Filter&& filter)
         {
-            // TODO: Check table instances in filter match tables in joins.
+            // TODO: Check table instances in filter match tables in table/joins.
 
-            return SelectQuery<R, J, std::decay_t<Filter>, O, L, C, Cs...>(
+            return SelectQuery<R, J, std::remove_cvref_t<Filter>, O, L, C, Cs...>(
               std::forward<Self>(self).join,
               std::forward<Self>(self).columns,
-              Where<std::decay_t<Filter>>(std::forward<Filter>(filter)),
+              Where<std::remove_cvref_t<Filter>>(std::forward<Filter>(filter)),
               std::forward<Self>(self).order,
               std::forward<Self>(self).limit);
         }
 
         /**
-         * \brief Order result rows by an expression. This select should not have an order applied yet.
+         * \brief Order result rows by an expression. This query should not have an order applied yet.
          * \tparam Self Self type.
          * \tparam Order OrderByExpression type.
          * \param self Self.
          * \param order Expression to order rows by.
-         * \return SelectQuery with filter expression.
+         * \return SelectQuery with order by expression.
          */
         template<typename Self, is_valid_order_by_expression<table_list_t> Order>
             requires(!order_t::valid)
         [[nodiscard]] auto orderBy(this Self&& self, Order&& order)
         {
-            // TODO: Check table instances in filter match tables in joins.
+            // TODO: Check table instances in filter match tables in table/joins.
 
-            return SelectQuery<R, J, F, std::decay_t<Order>, L, C, Cs...>(
+            return SelectQuery<R, J, F, std::remove_cvref_t<Order>, L, C, Cs...>(
               std::forward<Self>(self).join,
               std::forward<Self>(self).columns,
               std::forward<Self>(self).filter,
-              OrderBy<std::decay_t<Order>>(std::forward<Order>(order)),
+              OrderBy<std::remove_cvref_t<Order>>(std::forward<Order>(order)),
               std::forward<Self>(self).limit);
         }
 
-        // TODO: Aggregates.
-        // TODO: Group by.
-        // TODO: Having.
-        // TODO: Unions.
-        // TODO: Aliases.
-
+        /**
+         * \brief Limit and offset result rows. This query should not have a limit applied yet.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \param limit Number of rows to limit results by.
+         * \param offset Number of rows to offset results by.
+         * \return SelectQuery with limit and offset.
+         */
         template<typename Self>
             requires(!limit_t::valid)
         [[nodiscard]] auto limitOffset(this Self&& self, const int64_t limit, const int64_t offset)
@@ -160,26 +166,37 @@ namespace sql
                                                                      Limit<std::true_type>(limit, offset));
         }
 
-        template<typename Self>
-        [[nodiscard]] std::string toString(this Self&& self)
-        {
-            auto index = 0;
+        ////////////////////////////////////////////////////////////////
+        // Generate.
+        ////////////////////////////////////////////////////////////////
 
+        [[nodiscard]] std::string toString()
+        {
             // SELECT <cols> FROM <table> JOIN <tables...> WHERE <expr> ORDER BY <expr> LIMIT <val> OFFSET <val>;
             auto sql = std::format("SELECT {0} FROM {1} {2} {3} {4};",
-                                   std::forward<Self>(self).columns.toStringFull(),
-                                   std::forward<Self>(self).join.toString(index),
-                                   std::forward<Self>(self).filter.toString(index),
-                                   std::forward<Self>(self).order.toString(),
-                                   std::forward<Self>(self).limit.toString());
+                                   columns.toStringFull(),
+                                   join.toString(),
+                                   filter.toString(),
+                                   order.toString(),
+                                   limit.toString());
 
             return sql;
         }
 
+        /**
+         * \brief Generate SelectStatement object. Generates and compiles SQL code and binds requested parameters.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \return SelectStatement.
+         */
         template<typename Self>
-        [[nodiscard]] auto operator()(this Self&& self, BindParameters bind)
+        [[nodiscard]] auto compile(this Self&& self)
         {
-            auto select = []<std::size_t... Is>(auto&& self, std::index_sequence<Is...>, const BindParameters b)
+            int32_t index = 0;
+            if constexpr (!is_table) std::forward<Self>(self).join.generateIndices(index);
+            std::forward<Self>(self).filter.generateIndices(index);
+
+            auto select = []<std::size_t... Is>(auto&& self, std::index_sequence<Is...>)
             {
                 // Construct statement. Note: This generates the bind indices of all filter expressions
                 // and should therefore happen before the BaseFilterExpressionPtr construction below.
@@ -211,21 +228,24 @@ namespace sql
                         f = std::make_unique<typename filter_t::filter_t>(std::forward<Self>(self).filter.filter);
                 }
 
-                // Bind parameters.
-                if (f && any(b)) f->bind(*stmt, b);
-
                 // Construct typed statement.
                 return SelectStatement<return_t, typename C::value_t, typename Cs::value_t...>(std::move(stmt),
                                                                                                std::move(f));
             };
 
-            return select(std::forward<Self>(self), std::index_sequence_for<C, Cs...>(), bind);
+            return select(std::forward<Self>(self), std::index_sequence_for<C, Cs...>());
         }
 
+        /**
+         * \brief Generate SelectOneStatement object. Generates and compiles SQL code and binds requested parameters.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \return SelectOneStatement.
+         */
         template<typename Self>
-        [[nodiscard]] auto one(this Self&& self, BindParameters bind)
+        [[nodiscard]] auto compileOne(this Self&& self)
         {
-            return SelectOneStatement(std::forward<Self>(self)(bind));
+            return SelectOneStatement(std::forward<Self>(self).compile());
         }
     };
 }  // namespace sql

@@ -18,7 +18,7 @@ void SelectOne::operator()()
     sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
-    auto insert = table.insert()();
+    auto insert = table.insert().compile();
     expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
     expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
     expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
@@ -27,29 +27,29 @@ void SelectOne::operator()()
 
     // Create select one.
     int64_t id  = 0;
-    auto    sel = table.select<0, 1, 2>().where(table.col<0>() == &id).one(sql::BindParameters::None);
+    auto    sel = table.select<0, 1, 2>().where(table.col<0>() == &id).compileOne().bind(sql::BindParameters::None);
 
     // Select by several IDs that should result in exactly one row.
     expectNoThrow([&id, &sel] {
         id = 10;
-        sel(sql::BindParameters::All);
+        sel.bind(sql::BindParameters::All)();
     });
     expectNoThrow([&id, &sel] {
         id = 20;
-        sel(sql::BindParameters::All);
+        sel.bind(sql::BindParameters::All)();
     });
     expectNoThrow([&id, &sel] {
         id = 30;
-        sel(sql::BindParameters::All);
+        sel.bind(sql::BindParameters::All)();
     });
 
     // Select by IDs that should result in 0 or more than 1 results.
     expectThrow([&id, &sel] {
         id = 0;
-        sel(sql::BindParameters::All);
+        sel.bind(sql::BindParameters::All)();
     });
     expectThrow([&id, &sel] {
         id = 40;
-        sel(sql::BindParameters::All);
+        sel.bind(sql::BindParameters::All)();
     });
 }

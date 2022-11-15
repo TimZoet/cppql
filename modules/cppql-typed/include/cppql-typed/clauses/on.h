@@ -5,9 +5,14 @@
 ////////////////////////////////////////////////////////////////
 
 #include <format>
-#include <optional>
 #include <string>
 #include <type_traits>
+
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql-typed/expressions/filter_expression.h"
 
 namespace sql
 {
@@ -41,14 +46,12 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        [[nodiscard]] static std::string toString(int32_t&)
-        {
-            return {};
-        }
+        static void generateIndices(int32_t&) {}
+
+        [[nodiscard]] static std::string toString() { return {}; }
     };
 
-    template<typename F>
-        requires(!std::same_as<std::nullopt_t, F>)  // TODO: Test for filterexpression?
+    template<is_filter_expression F>
     class On<F>
     {
     public:
@@ -81,15 +84,13 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
+        void generateIndices(int32_t& idx) { filter.generateIndices(idx); }
+
         /**
          * \brief Generate ON clause with filter expression.
-         * \param pIndex Counter.
          * \return String with format "ON <expr>".
          */
-        [[nodiscard]] std::string toString(int32_t& pIndex)
-        {
-            return std::format("ON {}", filter.toString(pIndex));
-        }
+        [[nodiscard]] std::string toString() { return std::format("ON {}", filter.toString()); }
 
         ////////////////////////////////////////////////////////////////
         // Member variables.

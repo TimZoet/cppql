@@ -11,63 +11,63 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/enums.h"
 #include "cppql-typed/typed_table.h"
-#include "cppql-typed/expressions/bind_parameters.h"
 
 namespace sql
 {
     /**
      * \brief The Count class wraps a SELECT COUNT(*) FROM <table> WHERE <expr> statement. When invoked, it returns the number of rows that match the expression.
-     * \tparam T Table type.
      */
-    template<typename T>
     class CountStatement
     {
     public:
-        /**
-         * \brief Table type.
-         */
-        using table_t = T;
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
 
-        CountStatement() = default;
+        CountStatement() = delete;
 
         CountStatement(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
 
-        explicit CountStatement(StatementPtr statement) : stmt(std::move(statement)) {}
-
         CountStatement(const CountStatement&) = delete;
 
-        CountStatement(CountStatement&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
+        CountStatement(CountStatement&& other) noexcept = default;
 
-        ~CountStatement() = default;
+        ~CountStatement() noexcept = default;
 
         CountStatement& operator=(const CountStatement&) = delete;
 
-        CountStatement& operator=(CountStatement&& other) noexcept
+        CountStatement& operator=(CountStatement&& other) noexcept = default;
+
+        ////////////////////////////////////////////////////////////////
+        // Run.
+        ////////////////////////////////////////////////////////////////
+
+        /**
+         * \brief Bind parameters.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \param b Parameters to bind.
+         */
+        template<typename Self>
+        auto&& bind(this Self&& self, const BindParameters b)
         {
-            stmt = std::move(other.stmt);
-            exp  = std::move(other.exp);
-            return *this;
+            if (any(b) && self.exp)  self.exp->bind(*self.stmt, b);
+            return std::forward<Self>(self);
         }
 
         /**
-         * \brief Run count statement. Does not bind parameters.
+         * \brief Run count statement. Optionally (re)binds parameters.
+         * \param b Parameters to bind.
          * \return Number of rows.
          */
-        row_id operator()() const { return this->operator()(BindParameters::None); }
-
-        /**
-         * \brief Run count statement. Optionally binds parameters.
-         * \param bind Parameters to bind.
-         * \return Number of rows.
-         */
-        row_id operator()(const BindParameters bind) const
+        row_id operator()(const BindParameters b) const
         {
-            // Bind parameters.
-            if (any(bind) && exp) exp->bind(*stmt, bind);
+            bind(b);
 
             // Run statement.
             if (const auto res = stmt->step(); !res)
@@ -84,6 +84,10 @@ namespace sql
         }
 
     private:
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
+
         /**
          * \brief Pointer to statement.
          */

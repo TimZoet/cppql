@@ -31,7 +31,7 @@ void SelectBlob::operator()()
     sql::TypedTable<int64_t, std::vector<int32_t>, Foo, std::vector<Foo>> table(*t);
 
     // Insert several rows.
-    auto insert = table.insert()();
+    auto insert = table.insert().compile();
     expectNoThrow([&insert] {
         const std::vector      a = {0, 1, 2, 3};
         const Foo              b{.a = 10, .b = 5};
@@ -46,7 +46,7 @@ void SelectBlob::operator()()
     });
 
     // Create select.
-    auto sel = table.select<1, 2, 3>().where(table.col<0>() > 0)(sql::BindParameters::All);
+    auto sel = table.select<1, 2, 3>().where(table.col<0>() > 0).compile().bind(sql::BindParameters::All);
     const std::vector<std::tuple<std::vector<int32_t>, Foo, std::vector<Foo>>> rows(sel.begin(), sel.end());
 
     // Check first row.

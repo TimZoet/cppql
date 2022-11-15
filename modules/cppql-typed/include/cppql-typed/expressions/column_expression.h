@@ -4,6 +4,7 @@
 // Standard includes.
 ////////////////////////////////////////////////////////////////
 
+#include <concepts>
 #include <string>
 #include <tuple>
 
@@ -17,13 +18,14 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/fwd.h"
 #include "cppql-typed/expressions/filter_expression.h"
 
 namespace sql
 {
-    // TODO: T must be TypedTable, I a valid index
-    template<typename T, size_t Index>
-    class ColumnExpression : public FilterExpression<std::tuple<T>>
+    template<is_typed_table T, size_t Index>
+        requires(is_valid_index<T, Index>)
+    class ColumnExpression final : public FilterExpression<std::tuple<T>>
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -38,15 +40,15 @@ namespace sql
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
-        ColumnExpression() = default;
+        ColumnExpression() = delete;
 
         ColumnExpression(const ColumnExpression&) = default;
 
         ColumnExpression(ColumnExpression&&) noexcept = default;
 
-        explicit ColumnExpression(Table& t) : FilterExpression<std::tuple<T>>(t) {}
+        explicit ColumnExpression(Table& t) : FilterExpression<std::tuple<T>>(), table(&t) {}
 
-        ~ColumnExpression() override = default;
+        ~ColumnExpression() noexcept override = default;
 
         ColumnExpression& operator=(const ColumnExpression&) = default;
 
@@ -56,35 +58,36 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        [[nodiscard]] std::string toString(int32_t&) override
+        [[nodiscard]] bool containsTables(const auto&... tables) const
         {
-            return std::format("{}.{}", this->table->getName(), this->table->getColumn(Index).getName());
+            return ((&tables == table) || ...);
         }
 
+        void generateIndices(int32_t&) override {}
+
+        [[nodiscard]] std::string toString() override { return fullName(); }
+
         /**
-         * \brief Get column-name.
-         * \return Column name.
+         * \brief Get column name.
+         * \return String with format "column-name".
          */
-        [[nodiscard]] std::string name() const
-        {
-            return this->table->getColumn(Index).getName();
-        }
+        [[nodiscard]] std::string name() const { return table->getColumn(Index).getName(); }
 
         /**
-         * \brief Get table-name.column-name.
-         * \return Column name.
+         * \brief Get column name.
+         * \return String with format "table-name.column-name".
          */
         [[nodiscard]] std::string fullName() const
         {
-            return std::format("{}.{}", this->table->getName(), this->table->getColumn(Index).getName());
+            return std::format("{}.{}", table->getName(), table->getColumn(Index).getName());
         }
 
         void bind(Statement&, BindParameters) const override {}
+
+    private:
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
+        Table* table = nullptr;
     };
-
-    template<typename T>
-    concept is_column_expression = std::same_as<std::decay_t<T>, ColumnExpression<typename T::table_t, T::index>>;
-
-    template<typename C, typename Tables>
-    concept is_valid_column_expression = is_column_expression<C> && tuple_contains_type<typename C::table_t, Tables>;
 }  // namespace sql

@@ -51,10 +51,7 @@ namespace sql
 
         UpdateQuery(UpdateQuery&& other) noexcept = default;
 
-        UpdateQuery(Table& t, columns_t cs) :
-            table(&t), columns(std::move(cs))
-        {
-        }
+        UpdateQuery(Table& t, columns_t cs) : table(&t), columns(std::move(cs)) {}
 
         UpdateQuery(Table& t, columns_t cs, filter_t f, order_t o, limit_t l) :
             table(&t), columns(std::move(cs)), filter(std::move(f)), order(std::move(o)), limit(std::move(l))
@@ -68,37 +65,65 @@ namespace sql
         UpdateQuery& operator=(UpdateQuery&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Query.
         ////////////////////////////////////////////////////////////////
 
+        /**
+         * \brief Filter updated rows by an expression.
+         * \tparam Self Self type.
+         * \tparam Filter FilterExpression type.
+         * \param self Self.
+         * \param filter Expression to filter results by.
+         * \return UpdateQuery with filter expression.
+         */
         template<typename Self, is_single_filter_expression<table_t> Filter>
             requires(!filter_t::valid)
         [[nodiscard]] auto where(this Self&& self, Filter&& filter)
         {
-            // TODO: Check table instances in filter match tables in joins.
+            if (!filter.containsTables(*self.table))
+                throw CppqlError(std::format(
+                    "Cannot apply filter to query because the expression contains a table not in the query."));
 
-            return UpdateQuery<T, std::decay_t<Filter>, O, L, C, Cs...>(
+            return UpdateQuery<T, std::remove_cvref_t<Filter>, O, L, C, Cs...>(
               *std::forward<Self>(self).table,
               std::forward<Self>(self).columns,
-              Where<std::decay_t<Filter>>(std::forward<Filter>(filter)),
+              Where<std::remove_cvref_t<Filter>>(std::forward<Filter>(filter)),
               std::forward<Self>(self).order,
               std::forward<Self>(self).limit);
         }
 
+        /**
+         * \brief Order updated rows by an expression. This query should not have an order applied yet.
+         * \tparam Self Self type.
+         * \tparam Order OrderByExpression type.
+         * \param self Self.
+         * \param order Expression to order rows by.
+         * \return UpdateQuery with order by expression.
+         */
         template<typename Self, is_order_by_expression<table_t> Order>
             requires(!order_t::valid)
         [[nodiscard]] auto orderBy(this Self&& self, Order&& order)
         {
-            // TODO: Check table instances in filter match tables in joins.
+            if (!order.containsTables(*self.table))
+                throw CppqlError(std::format(
+                    "Cannot apply ordering to query because the expression contains a table not in the query."));
 
-            return UpdateQuery<T, F, std::decay_t<Order>, L, C, Cs...>(
+            return UpdateQuery<T, F, std::remove_cvref_t<Order>, L, C, Cs...>(
               *std::forward<Self>(self).table,
               std::forward<Self>(self).columns,
               std::forward<Self>(self).filter,
-              OrderBy<std::decay_t<Order>>(std::forward<Order>(order)),
+              OrderBy<std::remove_cvref_t<Order>>(std::forward<Order>(order)),
               std::forward<Self>(self).limit);
         }
 
+        /**
+         * \brief Limit and offset updated rows. This query should not have a limit applied yet.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \param limit Number of rows to limit updated rows by.
+         * \param offset Number of rows to offset updated rows by.
+         * \return UpdateQuery with limit and offset.
+         */
         template<typename Self>
             requires(!limit_t::valid)
         [[nodiscard]] auto limitOffset(this Self&& self, const int64_t limit, const int64_t offset)
@@ -109,6 +134,10 @@ namespace sql
                                                                   std::forward<Self>(self).order,
                                                                   Limit<std::true_type>(limit, offset));
         }
+
+        ////////////////////////////////////////////////////////////////
+        // Generate.
+        ////////////////////////////////////////////////////////////////
 
         [[nodiscard]] std::string toString()
         {
@@ -122,16 +151,25 @@ namespace sql
                                    table->getName(),
                                    columns.toString(),
                                    std::move(vals),
-                                   filter.toString(index),
+                                   filter.toString(),
                                    order.toString(),
                                    limit.toString());
 
             return sql;
         }
 
+        /**
+         * \brief Generate UpdateStatement object. Generates and compiles SQL code and binds requested parameters.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \return UpdateStatement.
+         */
         template<typename Self>
-        [[nodiscard]] auto operator()(this Self&& self, BindParameters bind)
+        [[nodiscard]] auto compile(this Self&& self)
         {
+            int32_t index = columns_t::size;
+            std::forward<Self>(self).filter.generateIndices(index);
+
             // Construct statement. Note: This generates the bind indices of all filter expressions
             // and should therefore happen before the BaseFilterExpressionPtr construction below.
             auto stmt = std::make_unique<Statement>(self.table->getDatabase(), self.toString(), true);
@@ -143,10 +181,7 @@ namespace sql
             if constexpr (filter_t::valid)
                 f = std::make_unique<typename filter_t::filter_t>(std::forward<Self>(self).filter.filter);
 
-            // Bind parameters.
-            if (f && any(bind)) f->bind(*stmt, bind);
-
-            return UpdateStatement<table_t, C, Cs...>(std::move(stmt), std::move(f));
+            return UpdateStatement<C, Cs...>(std::move(stmt), std::move(f));
         }
     };
 }  // namespace sql

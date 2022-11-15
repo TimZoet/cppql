@@ -27,79 +27,16 @@
 #include "cppql-typed/join_type.h"
 #include "cppql-typed/type_traits.h"
 #include "cppql-typed/clauses/columns.h"
-#include "cppql-typed/expressions/bind_parameters.h"
 #include "cppql-typed/expressions/column_comparison_expression.h"
 #include "cppql-typed/expressions/column_expression.h"
 #include "cppql-typed/expressions/comparison_expression.h"
 #include "cppql-typed/expressions/like_expression.h"
-#include "cppql-typed/expressions/limit_expression.h"
 #include "cppql-typed/expressions/logical_expression.h"
 #include "cppql-typed/expressions/order_by_expression.h"
-#include "cppql-typed/expressions/single_filter_expression.h"
+#include "cppql-typed/queries/fwd.h"
 
 namespace sql
 {
-    inline std::string formatColumns(const Table& table, const std::initializer_list<size_t> columns)
-    {
-        std::string s;
-        for (const auto index : columns) s += (s.empty() ? "" : ",") + table.getColumn(index).getName();
-        return s;
-    }
-
-    ////////////////////////////////////////////////////////////////
-    // Forward declarations.
-    ////////////////////////////////////////////////////////////////
-
-    // TODO: Move these to separate locations?
-
-    template<typename T>
-    class CountStatement;
-
-    template<typename T>
-    class DeleteStatement;
-
-    template<typename T, typename... Cs>
-    class InsertStatement;
-
-    template<typename R, typename... Cs>
-        requires(constructible_from<R, Cs...>)
-    class SelectStatement;
-
-    template<typename R, typename... Cs>
-        requires(constructible_from<R, Cs...>)
-    class SelectOneStatement;
-
-    template<typename T, typename... Cs>
-    class UpdateStatement;
-
-
-
-    template<typename T, typename F>
-    class CountQuery;
-
-    template<typename T, typename F, typename O, typename L>
-    class DeleteQuery;
-
-    template<typename T, is_column_expression... Cs>
-    class InsertQuery;
-
-    template<typename R,
-             typename J,
-             typename F,
-             typename O,
-             typename L,
-             is_column_expression C,
-             is_column_expression... Cs>
-        requires(constructible_from_or_none<R, typename C::value_t, typename Cs::value_t...>)
-    class SelectQuery;
-
-    template<typename T, typename F, typename O, typename L, is_column_expression C, is_column_expression... Cs>
-    class UpdateQuery;
-
-    ////////////////////////////////////////////////////////////////
-    // TypedTable class.
-    ////////////////////////////////////////////////////////////////
-
     template<typename C, typename... Cs>
     class TypedTable
     {
@@ -153,8 +90,7 @@ namespace sql
 
         [[nodiscard]] const Table& getTable() const noexcept { return *table; }
 
-        // TODO: Try to delete int& param.
-        [[nodiscard]] std::string toString(int32_t&) { return table->getName(); }
+        [[nodiscard]] std::string toString() const { return table->getName(); }
 
         ////////////////////////////////////////////////////////////////
         // Columns.
@@ -166,7 +102,7 @@ namespace sql
          * \return Column expression.
          */
         template<size_t Index>
-            requires(in_column_range<column_count, Index>)
+            requires(Index < column_count)
         [[nodiscard]] ColumnExpression<table_t, Index> col() const noexcept
         {
             return ColumnExpression<table_t, Index>(*table);
@@ -202,10 +138,11 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         template<size_t... Indices>
+            requires((Indices < column_count) && ...)
         [[nodiscard]] auto select()
         {
             if constexpr (sizeof...(Indices))
-                return SelectQuery<std::nullopt_t,
+                return SelectQuery<std::tuple<col_t<Indices, table_t>...>,
                                    table_t,
                                    std::nullopt_t,
                                    std::nullopt_t,
@@ -221,6 +158,8 @@ namespace sql
         }
 
         template<typename R, size_t... Indices>
+            requires(((Indices < column_count) && ...) &&
+                     constructible_from<R, std::tuple_element_t<Indices, row_t>...>)
         [[nodiscard]] auto select()
         {
             if constexpr (sizeof...(Indices))
@@ -250,11 +189,11 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         template<size_t... Indices>
+            requires((Indices < column_count) && ...)
         [[nodiscard]] auto update() const
         {
             if constexpr (sizeof...(Indices))
                 return UpdateQuery<table_t,
-
                                    std::nullopt_t,
                                    std::nullopt_t,
                                    std::nullopt_t,
@@ -272,11 +211,11 @@ namespace sql
         // Join.
         ////////////////////////////////////////////////////////////////
 
-        // TODO: Require J to be JoinWrapper and R to be TypedTable.
-        template<typename J, typename R>
-        [[nodiscard]] auto join(J&&, R& rhs) const
+        template<is_join_wrapper J, is_typed_table R>
+        [[nodiscard]] auto join(J&&, R&& rhs) const
         {
-            return Join<J, table_t, R, std::nullopt_t>(*table, rhs.getTable());
+            return Join<std::remove_cvref_t<J>, table_t, std::remove_cvref_t<R>, std::nullopt_t>(
+              *table, std::forward<R>(rhs).getTable());
         }
 
     private:

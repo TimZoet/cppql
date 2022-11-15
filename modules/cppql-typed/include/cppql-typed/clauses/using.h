@@ -25,7 +25,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         // Types.
         ////////////////////////////////////////////////////////////////
-        
+
         static constexpr bool valid = false;
 
         ////////////////////////////////////////////////////////////////
@@ -48,10 +48,9 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        [[nodiscard]] static std::string toString()
-        {
-            return {};
-        }
+        static void generateIndices(int32_t&) {}
+
+        [[nodiscard]] static std::string toString() { return {}; }
     };
 
     template<is_column_expression C, is_column_expression... Cs>
@@ -63,7 +62,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         static constexpr bool valid = true;
-        using                 row_t = std::tuple<C, Cs...>;
+        using row_t                 = std::tuple<C, Cs...>;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.

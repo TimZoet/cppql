@@ -5,13 +5,13 @@
 ////////////////////////////////////////////////////////////////
 
 #include <string>
+#include <type_traits>
 
 ////////////////////////////////////////////////////////////////
 // Module includes.
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-core/statement.h"
-#include "cppql-core/table.h"
 
 ////////////////////////////////////////////////////////////////
 // Current target includes.
@@ -22,11 +22,11 @@
 namespace sql
 {
     /**
-     * \brief 
+     * \brief Holds a list of FilterExpression types. Can be used to bind all their parameters at once.
      * \tparam T std::tuple of FilterExpression types.
      */
     template<typename T>
-    class FilterExpressionList : public BaseFilterExpression
+    class FilterExpressionList final : public BaseFilterExpression
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -51,14 +51,26 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        [[nodiscard]] std::string toString(int32_t&) noexcept override
+        [[nodiscard]] bool containsTables(const auto&... tables) const
+        {
+            const auto f = [&]<std::size_t... Is>(std::index_sequence<Is...>) -> bool
+            {
+               return  (std::get<Is>(filters).containsTables(tables...) && ...);
+            };
+
+            return f(std::make_index_sequence<std::tuple_size_v<T>>{}, filters);
+        }
+
+        void generateIndices(int32_t&) override {}
+
+        [[nodiscard]] std::string toString() noexcept override
         {
             return {};
         }
 
-        void bind(Statement& stmt, BindParameters bind) const override
+        void bind(Statement& stmt, const BindParameters bind) const override
         {
-            auto b = [&stmt, &bind]<std::size_t... Is>(std::index_sequence<Is...>, const auto& tuple)
+            const auto b = [&stmt, &bind]<std::size_t... Is>(std::index_sequence<Is...>, const auto& tuple)
             {
                 (std::get<Is>(tuple).bind(stmt, bind), ...);
             };

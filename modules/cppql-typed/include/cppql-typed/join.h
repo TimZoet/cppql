@@ -92,7 +92,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         static constexpr bool recursive       = is_join<L>;
-        using joint_t                         = J;
+        using join_t                          = J;
         using left_t                          = std::conditional_t<recursive, L, Table*>;
         using table_t                         = R;
         using filter_t                        = On<F>;
@@ -142,34 +142,43 @@ namespace sql
         // ...
         ////////////////////////////////////////////////////////////////
 
-        // TODO: Require J2 to be JoinWrapper, T to be a TypedTable.
-        template<typename Self, typename J2, typename T>
-        auto join(this Self&& self, J2&&, T& table)
+        template<typename Self, is_join_wrapper J2, is_typed_table T>
+        auto join(this Self&& self, J2&&, T&& table)
         {
-            // TODO: Check table instances in columns match tables in joins.
-            return Join<J2, Self, T, std::nullopt_t>(std::forward<Self>(self), table.getTable());
+            return Join<std::remove_cvref_t<J2>, std::remove_cvref_t<Self>, std::remove_cvref_t<T>, std::nullopt_t>(
+              std::forward<Self>(self), std::forward<T>(table).getTable());
         }
 
         template<typename Self, is_valid_filter_expression<table_list_t> F2>
-            requires(!filter_t::valid && !using_t::valid && !joint_t::natural)
+            requires(!filter_t::valid && !using_t::valid && !join_t::natural)
         auto on(this Self&& self, F2&& filter)
         {
-            // TODO: Check table instances in filter match tables in joins.
-            return Join<joint_t, L, R, std::decay_t<F2>>(
-              std::forward<Self>(self).left, *self.right, On<std::decay_t<F2>>(std::forward<F2>(filter)));
+            // TODO: Check table instances in filter are in {left, right}
+
+            if constexpr (recursive)
+            {
+                
+            }
+            else
+            {
+                
+            }
+
+            return Join<join_t, L, R, std::remove_cvref_t<F2>>(
+              std::forward<Self>(self).left, *self.right, On<std::remove_cvref_t<F2>>(std::forward<F2>(filter)));
         }
 
         template<typename Self, is_column_expression C, is_column_expression... Cs>
-            requires(!filter_t::valid && !using_t::valid && !joint_t::natural)
+            requires(!filter_t::valid && !using_t::valid && !join_t::natural)
         auto usings(this Self&& self, C&& c, Cs&&... cs)
         {
             // TODO: Detect duplicates.
             // TODO: Check column types in left typedtable.
             // TODO: Runtime check column names are in left and right table.
-            return Join<joint_t, L, R, std::nullopt_t, std::decay_t<C>, std::decay_t<Cs>...>(
+            return Join<join_t, L, R, std::nullopt_t, std::remove_cvref_t<C>, std::remove_cvref_t<Cs>...>(
               std::forward<Self>(self).left,
               *self.right,
-              Using<std::decay_t<C>, std::decay_t<Cs>...>(std::forward<C>(c), std::forward<Cs>(cs)...));
+              Using<std::remove_cvref_t<C>, std::remove_cvref_t<Cs>...>(std::forward<C>(c), std::forward<Cs>(cs)...));
         }
 
         template<typename Self,
@@ -179,13 +188,13 @@ namespace sql
         {
             // TODO: Check table instances in columns match tables in joins.
 
-            return SelectQuery<std::nullopt_t,
-                               std::decay_t<Self>,
+            return SelectQuery<std::tuple<typename C::value_t, typename Cs::value_t...>,
+                               std::remove_cvref_t<Self>,
                                std::nullopt_t,
                                std::nullopt_t,
                                std::nullopt_t,
-                               std::decay_t<C>,
-                               std::decay_t<Cs>...>(std::forward<Self>(self),
+                               std::remove_cvref_t<C>,
+                               std::remove_cvref_t<Cs>...>(std::forward<Self>(self),
                                                     Columns<C, Cs...>(std::forward<C>(c), std::forward<Cs>(cs)...));
         }
 
@@ -208,16 +217,23 @@ namespace sql
                 return std::make_tuple(filter.filter);
         }
 
-        [[nodiscard]] std::string toString(int32_t& pIndex)
+        void generateIndices(int32_t& idx)
+        {
+            if constexpr (recursive) left.generateIndices(idx);
+
+            filter.generateIndices(idx);
+        }
+
+        [[nodiscard]] std::string toString()
         {
             if constexpr (recursive)
             {
                 // Left contains more joins that must be stringified.
                 return std::format("{0} {1} {2} {3}{4}",
-                                   left.toString(pIndex),
-                                   joint_t::name,
+                                   left.toString(),
+                                   join_t::name,
                                    right->getName(),
-                                   filter.toString(pIndex),
+                                   filter.toString(),
                                    usingCols.toString());
             }
             else
@@ -225,9 +241,9 @@ namespace sql
                 // Left-most side of the join sequence. Left and right are both tables.
                 return std::format("{0} {1} {2} {3}{4}",
                                    left->getName(),
-                                   joint_t::name,
+                                   join_t::name,
                                    right->getName(),
-                                   filter.toString(pIndex),
+                                   filter.toString(),
                                    usingCols.toString());
             }
         }

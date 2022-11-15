@@ -12,62 +12,60 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/enums.h"
 #include "cppql-typed/typed_table.h"
-#include "cppql-typed/expressions/bind_parameters.h"
 
 namespace sql
 {
     /**
      * \brief The Delete class wraps a DELETE FROM <table> WHERE <expr> statement. When invoked, it removes all rows from the table that match the expression.
-     * \tparam T Table type.
      */
-    template<typename T>
     class DeleteStatement
     {
     public:
-        /**
-         * \brief Table type.
-         */
-        using table_t = T;
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
 
-        DeleteStatement() = default;
+        DeleteStatement() = delete;
 
         DeleteStatement(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
 
-        explicit DeleteStatement(StatementPtr statement) : stmt(std::move(statement)) {}
-
         DeleteStatement(const DeleteStatement&) = delete;
 
-        DeleteStatement(DeleteStatement&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
+        DeleteStatement(DeleteStatement&& other) noexcept = default;
 
-        ~DeleteStatement() = default;
+        ~DeleteStatement() noexcept = default;
 
         DeleteStatement& operator=(const DeleteStatement&) = delete;
 
-        DeleteStatement& operator=(DeleteStatement&& other) noexcept
+        DeleteStatement& operator=(DeleteStatement&& other) noexcept = default;
+
+        ////////////////////////////////////////////////////////////////
+        // Run.
+        ////////////////////////////////////////////////////////////////
+
+        /**
+         * \brief Bind parameters.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \param b Parameters to bind.
+         */
+        template<typename Self>
+        auto&& bind(this Self&& self, const BindParameters b)
         {
-            stmt = std::move(other.stmt);
-            exp  = std::move(other.exp);
-            return *this;
+            if (any(b) && self.exp)  self.exp->bind(*self.stmt, b);
+            return std::forward<Self>(self);
         }
 
         /**
-         * \brief Run delete statement. Does not bind parameters.
+         * \brief Run delete statement.
          */
-        void operator()() const { return this->operator()(BindParameters::None); }
-
-        /**
-         * \brief Run delete statement. Optionally binds parameters.
-         * \param bind Parameters to bind.
-         */
-        void operator()(const BindParameters bind) const
+        void operator()() const
         {
-            // Bind parameters.
-            if (any(bind) && exp) exp->bind(*stmt, bind);
-
             // Run statement.
             if (const auto res = stmt->step(); !res)
                 throw SqliteError(std::format("Failed to step through delete statement."), res.code);
@@ -78,6 +76,10 @@ namespace sql
         }
 
     private:
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
+
         /**
          * \brief Pointer to statement.
          */

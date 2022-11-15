@@ -19,23 +19,6 @@
 
 namespace sql
 {
-    ////////////////////////////////////////////////////////////////
-    // OrderByExpression class.
-    ////////////////////////////////////////////////////////////////
-
-    enum class Order
-    {
-        Asc,
-        Desc
-    };
-
-    enum class Nulls
-    {
-        None,
-        First,
-        Last
-    };
-
     // TODO: Rework to be templated on a list of columns to avoid dynamic allocations, allowing ordering on multiple cols.
     /**
      * \brief The OrderByExpression class is used in conjunction
@@ -83,6 +66,11 @@ namespace sql
         OrderByExpression& operator=(const OrderByExpression& other);
 
         OrderByExpression& operator=(OrderByExpression&& other) noexcept;
+
+        [[nodiscard]] bool containsTables(const auto&... ) const
+        {
+            return true;
+        }
 
         /**
          * \brief Generate ORDER BY string.
@@ -163,10 +151,11 @@ namespace sql
 
     template<typename T, typename Table>
     concept is_order_by_expression_or_none =
-        is_order_by_expression<T, Table> || std::same_as<std::remove_cvref_t<T>, std::nullopt_t>;
+      is_order_by_expression<T, Table> || std::same_as<std::remove_cvref_t<T>, std::nullopt_t>;
 
     template<typename T, typename Tables>
-    concept is_valid_order_by_expression = _is_order_by_expression<T> && tuple_contains_type<typename T::table_t, Tables>;// TODO: Make list checker again.
+    concept is_valid_order_by_expression =
+      _is_order_by_expression<T> && tuple_contains_type<typename T::table_t, Tables>;  // TODO: Make list checker again.
 
     ////////////////////////////////////////////////////////////////
     // Order.
@@ -182,8 +171,7 @@ namespace sql
     template<is_column_expression C>
     auto ascending(C&& col, Nulls nulls = Nulls::None)
     {
-        int32_t dummy = 0;
-        return OrderByExpression<typename C::table_t>(col.toString(dummy), Order::Asc, nulls);
+        return OrderByExpression<typename C::table_t>(col.toString(), Order::Asc, nulls);
     }
 
     /**
@@ -196,8 +184,7 @@ namespace sql
     template<is_column_expression C>
     auto descending(C&& col, Nulls nulls = Nulls::None)
     {
-        int32_t dummy = 0;
-        return OrderByExpression<typename C::table_t>(col.toString(dummy), Order::Desc, nulls);
+        return OrderByExpression<typename C::table_t>(col.toString(), Order::Desc, nulls);
     }
 
     template<_is_order_by_expression T>

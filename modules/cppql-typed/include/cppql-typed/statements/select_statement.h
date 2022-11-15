@@ -18,8 +18,8 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/enums.h"
 #include "cppql-typed/typed_table.h"
-#include "cppql-typed/expressions/bind_parameters.h"
 
 namespace sql
 {
@@ -31,9 +31,14 @@ namespace sql
      * \tparam Cs Types of the columns to retrieve.
      */
     template<typename R, typename... Cs>
-    requires(constructible_from<R, Cs...>) class SelectStatement
+        requires(constructible_from<R, Cs...>)
+    class SelectStatement
     {
     public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
         /**
          * \brief Row return type.
          */
@@ -57,11 +62,16 @@ namespace sql
 
             iterator& operator++()
             {
-                const auto res = stmt->step();
-                code           = res.code;
+                auto res = stmt->step();
+                code     = res.code;
 
                 if (code != Result::sqlite_row && code != Result::sqlite_done)
                     throw SqliteError(std::format("Failed to step through select statement."), res.code);
+                if (code == Result::sqlite_done)
+                {
+                    res = stmt->reset();
+                    if (!res) throw SqliteError(std::format("Failed to reset select statement."), res.code);
+                }
 
                 return *this;
             }
@@ -93,29 +103,30 @@ namespace sql
             }
         };
 
-        SelectStatement() = default;
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
+
+        SelectStatement() = delete;
 
         SelectStatement(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
         {
         }
 
-        explicit SelectStatement(StatementPtr statement) : stmt(std::move(statement)) {}
-
         SelectStatement(const SelectStatement&) = delete;
 
-        SelectStatement(SelectStatement&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
+        SelectStatement(SelectStatement&& other) noexcept = default;
 
-        ~SelectStatement() = default;
+        ~SelectStatement() noexcept = default;
 
         SelectStatement& operator=(const SelectStatement&) = delete;
 
-        SelectStatement& operator=(SelectStatement&& other) noexcept
-        {
-            stmt = std::move(other.stmt);
-            exp  = std::move(other.exp);
-            return *this;
-        }
+        SelectStatement& operator=(SelectStatement&& other) noexcept = default;
+
+        ////////////////////////////////////////////////////////////////
+        // Run.
+        ////////////////////////////////////////////////////////////////
 
         iterator begin()
         {
@@ -129,23 +140,26 @@ namespace sql
         iterator end() { return iterator(); }
 
         /**
-         * \brief Bind parameters and return reference to this object.
-         * \param bind Parameters to bind.
-         * \return *this.
+         * \brief Bind parameters.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \param b Parameters to bind.
          */
-        SelectStatement& operator()(const BindParameters bind)
+        template<typename Self>
+        auto&& bind(this Self&& self, const BindParameters b)
         {
-            // Reset statement.
-            if (const auto res = stmt->reset(); !res)
-                throw SqliteError(std::format("Failed to reset select statement."), res.code);
-
-            // (Re)bind parameters.
-            if (any(bind) && exp) exp->bind(*stmt, bind);
-
-            return *this;
+            if (any(b) && self.exp)
+            {
+                self.exp->bind(*self.stmt, b);
+            }
+            return std::forward<Self>(self);
         }
 
-    private:
+        //private:
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
+
         /**
          * \brief Pointer to statement.
          */

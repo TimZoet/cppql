@@ -297,7 +297,7 @@ namespace sql
     template<typename T>
     concept bindable = requires
     {
-        typename bind_t<T>::return_t;
+        typename bind_t<std::decay_t<T>>::return_t;
     };
 
     ////////////////////////////////////////////////////////////////

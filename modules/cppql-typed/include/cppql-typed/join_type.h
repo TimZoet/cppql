@@ -7,21 +7,14 @@
 #include <string>
 #include <type_traits>
 
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql-typed/enums.h"
+
 namespace sql
 {
-    enum class JoinType
-    {
-        Cross,
-        Left,
-        Right,
-        Full,
-        Inner,
-        NaturalLeft,
-        NaturalRight,
-        NaturalFull,
-        NaturalInner
-    };
-
     template<JoinType J>
     struct JoinTypeWrapper
     {
@@ -100,6 +93,9 @@ namespace sql
         static constexpr bool           natural = true;
     };
 
+    template<typename T>
+    concept is_join_wrapper = std::same_as<std::remove_cvref_t<T>, JoinTypeWrapper<std::remove_cvref_t<T>::type>>;
+
     using CrossJoin        = JoinTypeWrapper<JoinType::Cross>;
     using LeftJoin         = JoinTypeWrapper<JoinType::Left>;
     using RightJoin        = JoinTypeWrapper<JoinType::Right>;
@@ -109,21 +105,4 @@ namespace sql
     using NaturalRightJoin = JoinTypeWrapper<JoinType::NaturalRight>;
     using NaturalFullJoin  = JoinTypeWrapper<JoinType::NaturalFull>;
     using NaturalInnerJoin = JoinTypeWrapper<JoinType::NaturalInner>;
-
-    // TODO: Require J to be a JoinTypeWrapper, L to be a join or TypedTable and R to a TypedTable. Require F to be a FilterExpression.
-    template<typename J, typename L, typename R, typename F, typename... Cs>
-    class Join;
-
-    template<typename J, typename... Ts>
-    struct _is_join : std::false_type
-    {
-    };
-
-    template<typename J, typename L, typename R, typename F, typename... Cs>
-    struct _is_join<Join<J, L, R, F, Cs...>> : std::true_type
-    {
-    };
-
-    template<typename T>
-    concept is_join = _is_join<T>::value;
 }  // namespace sql

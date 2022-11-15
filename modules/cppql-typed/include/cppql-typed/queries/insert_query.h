@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include <format>
+#include <string>
 #include <type_traits>
 
 ////////////////////////////////////////////////////////////////
@@ -13,7 +14,6 @@
 
 #include "cppql-typed/clauses/columns.h"
 #include "cppql-typed/expressions/column_expression.h"
-#include "cppql-typed/expressions/filter_expression.h"
 #include "cppql-typed/statements/insert_statement.h"
 
 namespace sql
@@ -51,7 +51,7 @@ namespace sql
         InsertQuery& operator=(InsertQuery&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Generate.
         ////////////////////////////////////////////////////////////////
 
         [[nodiscard]] std::string toString() const
@@ -69,8 +69,14 @@ namespace sql
             }
         }
 
+        /**
+         * \brief Generate InsertStatement object. Generates and compiles SQL code.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \return InsertStatement.
+         */
         template<typename Self>
-        [[nodiscard]] auto operator()(this Self&& self)
+        [[nodiscard]] auto compile(this Self&& self)
         {
             // Construct statement. Note: This generates the bind indices of all filter expressions
             // and should therefore happen before the BaseFilterExpressionPtr construction below.
@@ -79,7 +85,7 @@ namespace sql
                 throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
                                   stmt->getResult()->code);
 
-            return InsertStatement<table_t, Cs...>(std::move(stmt));
+            return InsertStatement<Cs...>(std::move(stmt));
         }
     };
 }  // namespace sql

@@ -4,7 +4,6 @@
 // Standard includes.
 ////////////////////////////////////////////////////////////////
 
-#include <concepts>
 #include <format>
 #include <string>
 #include <tuple>
@@ -14,511 +13,165 @@
 ////////////////////////////////////////////////////////////////
 
 #include "common/enum_classes.h"
-#include "common/static_assert.h"
-#include "cppql-core/error/sqlite_error.h"
 
 ////////////////////////////////////////////////////////////////
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql-typed/type_traits.h"
-#include "cppql-typed/expressions/bind_parameters.h"
+#include "cppql-typed/enums.h"
 #include "cppql-typed/expressions/column_expression.h"
 #include "cppql-typed/expressions/filter_expression.h"
 
 namespace sql
 {
-    enum class ColCompOperator
-    {
-        Eq,  // ==
-        Ne,  // !=
-        Lt,  // <
-        Gt,  // >
-        Le,  // <=
-        Ge,  // >=
-    };
-
-    template<is_column_expression L, is_column_expression R, ColCompOperator Op>
-    class ColumnComparisonExpression : public FilterExpression<std::tuple<typename L::table_t, typename R::table_t>>
+    template<is_column_expression L, is_column_expression R, ComparisonOperator Op>
+    class ColumnComparisonExpression final
+        : public FilterExpression<std::tuple<typename L::table_t, typename R::table_t>>
     {
     public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
+        using left_t = L;
+
+        using right_t = R;
+
         ////////////////////////////////////////////////////////////////
         // Constructors.
         ////////////////////////////////////////////////////////////////
 
         ColumnComparisonExpression() = delete;
 
-        ColumnComparisonExpression(const ColumnComparisonExpression& other);
+        ColumnComparisonExpression(const ColumnComparisonExpression& other) = default;
 
-        ColumnComparisonExpression(ColumnComparisonExpression&& other) noexcept;
+        ColumnComparisonExpression(ColumnComparisonExpression&& other) noexcept = default;
 
-        ColumnComparisonExpression(L lhs, R rhs);
+        ColumnComparisonExpression(left_t lhs, right_t rhs) : left(std::move(lhs)), right(std::move(rhs)) {}
 
-        ~ColumnComparisonExpression() override = default;
+        ~ColumnComparisonExpression() noexcept override = default;
 
-        ColumnComparisonExpression& operator=(const ColumnComparisonExpression& other);
+        ColumnComparisonExpression& operator=(const ColumnComparisonExpression& other) = default;
 
-        ColumnComparisonExpression& operator=(ColumnComparisonExpression&& other) noexcept;
+        ColumnComparisonExpression& operator=(ColumnComparisonExpression&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        [[nodiscard]] std::string toString(int32_t& pIndex) override;
+        [[nodiscard]] bool containsTables(const auto&... tables) const
+        {
+            return left.containsTables(tables...) && right.containsTables(tables...);
+        }
 
-        void bind(Statement& stmt, BindParameters bind) const override;
+        void generateIndices(int32_t& idx) override
+        {
+            left.generateIndices(idx);
+            right.generateIndices(idx);
+        }
+
+        /**
+         * \brief Generate expression comparing two columns.
+         * \return String with format "<lhs> <op> <right>".
+         */
+        [[nodiscard]] std::string toString() override
+        {
+            return std::format("{0} {1} {2}", left.toString(), ComparisonOperatorType<Op>::str, right.toString());
+        }
+
+        void bind(Statement&, BindParameters) const override {}
 
     private:
-        L left;
+        left_t left;
 
-        R right;
+        right_t right;
     };
 
     ////////////////////////////////////////////////////////////////
-    // Implementation.
-    ////////////////////////////////////////////////////////////////
-
-    template<is_column_expression L, is_column_expression R, ColCompOperator Op>
-    ColumnComparisonExpression<L, R, Op>::ColumnComparisonExpression(const ColumnComparisonExpression& other) :
-        left(other.left), right(other.right)
-    {
-    }
-
-    template<is_column_expression L, is_column_expression R, ColCompOperator Op>
-    ColumnComparisonExpression<L, R, Op>::ColumnComparisonExpression(ColumnComparisonExpression&& other) noexcept :
-        left(std::move(other.left)), right(std::move(other.right))
-    {
-    }
-
-    template<is_column_expression L, is_column_expression R, ColCompOperator Op>
-    ColumnComparisonExpression<L, R, Op>::ColumnComparisonExpression(L lhs, R rhs) :
-        left(std::move(lhs)), right(std::move(rhs))
-    {
-    }
-
-    template<is_column_expression L, is_column_expression R, ColCompOperator Op>
-    ColumnComparisonExpression<L, R, Op>&
-      ColumnComparisonExpression<L, R, Op>::operator=(const ColumnComparisonExpression& other)
-    {
-        left  = other.left;
-        right = other.right;
-        return *this;
-    }
-
-    template<is_column_expression L, is_column_expression R, ColCompOperator Op>
-    ColumnComparisonExpression<L, R, Op>&
-      ColumnComparisonExpression<L, R, Op>::operator=(ColumnComparisonExpression&& other) noexcept
-    {
-        left  = std::move(other.left);
-        right = std::move(other.value);
-        return *this;
-    }
-
-    template<is_column_expression L, is_column_expression R, ColCompOperator Op>
-    std::string ColumnComparisonExpression<L, R, Op>::toString(int32_t& pIndex)
-    {
-        if constexpr (Op == ColCompOperator::Eq)
-            return std::format("{0} = {1}", left.toString(pIndex), right.toString(pIndex));
-        else if constexpr (Op == ColCompOperator::Ne)
-            return std::format("{0} != {1}", left.toString(pIndex), right.toString(pIndex));
-        else if constexpr (Op == ColCompOperator::Lt)
-            return std::format("{0} < {1}", left.toString(pIndex), right.toString(pIndex));
-        else if constexpr (Op == ColCompOperator::Gt)
-            return std::format("{0} > {1}", left.toString(pIndex), right.toString(pIndex));
-        else if constexpr (Op == ColCompOperator::Le)
-            return std::format("{0} <= {1}", left.toString(pIndex), right.toString(pIndex));
-        else if constexpr (Op == ColCompOperator::Ge)
-            return std::format("{0} >= {1}", left.toString(pIndex), right.toString(pIndex));
-        else
-        {
-            constexpr_static_assert();
-            return {};
-        }
-    }
-
-    template<is_column_expression L, is_column_expression R, ColCompOperator Op>
-    void ColumnComparisonExpression<L, R, Op>::bind(Statement&, const BindParameters) const
-    {
-    }
-
-    ////////////////////////////////////////////////////////////////
-    // ==
+    // Operators.
     ////////////////////////////////////////////////////////////////
 
     /**
-     * \brief Require column == fixed value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
+     * \brief Require lhs == rhs.
+     * \tparam L Table type.
+     * \tparam R Column index.
+     * \param lhs Column object.
+     * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
     template<is_column_expression L, is_column_expression R>
     auto operator==(L&& lhs, R&& rhs)
     {
-        return ColumnComparisonExpression<L, R, ColCompOperator::Eq>(std::forward<L>(lhs), std::forward<R>(rhs));
-    }
-
-#if 0
-    ////////////////////////////////////////////////////////////////
-    // !=
-    ////////////////////////////////////////////////////////////////
-
-    /**
-     * \brief Require column != fixed value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator!=(ColumnExpression<T, Index> col, V val)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), std::move(val), C::Operator::Ne, true);
+        return ColumnComparisonExpression<L, R, ComparisonOperator::Eq>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     /**
-     * \brief Require fixed value != column.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
+     * \brief Require lhs != rhs.
+     * \tparam L Table type.
+     * \tparam R Column index.
+     * \param lhs Column object.
+     * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator!=(V val, ColumnExpression<T, Index> col)
+    template<is_column_expression L, is_column_expression R>
+    auto operator!=(L&& lhs, R&& rhs)
     {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Ne, false);
+        return ColumnComparisonExpression<L, R, ComparisonOperator::Ne>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     /**
-     * \brief Require column != dynamic value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Pointer to value.
+     * \brief Require lhs < rhs.
+     * \tparam L Table type.
+     * \tparam R Column index.
+     * \param lhs Column object.
+     * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator!=(ColumnExpression<T, Index> col, V* val)
+    template<is_column_expression L, is_column_expression R>
+    auto operator<(L&& lhs, R&& rhs)
     {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Ne, true);
+        return ColumnComparisonExpression<L, R, ComparisonOperator::Lt>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     /**
-     * \brief Require dynamic value != column.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Pointer to value.
+     * \brief Require lhs > rhs.
+     * \tparam L Table type.
+     * \tparam R Column index.
+     * \param lhs Column object.
+     * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator!=(V* val, ColumnExpression<T, Index> col)
+    template<is_column_expression L, is_column_expression R>
+    auto operator>(L&& lhs, R&& rhs)
     {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Ne, false);
-    }
-
-    ////////////////////////////////////////////////////////////////
-    // <
-    ////////////////////////////////////////////////////////////////
-
-    /**
-     * \brief Require column < fixed value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator<(ColumnExpression<T, Index> col, V val)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Lt, true);
+        return ColumnComparisonExpression<L, R, ComparisonOperator::Gt>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     /**
-     * \brief Require fixed value < column.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
+     * \brief Require lhs <= rhs.
+     * \tparam L Table type.
+     * \tparam R Column index.
+     * \param lhs Column object.
+     * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator<(V val, ColumnExpression<T, Index> col)
+    template<is_column_expression L, is_column_expression R>
+    auto operator<=(L&& lhs, R&& rhs)
     {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Lt, false);
+        return ColumnComparisonExpression<L, R, ComparisonOperator::Le>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     /**
-     * \brief Require column < dynamic value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Pointer to value.
+     * \brief Require lhs >= rhs.
+     * \tparam L Table type.
+     * \tparam R Column index.
+     * \param lhs Column object.
+     * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator<(ColumnExpression<T, Index> col, V* val)
+    template<is_column_expression L, is_column_expression R>
+    auto operator>=(L&& lhs, R&& rhs)
     {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Lt, true);
+        return ColumnComparisonExpression<L, R, ComparisonOperator::Ge>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
-
-    /**
-     * \brief Require dynamic value < column.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Pointer to value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator<(V* val, ColumnExpression<T, Index> col)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Lt, false);
-    }
-
-    ////////////////////////////////////////////////////////////////
-    // >
-    ////////////////////////////////////////////////////////////////
-
-    /**
-     * \brief Require column > fixed value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator>(ColumnExpression<T, Index> col, V val)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Gt, true);
-    }
-
-    /**
-     * \brief Require fixed value > column.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator>(V val, ColumnExpression<T, Index> col)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Gt, false);
-    }
-
-    /**
-     * \brief Require column > dynamic value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Pointer to value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator>(ColumnExpression<T, Index> col, V* val)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Gt, true);
-    }
-
-    /**
-     * \brief Require dynamic value > column.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Pointer to value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator>(V* val, ColumnExpression<T, Index> col)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Gt, false);
-    }
-
-    ////////////////////////////////////////////////////////////////
-    // <=
-    ////////////////////////////////////////////////////////////////
-
-    /**
-     * \brief Require column <= fixed value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator<=(ColumnExpression<T, Index> col, V val)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Le, true);
-    }
-
-    /**
-     * \brief Require fixed value <= column.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator<=(V val, ColumnExpression<T, Index> col)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Le, false);
-    }
-
-    /**
-     * \brief Require column <= dynamic value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Pointer to value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator<=(ColumnExpression<T, Index> col, V* val)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Le, true);
-    }
-
-    /**
-     * \brief Require dynamic value <= column.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Pointer to value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator<=(V* val, ColumnExpression<T, Index> col)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Le, false);
-    }
-
-    ////////////////////////////////////////////////////////////////
-    // >=
-    ////////////////////////////////////////////////////////////////
-
-    /**
-     * \brief Require column >= fixed value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator>=(ColumnExpression<T, Index> col, V val)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Ge, true);
-    }
-
-    /**
-     * \brief Require fixed value >= column.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator>=(V val, ColumnExpression<T, Index> col)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Ge, false);
-    }
-
-    /**
-     * \brief Require column >= dynamic value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Pointer to value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator>=(ColumnExpression<T, Index> col, V* val)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Ge, true);
-    }
-
-    /**
-     * \brief Require dynamic value >= column.
-     * \tparam T Table type.
-     * \tparam Index Column index.
-     * \tparam V Value type.
-     * \param col Column object.
-     * \param val Pointer to value.
-     * \return ColumnComparisonExpression object.
-     */
-    template<typename T, size_t Index, typename V>
-    requires(std::convertible_to<V, col_t<Index, T>>) auto operator>=(V* val, ColumnExpression<T, Index> col)
-    {
-        using C = ColumnComparisonExpression<T, Index, V>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::forward<D>(col), val, C::Operator::Ge, false);
-    }
-#endif
 }  // namespace sql

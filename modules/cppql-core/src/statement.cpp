@@ -46,24 +46,9 @@ namespace sql
         if (prepare) this->prepare();
     }
 
-    Statement::Statement(Statement&& other) noexcept
-    {
-        std::swap(other.db, db);
-        std::swap(other.statement, statement);
-        std::swap(other.sql, sql);
-    }
-
     Statement::~Statement()
     {
         if (statement) sqlite3_finalize(statement);
-    }
-
-    Statement& Statement::operator=(Statement&& other) noexcept
-    {
-        std::swap(other.db, db);
-        std::swap(other.statement, statement);
-        std::swap(other.sql, sql);
-        return *this;
     }
 
     ////////////////////////////////////////////////////////////////

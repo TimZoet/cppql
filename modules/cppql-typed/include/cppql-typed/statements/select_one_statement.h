@@ -10,7 +10,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql-typed/expressions/bind_parameters.h"
+#include "cppql-typed/enums.h"
 #include "cppql-typed/statements/select_statement.h"
 
 namespace sql
@@ -21,42 +21,62 @@ namespace sql
      * \tparam Cs Types of the columns to retrieve.
      */
     template<typename R, typename... Cs>
-    requires(constructible_from<R, Cs...>) class SelectOneStatement
+        requires(constructible_from<R, Cs...>)
+    class SelectOneStatement
     {
     public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
         using select_t = SelectStatement<R, Cs...>;
 
-        template<typename U, typename... Us>
-        friend class TypedTable;
+        /**
+         * \brief Row return type.
+         */
+        using return_t = R;
+
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
 
         SelectOneStatement() = delete;
 
-        SelectOneStatement(const SelectOneStatement&) = delete;
-
-        SelectOneStatement(SelectOneStatement&& other) noexcept : stmt(std::move(other.stmt)) {}
-
         explicit SelectOneStatement(select_t&& select) : stmt(std::move(select)) {}
 
-        ~SelectOneStatement() = default;
+        SelectOneStatement(const SelectOneStatement&) = delete;
+
+        SelectOneStatement(SelectOneStatement&& other) noexcept = default;
+
+        ~SelectOneStatement() noexcept = default;
 
         SelectOneStatement& operator=(const SelectOneStatement&) = delete;
 
-        SelectOneStatement& operator=(SelectOneStatement&& other) noexcept
+        SelectOneStatement& operator=(SelectOneStatement&& other) noexcept = default;
+
+        ////////////////////////////////////////////////////////////////
+        // Run.
+        ////////////////////////////////////////////////////////////////
+
+        /**
+         * \brief Bind parameters.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \param b Parameters to bind.
+         */
+        template<typename Self>
+        auto&& bind(this Self&& self, const BindParameters b)
         {
-            stmt = std::move(other.stmt);
-            return *this;
+            self.stmt.bind(b);
+            return std::forward<Self>(self);
         }
 
         /**
          * \brief Execute statement.
-         * \param bind Parameters to bind.
          * \return Result row.
          */
-        typename select_t::return_t operator()(const BindParameters bind)
+        return_t operator()()
         {
-            // Reset statement and possibly rebind parameters.
-            if (any(bind)) stmt(bind);
-
             // Get iterator to execute statement.
             auto it = stmt.begin();
 
@@ -69,10 +89,15 @@ namespace sql
             // Check if there was only one result.
             if (++it != stmt.end()) throw CppqlError("More than one result returned.");
 
+            static_cast<void>(stmt.stmt->reset());
+
             return r;
         }
 
     private:
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
 
         /**
          * \brief Select statement.

@@ -72,13 +72,13 @@ namespace sql
 
         Statement(const Statement&) = delete;
 
-        Statement(Statement&&) noexcept;
+        Statement(Statement&&) noexcept = default;
 
         ~Statement();
 
         Statement& operator=(const Statement&) = delete;
 
-        Statement& operator=(Statement&& other) noexcept;
+        Statement& operator=(Statement&& other) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
         // Getters.

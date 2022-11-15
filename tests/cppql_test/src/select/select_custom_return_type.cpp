@@ -30,14 +30,14 @@ void SelectCustomReturnType::operator()()
     sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
-    auto insert = table.insert()();
+    auto insert = table.insert().compile();
     expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
     expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
     expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
     expectNoThrow([&insert] { insert(40, 100.0f, sql::toText("aaaa")); });
 
     // Create select query with custom return type.
-    auto sel = table.select<Row, 0, 1, 2>().where(table.col<0>() <= 20)(sql::BindParameters::All);
+    auto sel = table.select<Row, 0, 1, 2>().where(table.col<0>() <= 20).compile().bind(sql::BindParameters::All);
 
     // Select with unbound id.
     const std::vector<Row> vals(sel.begin(), sel.end());

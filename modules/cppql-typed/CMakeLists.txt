@@ -7,6 +7,8 @@ set(INCLUDE_DIR "include/cppql-typed")
 set(SRC_DIR "src")
 
 set(HEADERS
+    ${INCLUDE_DIR}/enums.h
+    ${INCLUDE_DIR}/fwd.h
     ${INCLUDE_DIR}/include_all.h
     ${INCLUDE_DIR}/join.h
     ${INCLUDE_DIR}/join_type.h
@@ -18,24 +20,24 @@ set(HEADERS
     ${INCLUDE_DIR}/clauses/order_by.h
     ${INCLUDE_DIR}/clauses/using.h
     ${INCLUDE_DIR}/clauses/where.h
-    ${INCLUDE_DIR}/expressions/bind_parameters.h
+    ${INCLUDE_DIR}/expressions/base_filter_expression.h
     ${INCLUDE_DIR}/expressions/column_comparison_expression.h
     ${INCLUDE_DIR}/expressions/column_expression.h
     ${INCLUDE_DIR}/expressions/comparison_expression.h
     ${INCLUDE_DIR}/expressions/filter_expression.h
     ${INCLUDE_DIR}/expressions/filter_expression_list.h
     ${INCLUDE_DIR}/expressions/like_expression.h
-    ${INCLUDE_DIR}/expressions/limit_expression.h
     ${INCLUDE_DIR}/expressions/logical_expression.h
     ${INCLUDE_DIR}/expressions/order_by_expression.h
-    ${INCLUDE_DIR}/expressions/single_filter_expression.h
     ${INCLUDE_DIR}/queries/count_query.h
     ${INCLUDE_DIR}/queries/delete_query.h
+    ${INCLUDE_DIR}/queries/fwd.h
     ${INCLUDE_DIR}/queries/insert_query.h
     ${INCLUDE_DIR}/queries/select_query.h
     ${INCLUDE_DIR}/queries/update_query.h
     ${INCLUDE_DIR}/statements/count_statement.h
     ${INCLUDE_DIR}/statements/delete_statement.h
+    ${INCLUDE_DIR}/statements/fwd.h
     ${INCLUDE_DIR}/statements/insert_statement.h
     ${INCLUDE_DIR}/statements/select_statement.h
     ${INCLUDE_DIR}/statements/select_one_statement.h

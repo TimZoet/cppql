@@ -11,8 +11,8 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/enums.h"
 #include "cppql-typed/typed_table.h"
-#include "cppql-typed/expressions/bind_parameters.h"
 
 namespace sql
 {
@@ -21,18 +21,21 @@ namespace sql
      * \tparam T Table type.
      * \tparam Indices 0-based indices of the columns to update.
      */
-    template<typename T, typename... Cols>
+    template<typename... Cols>
     class UpdateStatement
     {
     public:
-        /**
-         * \brief Table type.
-         */
-        using table_t = T;
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
 
         static constexpr size_t column_count = sizeof...(Cols);
 
-        UpdateStatement() = default;
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
+
+        UpdateStatement() = delete;
 
         UpdateStatement(StatementPtr statement, BaseFilterExpressionPtr filterExpression) :
             stmt(std::move(statement)), exp(std::move(filterExpression))
@@ -41,17 +44,29 @@ namespace sql
 
         UpdateStatement(const UpdateStatement&) = delete;
 
-        UpdateStatement(UpdateStatement&& other) noexcept : stmt(std::move(other.stmt)), exp(std::move(other.exp)) {}
+        UpdateStatement(UpdateStatement&& other) noexcept = default;
 
-        ~UpdateStatement() = default;
+        ~UpdateStatement() noexcept = default;
 
         UpdateStatement& operator=(const UpdateStatement&) = delete;
 
-        UpdateStatement& operator=(UpdateStatement&& other) noexcept
+        UpdateStatement& operator=(UpdateStatement&& other) noexcept = default;
+
+        ////////////////////////////////////////////////////////////////
+        // Run.
+        ////////////////////////////////////////////////////////////////
+
+        /**
+         * \brief Bind parameters.
+         * \tparam Self Self type.
+         * \param self Self.
+         * \param b Parameters to bind.
+         */
+        template<typename Self>
+        auto&& bind(this Self&& self, const BindParameters b)
         {
-            stmt = std::move(other.stmt);
-            exp  = std::move(other.exp);
-            return *this;
+            if (any(b) && self.exp)  self.exp->bind(*self.stmt, b);
+            return std::forward<Self>(self);
         }
 
         /**
@@ -63,43 +78,15 @@ namespace sql
             requires(sizeof...(Cs) == column_count)
         void operator()(Cs&&... values)
         {
-            this->operator()(BindParameters::None, std::forward<Cs>(values)...);
-        }
-
-        /**
-         * \brief Update table.
-         * \tparam Cs Column types.
-         * \param bind Parameters to bind.
-         * \param values Values.
-         */
-        template<bindable... Cs>
-            requires(sizeof...(Cs) == column_count)
-        void operator()(BindParameters bind, Cs... values)
-        {
-            if (const auto res = stmt->reset(); !res)
-                throw SqliteError(std::format("Failed to reset count statement."), res.code);
-
             // Bind value parameters.
-            if (const auto res = stmt->bind(Statement::getFirstBindIndex(), std::move(values)...); !res)
+            if (const auto res = stmt->bind(Statement::getFirstBindIndex(), std::forward<Cs>(values)...); !res)
                 throw SqliteError(std::format("Failed to bind parameters to update statement."), res.code);
-
-            // (Re)bind filter expression parameters.
-            if (any(bind) && exp) exp->bind(*stmt, bind);
 
             if (const auto res = stmt->step(); !res)
                 throw SqliteError(std::format("Failed to step through update statement."), res.code);
-        }
 
-        /**
-         * \brief Update table.
-         * \tparam Cs Column types.
-         * \param values Values.
-         */
-        template<bindable... Cs>
-            requires(sizeof...(Cs) == column_count)
-        void operator()(const std::tuple<Cs...>& values)
-        {
-            this->operator()(BindParameters::None, values);
+            if (const auto res = stmt->reset(); !res)
+                throw SqliteError(std::format("Failed to reset update statement."), res.code);
         }
 
         /**
@@ -110,19 +97,20 @@ namespace sql
          */
         template<bindable... Cs>
             requires(sizeof...(Cs) == column_count)
-        void operator()(BindParameters bind, const std::tuple<Cs...>& values)
+        void operator()(const BindParameters bind, std::tuple<Cs...>&& values)
         {
-            // Call unpack function.
-            this->operator()(bind, values, std::index_sequence_for<Cs...>{});
+            const auto unpack = [this, bind]<std::size_t... Is>(std::index_sequence<Is...>, auto&& vals)
+            {
+                this->operator()(bind, std::get<Is>(vals)...);
+            };
+
+            return unpack(std::index_sequence_for<Cs...>{}, std::forward<std::tuple<Cs...>>(values));
         }
 
     private:
-        template<typename Tuple, std::size_t... Is>
-        void operator()(BindParameters bind, const Tuple& values, std::index_sequence<Is...>)
-        {
-            // Unpack tuple.
-            this->operator()(bind, std::get<Is>(values)...);
-        }
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
 
         /**
          * \brief Pointer to statement.

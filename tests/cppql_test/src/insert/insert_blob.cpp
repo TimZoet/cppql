@@ -30,7 +30,7 @@ void InsertBlob::operator()()
     Foo                   blob4{.x = 4.5f, .y = -10};
 
     // Insert several rows.
-    auto insert = table.insert()();
+    auto insert = table.insert().compile();
     expectNoThrow([&insert, &blob1] { insert(nullptr, sql::toStaticBlob(blob1)); });
     expectNoThrow([&insert, &blob2] { insert(nullptr, sql::toStaticBlob(blob2)); });
     expectNoThrow([&insert, &blob3] { insert(nullptr, sql::toStaticBlob(blob3)); });

@@ -27,11 +27,11 @@ void InsertDefault::operator()()
     sql::TypedTable<int32_t, float, std::string, std::vector<uint8_t>> typedTable(*table);
 
     // Insert all default values.
-    auto insert = typedTable.insert<>()();
+    auto insert = typedTable.insert<>().compile();
     insert();
 
     // Get row.
-    auto row = typedTable.select().where(typedTable.col<0>() > 0).one(sql::BindParameters::None)(sql::BindParameters::All);
+    auto row = typedTable.select().where(typedTable.col<0>() > 0).compileOne().bind(sql::BindParameters::All)();
     const std::vector<uint8_t> bytes = {255, 170, 85, 0};
 
     // Compare.

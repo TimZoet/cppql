@@ -20,34 +20,37 @@ namespace sql
      * \tparam T Table type.
      * \tparam Indices 0-based indices of the columns to insert.
      */
-    template<typename T, typename... Cols>
+    template<typename... Cols>
     class InsertStatement
     {
     public:
-        /**
-         * \brief Table type.
-         */
-        using table_t = T;
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
 
         static constexpr size_t column_count = sizeof...(Cols);
 
-        InsertStatement() = default;
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
+
+        InsertStatement() = delete;
 
         explicit InsertStatement(StatementPtr statement) : stmt(std::move(statement)) {}
 
         InsertStatement(const InsertStatement&) = delete;
 
-        InsertStatement(InsertStatement&& other) noexcept : stmt(std::move(other.stmt)) {}
+        InsertStatement(InsertStatement&& other) noexcept = default;
 
-        ~InsertStatement() = default;
+        ~InsertStatement() noexcept = default;
 
         InsertStatement& operator=(const InsertStatement&) = delete;
 
-        InsertStatement& operator=(InsertStatement&& other) noexcept
-        {
-            stmt = std::move(other.stmt);
-            return *this;
-        }
+        InsertStatement& operator=(InsertStatement&& other) noexcept = default;
+
+        ////////////////////////////////////////////////////////////////
+        // Run.
+        ////////////////////////////////////////////////////////////////
 
         /**
          * \brief Insert a row.
@@ -55,7 +58,8 @@ namespace sql
          * \param values Values.
          */
         template<bindable... Cs>
-        requires(sizeof...(Cs) == column_count) void operator()(Cs... values)
+            requires(sizeof...(Cs) == column_count)
+        void operator()(Cs&&... values)
         {
             if (const auto res = stmt->reset(); !res)
                 throw SqliteError(std::format("Failed to reset insert statement."), res.code);
@@ -63,7 +67,7 @@ namespace sql
             // Only rebind if there are parameters.
             if constexpr (column_count > 0)
             {
-                if (const auto res = stmt->bind(Statement::getFirstBindIndex(), std::move(values)...); !res)
+                if (const auto res = stmt->bind(Statement::getFirstBindIndex(), std::forward<Cs>(values)...); !res)
                     throw SqliteError(std::format("Failed to bind parameters to insert statement."), res.code);
             }
 
@@ -77,19 +81,21 @@ namespace sql
          * \param values Values.
          */
         template<bindable... Cs>
-        requires(sizeof...(Cs) == column_count) void operator()(const std::tuple<Cs...>& values)
+            requires(sizeof...(Cs) == column_count)
+        void operator()(std::tuple<Cs...> values)
         {
-            // Call unpack function.
-            this->operator()(values, std::index_sequence_for<Cs...>{});
+            const auto unpack = [this]<std::size_t... Is>(std::index_sequence<Is...>, auto vals)
+            {
+                this->operator()(std::get<Is>(vals)...);
+            };
+
+            return unpack(std::index_sequence_for<Cs...>{}, std::move(values));
         }
 
     private:
-        template<typename Tuple, std::size_t... Is>
-        void operator()(const Tuple& values, std::index_sequence<Is...>)
-        {
-            // Unpack tuple.
-            this->operator()(std::get<Is>(values)...);
-        }
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
 
         /**
          * \brief Pointer to statement.

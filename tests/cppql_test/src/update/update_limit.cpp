@@ -23,16 +23,16 @@ void UpdateLimit::operator()()
     sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
-    auto insert = table.insert();
+    auto insert = table.insert().compile();
     expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
     expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
     expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
 
     {
-        auto update = table.update<1>().orderBy(ascending(table.col<0>())).limitOffset(2, 0)(sql::BindParameters::None);
-        auto select = table.select<float, 1>()(sql::BindParameters::None);
+        auto update = table.update<1>().orderBy(ascending(table.col<0>())).limitOffset(2, 0).compile();
+        auto select = table.select<float, 1>().compile();
 
-        expectNoThrow([&] { update(sql::BindParameters::All, 5.0f); });
+        expectNoThrow([&] { update(5.0f); });
         const std::vector<float> rows(select.begin(), select.end());
         compareEQ(rows.size(), static_cast<size_t>(3)).fatal("");
         compareEQ(5.0f, rows[0]);
@@ -44,10 +44,12 @@ void UpdateLimit::operator()()
         auto update = table.update<1>()
                         .where(table.col<0>() <= 20)
                         .orderBy(ascending(table.col<0>()))
-                        .limitOffset(1, 1)(sql::BindParameters::All);
-        auto select = table.select<float, 1>()(sql::BindParameters::None);
+                        .limitOffset(1, 1)
+                        .compile()
+                        .bind(sql::BindParameters::All);
+        auto select = table.select<float, 1>().compile();
 
-        expectNoThrow([&] { update(sql::BindParameters::All, 11.0f); });
+        expectNoThrow([&] { update(11.0f); });
         const std::vector<float> rows(select.begin(), select.end());
         compareEQ(rows.size(), static_cast<size_t>(3)).fatal("");
         compareEQ(5.0f, rows[0]);
@@ -56,10 +58,10 @@ void UpdateLimit::operator()()
     }
 
     {
-        auto update = table.update<1>().orderBy(descending(table.col<0>())).limitOffset(2, 0)(sql::BindParameters::None);
-        auto select = table.select<float, 1>()(sql::BindParameters::None);
+        auto update = table.update<1>().orderBy(descending(table.col<0>())).limitOffset(2, 0).compile();
+        auto select = table.select<float, 1>().compile();
 
-        expectNoThrow([&] { update(sql::BindParameters::All, 13.0f); });
+        expectNoThrow([&] { update(13.0f); });
         const std::vector<float> rows(select.begin(), select.end());
         compareEQ(rows.size(), static_cast<size_t>(3)).fatal("");
         compareEQ(5.0f, rows[0]);

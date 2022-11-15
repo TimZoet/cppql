@@ -18,7 +18,7 @@ void DeleteRows::operator()()
     sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
-    auto insert = table.insert()();
+    auto insert = table.insert().compile();
     expectNoThrow([&insert] { insert(10, 11.0f, sql::toText("abc")); });
     expectNoThrow([&insert] { insert(20, 12.0f, sql::toText("def")); });
     expectNoThrow([&insert] { insert(30, 13.0f, sql::toText("ghi")); });
@@ -26,7 +26,7 @@ void DeleteRows::operator()()
 
     // Create delete and select count queries.
     int32_t    id    = 0;
-    const auto del   = table.del().where(table.col<0>() == &id)(sql::BindParameters::None);
+    const auto del   = table.del().where(table.col<0>() == &id).compile();
     const auto count = db->createStatement("SELECT COUNT(*) FROM myTable;", true);
     compareTrue(count.isPrepared());
 
@@ -37,35 +37,35 @@ void DeleteRows::operator()()
     compareTrue(count.reset());
 
     // Delete with bound id 0.
-    del(sql::BindParameters::All);
+    del.bind(sql::BindParameters::All)();
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 4);
     compareTrue(count.reset());
 
     // Delete with bound id 10.
     id = 10;
-    del(sql::BindParameters::All);
+    del.bind(sql::BindParameters::All)();
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 3);
     compareTrue(count.reset());
 
     // Delete with bound id 10.
     id = 40;
-    del(sql::BindParameters::None);
+    del.bind(sql::BindParameters::None)();
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 3);
     compareTrue(count.reset());
 
     // Delete with bound id 40.
     id = 40;
-    del(sql::BindParameters::All);
+    del.bind(sql::BindParameters::All)();
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 2);
     compareTrue(count.reset());
 
     // Delete with bound id 30.
-    const auto del2 = table.del().where(table.col<0>() == 30)(sql::BindParameters::All);
-    del2(sql::BindParameters::None);
+    const auto del2 = table.del().where(table.col<0>() == 30).compile().bind(sql::BindParameters::All);
+    del2();
     compareTrue(count.step());
     compareEQ(count.column<int32_t>(0), 1);
     compareTrue(count.reset());
