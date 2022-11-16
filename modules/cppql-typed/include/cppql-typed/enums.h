@@ -76,4 +76,25 @@ namespace sql
         First,
         Last
     };
+
+    template<Order>
+    struct OrderString {};
+
+    template<>
+    struct OrderString<Order::Asc> { inline static const std::string str = "ASC"; };
+
+    template<>
+    struct OrderString<Order::Desc> { inline static const std::string str = "DESC"; };
+
+    template<Nulls>
+    struct NullsString {};
+
+    template<>
+    struct NullsString<Nulls::None> { inline static const std::string str; };
+
+    template<>
+    struct NullsString<Nulls::First> { inline static const std::string str = "NULLS FIRST"; };
+
+    template<>
+    struct NullsString<Nulls::Last> { inline static const std::string str = "NULLS LAST"; };
 }  // namespace sql

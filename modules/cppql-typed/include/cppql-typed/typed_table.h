@@ -103,7 +103,7 @@ namespace sql
          */
         template<size_t Index>
             requires(Index < column_count)
-        [[nodiscard]] ColumnExpression<table_t, Index> col() const noexcept
+        [[nodiscard]] auto col() const noexcept
         {
             return ColumnExpression<table_t, Index>(*table);
         }

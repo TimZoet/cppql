@@ -115,7 +115,18 @@ namespace sql
             requires(!filter_t::valid)
         [[nodiscard]] auto where(this Self&& self, Filter&& filter)
         {
-            // TODO: Check table instances in filter match tables in table/joins.
+            if constexpr (is_table)
+            {
+                if (!filter.containsTables(self.join.getTable()))
+                    throw CppqlError(std::format(
+                      "Cannot apply filter to query because the expression contains a table not in the query."));
+            }
+            else
+            {
+                if (!self.join.containsTables(filter, self.join.getTable()))
+                    throw CppqlError(std::format(
+                      "Cannot apply filter to query because the expression contains a table not in the query."));
+            }
 
             return SelectQuery<R, J, std::remove_cvref_t<Filter>, O, L, C, Cs...>(
               std::forward<Self>(self).join,
@@ -137,7 +148,18 @@ namespace sql
             requires(!order_t::valid)
         [[nodiscard]] auto orderBy(this Self&& self, Order&& order)
         {
-            // TODO: Check table instances in filter match tables in table/joins.
+            if constexpr (is_table)
+            {
+                if (!order.containsTables(self.join.getTable()))
+                    throw CppqlError(std::format(
+                      "Cannot apply ordering to query because the expression contains a table not in the query."));
+            }
+            else
+            {
+                if (!self.join.containsTables(order, self.join.getTable()))
+                    throw CppqlError(std::format(
+                      "Cannot apply ordering to query because the expression contains a table not in the query."));
+            }
 
             return SelectQuery<R, J, F, std::remove_cvref_t<Order>, L, C, Cs...>(
               std::forward<Self>(self).join,

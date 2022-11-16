@@ -81,8 +81,8 @@ namespace sql
     };
 
     template<typename Tuple, typename T, typename... Ts>
-    requires(!tuple_contains_type<T, Tuple>) struct tuple_unique<Tuple, std::tuple<T, Ts...>>
-        : tuple_unique<tuple_cat_t<Tuple, T>, std::tuple<Ts...>>
+        requires(!tuple_contains_type<T, Tuple>)
+    struct tuple_unique<Tuple, std::tuple<T, Ts...>> : tuple_unique<tuple_cat_t<Tuple, T>, std::tuple<Ts...>>
     {
     };
 
@@ -112,8 +112,8 @@ namespace sql
     };
 
     template<typename Superset, typename T, typename... Ts>
-    requires(tuple_contains_type<T, Superset>) struct tuple_subset<Superset, std::tuple<T, Ts...>>
-        : tuple_subset<Superset, std::tuple<Ts...>>
+        requires(tuple_contains_type<T, Superset>)
+    struct tuple_subset<Superset, std::tuple<T, Ts...>> : tuple_subset<Superset, std::tuple<Ts...>>
     {
     };
 
@@ -124,4 +124,42 @@ namespace sql
 
     template<typename Subset, typename Superset>
     concept tuple_is_subset = tuple_subset<Superset, Subset>::value;
+
+    ////////////////////////////////////////////////////////////////
+
+    template<typename Tuple, int64_t Index>
+    struct tuple_index_wrapped
+    {
+        static constexpr size_t value = static_cast<size_t>(Index);
+    };
+
+    template<typename Tuple, int64_t Index>
+        requires(Index < 0)
+    struct tuple_index_wrapped<Tuple, Index>
+    {
+        static constexpr size_t value = static_cast<size_t>(static_cast<int64_t>(std::tuple_size_v<Tuple>) + Index);
+    };
+
+    template<typename Tuple, int64_t I>
+    inline constexpr size_t tuple_index_wrapped_v = tuple_index_wrapped<Tuple, I>::value;
+
+    template<typename Tuple, int64_t I>
+    using tuple_element_wrapped_t = std::tuple_element_t<tuple_index_wrapped_v<Tuple, I>, Tuple>;
+
+    template<typename Tuple, int64_t...>
+    struct tuple_swizzle
+    {
+        using type = std::tuple<>;
+    };
+
+    template<typename Tuple, int64_t I, int64_t... Is>
+    struct tuple_swizzle<Tuple, I, Is...>
+    {
+        using type =
+          tuple_merge_t<std::tuple<tuple_element_wrapped_t<Tuple, I>>, typename tuple_swizzle<Tuple, Is...>::type>;
+    };
+
+    template<typename Tuple, int64_t I, int64_t... Is>
+    using tuple_swizzle_t = typename tuple_swizzle<Tuple, I, Is...>::type;
+
 }  // namespace sql

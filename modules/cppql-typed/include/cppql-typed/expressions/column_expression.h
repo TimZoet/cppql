@@ -58,13 +58,11 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        [[nodiscard]] bool containsTables(const auto&... tables) const
-        {
-            return ((&tables == table) || ...);
-        }
+        [[nodiscard]] bool containsTables(const auto&... tables) const { return ((&tables == table) || ...); }
 
         void generateIndices(int32_t&) override {}
 
+        // TODO: Get rid of toString and only use name/fullName.
         [[nodiscard]] std::string toString() override { return fullName(); }
 
         /**
@@ -88,6 +86,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         // Member variables.
         ////////////////////////////////////////////////////////////////
+
         Table* table = nullptr;
     };
 }  // namespace sql

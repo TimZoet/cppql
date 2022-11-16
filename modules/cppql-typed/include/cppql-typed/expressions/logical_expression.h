@@ -56,7 +56,7 @@ namespace sql
 
         /**
          * \brief Generate expression checking left- and right-hand sides.
-         * \return String with format "<lhs> <op> <rhs>".
+         * \return String with format "(<lhs> <op> <rhs>)".
          */
         [[nodiscard]] std::string toString() override
         {
@@ -73,6 +73,10 @@ namespace sql
         }
 
     private:
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
+
         /**
          * \brief Left hand side of expression.
          */

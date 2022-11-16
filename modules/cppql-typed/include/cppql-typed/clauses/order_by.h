@@ -4,7 +4,6 @@
 // Standard includes.
 ////////////////////////////////////////////////////////////////
 
-#include <optional>
 #include <type_traits>
 
 ////////////////////////////////////////////////////////////////
@@ -48,7 +47,7 @@ namespace sql
         [[nodiscard]] static std::string toString() { return {}; }
     };
 
-    template<_is_order_by_expression O>
+    template<is_order_by_expression O>
     class OrderBy<O>
     {
     public:
@@ -85,7 +84,7 @@ namespace sql
          * \brief Generate ORDER BY clause.
          * \return String with format "ORDER BY table-name.column-name[0] <ASC|DESC>,...,table-name.column-name[N] <ASC|DESC>".
          */
-        [[nodiscard]] std::string toString() const { return order.toString(); }
+        [[nodiscard]] std::string toString() const { return std::format("ORDER BY {0}", order.toString()); }
 
     private:
         ////////////////////////////////////////////////////////////////
