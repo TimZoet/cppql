@@ -30,12 +30,31 @@ namespace sql
     struct _is_typed_table<TypedTable<C, Cs...>> : std::true_type
     {
     };
-    
+
     template<typename T>
     concept is_typed_table = _is_typed_table<std::remove_cvref_t<T>>::value;
 
     template<typename T, size_t I>
     concept is_valid_index = is_typed_table<T> && I < T::column_count;
+
+    ////////////////////////////////////////////////////////////////
+    // FilterExpression.
+    ////////////////////////////////////////////////////////////////
+
+    template<typename... T>
+    struct _is_filter_expression : std::false_type
+    {
+    };
+
+    template<typename T>
+    inline constexpr bool is_filter_expression_v = _is_filter_expression<T>::value;
+
+    template<typename T>
+    concept is_filter_expression = is_filter_expression_v<T>;
+
+    template<typename F, typename Tables>
+    concept is_valid_filter_expression =
+      is_filter_expression<F> && tuple_is_subset<typename std::remove_cvref_t<F>::unique_table_list_t, Tables>;
 
     ////////////////////////////////////////////////////////////////
     // ColumnExpression.
@@ -50,7 +69,8 @@ namespace sql
      * \tparam C Type.
      */
     template<typename C>
-    concept is_column_expression = std::same_as<std::remove_cvref_t<C>, ColumnExpression<typename C::table_t, C::index>>;
+    concept is_column_expression =
+      std::same_as<std::remove_cvref_t<C>, ColumnExpression<typename C::table_t, C::index>>;
 
     /**
      * \brief Check if a type is a ColumnExpression for a TypedTable in the provided list of types.

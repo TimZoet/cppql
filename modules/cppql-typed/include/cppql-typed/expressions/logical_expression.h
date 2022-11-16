@@ -12,15 +12,21 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/enums.h"
-#include "cppql-typed/expressions/filter_expression.h"
 
 namespace sql
 {
     template<is_filter_expression L, is_filter_expression R, LogicalOperator Op>
-    class LogicalExpression final
-        : public FilterExpression<tuple_merge_t<typename L::table_list_t, typename R::table_list_t>>
+    class LogicalExpression
     {
     public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
+        using table_list_t = tuple_merge_t<typename L::table_list_t, typename R::table_list_t>;
+
+        using unique_table_list_t = tuple_unique_t<table_list_t>;
+
         ////////////////////////////////////////////////////////////////
         // Constructors.
         ////////////////////////////////////////////////////////////////
@@ -33,7 +39,7 @@ namespace sql
 
         LogicalExpression(L lhs, R rhs) : left(std::move(lhs)), right(std::move(rhs)) {}
 
-        ~LogicalExpression() override = default;
+        ~LogicalExpression() noexcept = default;
 
         LogicalExpression& operator=(const LogicalExpression& other) = default;
 
@@ -48,7 +54,7 @@ namespace sql
             return left.containsTables(tables...) && right.containsTables(tables...);
         }
 
-        void generateIndices(int32_t& idx) override
+        void generateIndices(int32_t& idx)
         {
             left.generateIndices(idx);
             right.generateIndices(idx);
@@ -58,7 +64,7 @@ namespace sql
          * \brief Generate expression checking left- and right-hand sides.
          * \return String with format "(<lhs> <op> <rhs>)".
          */
-        [[nodiscard]] std::string toString() override
+        [[nodiscard]] std::string toString()
         {
             auto l = left.toString();
             auto o = Op == LogicalOperator::And ? std::string("AND") : std::string("OR");
@@ -66,7 +72,7 @@ namespace sql
             return std::format("({0} {1} {2})", std::move(l), std::move(o), std::move(r));
         }
 
-        void bind(Statement& stmt, BindParameters bind) const override
+        void bind(Statement& stmt, BindParameters bind) const
         {
             left.bind(stmt, bind);
             right.bind(stmt, bind);
@@ -86,6 +92,15 @@ namespace sql
          * \brief Right hand side of expression.
          */
         R right;
+    };
+
+    ////////////////////////////////////////////////////////////////
+    // Type traits.
+    ////////////////////////////////////////////////////////////////
+
+    template<typename L, typename R, LogicalOperator Op>
+    struct _is_filter_expression<LogicalExpression<L, R, Op>> : std::true_type
+    {
     };
 
     ////////////////////////////////////////////////////////////////

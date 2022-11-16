@@ -25,7 +25,6 @@ set(HEADERS
     ${INCLUDE_DIR}/expressions/column_expression.h
     ${INCLUDE_DIR}/expressions/comparison_expression.h
     ${INCLUDE_DIR}/expressions/filter_expression.h
-    ${INCLUDE_DIR}/expressions/filter_expression_list.h
     ${INCLUDE_DIR}/expressions/like_expression.h
     ${INCLUDE_DIR}/expressions/logical_expression.h
     ${INCLUDE_DIR}/expressions/order_by_expression.h

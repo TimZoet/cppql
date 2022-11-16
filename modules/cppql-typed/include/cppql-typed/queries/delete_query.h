@@ -78,7 +78,7 @@ namespace sql
          * \param filter Expression to filter deleted rows by.
          * \return DeleteQuery with filter expression.
          */
-        template<typename Self, is_single_filter_expression<table_t> Filter>
+        template<typename Self, is_valid_filter_expression<std::tuple<table_t>> Filter>
             requires(!filter_t::valid)
         [[nodiscard]] auto where(this Self&& self, Filter&& filter)
         {
@@ -107,7 +107,7 @@ namespace sql
         {
             if (!order.containsTables(*self.table))
                 throw CppqlError(std::format(
-                    "Cannot apply ordering to query because the expression contains a table not in the query."));
+                  "Cannot apply ordering to query because the expression contains a table not in the query."));
 
             return DeleteQuery<T, F, std::remove_cvref_t<Order>, L>(
               *std::forward<Self>(self).table,
@@ -168,7 +168,9 @@ namespace sql
             // Optionally create filter expression.
             BaseFilterExpressionPtr f;
             if constexpr (filter_t::valid)
-                f = std::make_unique<typename filter_t::filter_t>(std::forward<Self>(self).filter.filter);
+                //f = std::make_unique<typename filter_t::filter_t>(std::forward<Self>(self).filter.filter);
+                f = std::make_unique<FilterExpression<typename filter_t::filter_t>>(
+                  std::forward<Self>(self).filter.filter);
 
             return DeleteStatement(std::move(stmt), std::move(f));
         }

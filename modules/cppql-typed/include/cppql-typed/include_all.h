@@ -18,7 +18,6 @@
 #include "cppql-typed/expressions/column_expression.h"
 #include "cppql-typed/expressions/comparison_expression.h"
 #include "cppql-typed/expressions/filter_expression.h"
-#include "cppql-typed/expressions/filter_expression_list.h"
 #include "cppql-typed/expressions/like_expression.h"
 #include "cppql-typed/expressions/logical_expression.h"
 #include "cppql-typed/expressions/order_by_expression.h"

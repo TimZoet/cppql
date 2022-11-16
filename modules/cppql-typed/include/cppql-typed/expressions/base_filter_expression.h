@@ -40,22 +40,8 @@ namespace sql
         BaseFilterExpression& operator=(BaseFilterExpression&&) noexcept = default;
 
         ////////////////////////////////////////////////////////////////
-        // Generate.
+        // Bind.
         ////////////////////////////////////////////////////////////////
-
-        // TODO: To what extent do generateIndices and toString need to be a virtual base method? Seems like this class is only used virtually by statements to bind parameters.
-        // Perhaps the inheritance for these filter expressions can be removed entirely. Instead, queries can construct a templated FilterExpression that holds a copy of the expressions.
-        /**
-         * \brief Generate indices for all parameters this expression holds.
-         * \param idx Reference to counter that is incremented for each parameter.
-         */
-        virtual void generateIndices(int32_t& idx) = 0;
-        
-        /**
-         * \brief Generate SQL.
-         * \return SQL code.
-         */
-        [[nodiscard]] virtual std::string toString() = 0;
 
         /**
          * \brief Bind all parameters in this expression to the statement.

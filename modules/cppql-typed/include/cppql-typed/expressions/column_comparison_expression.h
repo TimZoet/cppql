@@ -20,13 +20,11 @@
 
 #include "cppql-typed/enums.h"
 #include "cppql-typed/expressions/column_expression.h"
-#include "cppql-typed/expressions/filter_expression.h"
 
 namespace sql
 {
     template<is_column_expression L, is_column_expression R, ComparisonOperator Op>
-    class ColumnComparisonExpression final
-        : public FilterExpression<std::tuple<typename L::table_t, typename R::table_t>>
+    class ColumnComparisonExpression
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -36,6 +34,10 @@ namespace sql
         using left_t = L;
 
         using right_t = R;
+
+        using table_list_t = std::tuple<typename left_t::table_t, typename right_t::table_t>;
+
+        using unique_table_list_t = tuple_unique_t<table_list_t>;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
@@ -49,7 +51,7 @@ namespace sql
 
         ColumnComparisonExpression(left_t lhs, right_t rhs) : left(std::move(lhs)), right(std::move(rhs)) {}
 
-        ~ColumnComparisonExpression() noexcept override = default;
+        ~ColumnComparisonExpression() noexcept = default;
 
         ColumnComparisonExpression& operator=(const ColumnComparisonExpression& other) = default;
 
@@ -64,7 +66,7 @@ namespace sql
             return left.containsTables(tables...) && right.containsTables(tables...);
         }
 
-        void generateIndices(int32_t& idx) override
+        void generateIndices(int32_t& idx)
         {
             left.generateIndices(idx);
             right.generateIndices(idx);
@@ -74,17 +76,26 @@ namespace sql
          * \brief Generate expression comparing two columns.
          * \return String with format "<lhs> <op> <right>".
          */
-        [[nodiscard]] std::string toString() override
+        [[nodiscard]] std::string toString()
         {
-            return std::format("{0} {1} {2}", left.toString(), ComparisonOperatorType<Op>::str, right.toString());
+            return std::format("{0} {1} {2}", left.fullName(), ComparisonOperatorType<Op>::str, right.fullName());
         }
 
-        void bind(Statement&, BindParameters) const override {}
+        static void bind(Statement&, BindParameters) {}
 
     private:
         left_t left;
 
         right_t right;
+    };
+
+    ////////////////////////////////////////////////////////////////
+    // Type traits.
+    ////////////////////////////////////////////////////////////////
+
+    template<typename L, typename R, ComparisonOperator Op>
+    struct _is_filter_expression<ColumnComparisonExpression<L, R, Op>> : std::true_type
+    {
     };
 
     ////////////////////////////////////////////////////////////////

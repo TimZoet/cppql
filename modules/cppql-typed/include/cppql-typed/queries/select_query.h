@@ -17,7 +17,6 @@
 #include "cppql-typed/clauses/where.h"
 #include "cppql-typed/expressions/column_expression.h"
 #include "cppql-typed/expressions/filter_expression.h"
-#include "cppql-typed/expressions/filter_expression_list.h"
 #include "cppql-typed/statements/select_statement.h"
 #include "cppql-typed/statements/select_one_statement.h"
 
@@ -232,22 +231,15 @@ namespace sql
                 if constexpr (is_table)
                 {
                     if constexpr (filter_t::valid)
-                        f = std::make_unique<typename filter_t::filter_t>(std::forward<Self>(self).filter.filter);
-                }
-                else if constexpr (join_t::has_filter_list)
-                {
-                    if constexpr (filter_t::valid)
-                        f = std::make_unique<FilterExpressionList<tuple_cat_t<typename join_t::filter_list_t, F>>>(
-                          std::tuple_cat(self.join.getFilters(),
-                                         std::tuple<F>(std::forward<Self>(self).filter.filter)));
-                    else
-                        f = std::make_unique<FilterExpressionList<typename join_t::filter_list_t>>(
-                          std::forward<Self>(self).join.getFilters());
+                        f = std::make_unique<FilterExpression<typename filter_t::filter_t>>(
+                          std::forward<Self>(self).filter.filter);
                 }
                 else
                 {
                     if constexpr (filter_t::valid)
-                        f = std::make_unique<typename filter_t::filter_t>(std::forward<Self>(self).filter.filter);
+                        f = std::forward<Self>(self).join.getFilters(std::forward<Self>(self).filter.filter);
+                    else
+                        f = std::forward<Self>(self).join.getFilters();
                 }
 
                 // Construct typed statement.

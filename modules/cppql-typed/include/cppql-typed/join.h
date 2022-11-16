@@ -195,8 +195,8 @@ namespace sql
         auto select(this Self&& self, C&& c, Cs&&... cs)
         {
             if ((!self.containsTables(c) || ... || !self.containsTables(cs)))
-                throw CppqlError(
-                    std::format("Cannot apply select to join because at least one of the columns contains a table not in the query."));
+                throw CppqlError(std::format("Cannot apply select to join because at least one of the columns contains "
+                                             "a table not in the query."));
 
             return SelectQuery<std::tuple<typename C::value_t, typename Cs::value_t...>,
                                std::remove_cvref_t<Self>,
@@ -212,19 +212,26 @@ namespace sql
         // ...
         ////////////////////////////////////////////////////////////////
 
-        template<typename T = filter_list_t>
-            requires(std::tuple_size_v<T> > 0)
-        [[nodiscard]] filter_list_t getFilters()
+        template<typename Self, typename... Ts>
+        [[nodiscard]] auto getFilters(this Self&& self, Ts&&... filters)
         {
             if constexpr (recursive)
             {
-                if constexpr (left_t::has_filter_list)
-                    return std::tuple_cat(left.getFilters(), std::make_tuple(filter.filter));
+                if constexpr (filter_t::valid)
+                    return std::forward<Self>(self).left.getFilters(std::forward<Self>(self).filter.filter,
+                                                                    std::forward<Ts>(filters)...);
                 else
-                    return std::make_tuple(filter.filter);
+                    return std::forward<Self>(self).left.getFilters(std::forward<Ts>(filters)...);
             }
             else
-                return std::make_tuple(filter.filter);
+            {
+                if constexpr (filter_t::valid)
+                    return std::make_unique<FilterExpression<F, std::remove_cvref_t<Ts>...>>(
+                      std::forward<Self>(self).filter.filter, std::forward<Ts>(filters)...);
+                else
+                    return std::make_unique<FilterExpression<std::remove_cvref_t<Ts>...>>(
+                      std::forward<Ts>(filters)...);
+            }
         }
 
         void generateIndices(int32_t& idx)

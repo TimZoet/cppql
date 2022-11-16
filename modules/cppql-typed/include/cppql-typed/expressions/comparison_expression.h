@@ -22,7 +22,6 @@
 
 #include "cppql-typed/enums.h"
 #include "cppql-typed/expressions/column_expression.h"
-#include "cppql-typed/expressions/filter_expression.h"
 
 namespace sql
 {
@@ -34,7 +33,7 @@ namespace sql
      * \tparam Lhs Boolean indicating column is on left hand side of comparison.
      */
     template<is_column_expression C, typename V, ComparisonOperator Op, bool Lhs>
-    class ComparisonExpression final : public FilterExpression<std::tuple<typename C::table_t>>
+    class ComparisonExpression final
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -44,6 +43,10 @@ namespace sql
         using col_t = C;
 
         using value_t = V;
+
+        using table_list_t = std::tuple<typename C::table_t>;
+
+        using unique_table_list_t = table_list_t;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
@@ -57,7 +60,7 @@ namespace sql
 
         ComparisonExpression(col_t col, value_t val) : column(std::move(col)), value(std::move(val)) {}
 
-        ~ComparisonExpression() override = default;
+        ~ComparisonExpression() noexcept = default;
 
         ComparisonExpression& operator=(const ComparisonExpression& other) = default;
 
@@ -72,7 +75,7 @@ namespace sql
             return column.containsTables(tables...);
         }
 
-        void generateIndices(int32_t& idx) override
+        void generateIndices(int32_t& idx)
         {
             index = idx++;
             column.generateIndices(idx);
@@ -82,16 +85,16 @@ namespace sql
          * \brief Generate expression comparing a column to a fixed or dynamic value.
          * \return String with format "<col> <op> ?<index>" or "?<index> <op> <col>".
          */
-        [[nodiscard]] std::string toString() override
+        [[nodiscard]] std::string toString()
         {
             // Format with column on LHS or RHS.
             if constexpr (Lhs)
-                return std::format("{0} {1} ?{2}", column.toString(), ComparisonOperatorType<Op>::str, index + 1);
+                return std::format("{0} {1} ?{2}", column.fullName(), ComparisonOperatorType<Op>::str, index + 1);
             else
-                return std::format("?{2} {1} {0}", column.toString(), ComparisonOperatorType<Op>::str, index + 1);
+                return std::format("?{2} {1} {0}", column.fullName(), ComparisonOperatorType<Op>::str, index + 1);
         }
 
-        void bind(Statement& stmt, const BindParameters bind) const override
+        void bind(Statement& stmt, const BindParameters bind) const
         {
             if constexpr (std::is_pointer_v<value_t>)
             {
@@ -131,6 +134,15 @@ namespace sql
          * \brief Index for parameter binding.
          */
         int32_t index = -1;
+    };
+
+    ////////////////////////////////////////////////////////////////
+    // Type traits.
+    ////////////////////////////////////////////////////////////////
+
+    template<typename C, typename V, ComparisonOperator Op, bool Lhs>
+    struct _is_filter_expression<ComparisonExpression<C, V, Op, Lhs>> : std::true_type
+    {
     };
 
     ////////////////////////////////////////////////////////////////

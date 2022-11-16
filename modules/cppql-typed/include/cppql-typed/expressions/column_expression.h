@@ -4,7 +4,6 @@
 // Standard includes.
 ////////////////////////////////////////////////////////////////
 
-#include <concepts>
 #include <string>
 #include <tuple>
 
@@ -19,13 +18,12 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/fwd.h"
-#include "cppql-typed/expressions/filter_expression.h"
 
 namespace sql
 {
     template<is_typed_table T, size_t Index>
         requires(is_valid_index<T, Index>)
-    class ColumnExpression final : public FilterExpression<std::tuple<T>>
+    class ColumnExpression
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -34,6 +32,8 @@ namespace sql
 
         using table_t                 = T;
         using value_t                 = col_t<Index, T>;
+        using table_list_t            = std::tuple<table_t>;
+        using unique_table_list_t     = std::tuple<table_t>;
         static constexpr size_t index = Index;
 
         ////////////////////////////////////////////////////////////////
@@ -46,9 +46,9 @@ namespace sql
 
         ColumnExpression(ColumnExpression&&) noexcept = default;
 
-        explicit ColumnExpression(Table& t) : FilterExpression<std::tuple<T>>(), table(&t) {}
+        explicit ColumnExpression(Table& t) : table(&t) {}
 
-        ~ColumnExpression() noexcept override = default;
+        ~ColumnExpression() noexcept = default;
 
         ColumnExpression& operator=(const ColumnExpression&) = default;
 
@@ -60,10 +60,7 @@ namespace sql
 
         [[nodiscard]] bool containsTables(const auto&... tables) const { return ((&tables == table) || ...); }
 
-        void generateIndices(int32_t&) override {}
-
-        // TODO: Get rid of toString and only use name/fullName.
-        [[nodiscard]] std::string toString() override { return fullName(); }
+        static void generateIndices(int32_t&) {}
 
         /**
          * \brief Get column name.
@@ -80,7 +77,7 @@ namespace sql
             return std::format("{}.{}", table->getName(), table->getColumn(Index).getName());
         }
 
-        void bind(Statement&, BindParameters) const override {}
+        static void bind(Statement&, BindParameters) {}
 
     private:
         ////////////////////////////////////////////////////////////////
@@ -88,5 +85,14 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         Table* table = nullptr;
+    };
+
+    ////////////////////////////////////////////////////////////////
+    // Type traits.
+    ////////////////////////////////////////////////////////////////
+
+    template<typename T, size_t Index>
+    struct _is_filter_expression<ColumnExpression<T, Index>> : std::true_type
+    {
     };
 }  // namespace sql

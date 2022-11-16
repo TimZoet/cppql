@@ -42,10 +42,10 @@ void InnerJoin::operator()()
 
 
     auto stmt = table0.join(sql::InnerJoin{}, table1)
-                  .usings(table0.col<0>())
+                  .on(table0.col<0>() == table1.col<0>())
                   .join(sql::InnerJoin{}, table2)
-                  .usings(table2.col<0>())
-                  .select(table3.col<0>())
+                  .on(table1.col<0>() == table2.col<0>())
+                  .select(table2.col<0>())
                   .compile()
                   .bind(sql::BindParameters::All);
     //constexpr bool x = decltype(select)::has_filter_list;
