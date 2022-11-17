@@ -81,7 +81,19 @@ namespace sql
 
     ////////////////////////////////////////////////////////////////
 
-    template<typename J, typename L, typename R, typename F, typename... Cs>
+    /**
+     * \brief 
+     * \tparam J 
+     * \tparam L 
+     * \tparam R 
+     * \tparam F 
+     * \tparam Cs 
+     */
+    template<is_join_wrapper              J,
+             is_join_or_typed_table       L,
+             is_typed_table               R,
+             is_filter_expression_or_none F,
+             is_column_expression... Cs>
     class Join
     {
     public:
@@ -209,7 +221,7 @@ namespace sql
         }
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Generate.
         ////////////////////////////////////////////////////////////////
 
         template<typename Self, typename... Ts>
@@ -229,8 +241,7 @@ namespace sql
                     return std::make_unique<FilterExpression<F, std::remove_cvref_t<Ts>...>>(
                       std::forward<Self>(self).filter.filter, std::forward<Ts>(filters)...);
                 else
-                    return std::make_unique<FilterExpression<std::remove_cvref_t<Ts>...>>(
-                      std::forward<Ts>(filters)...);
+                    return std::make_unique<FilterExpression<std::remove_cvref_t<Ts>...>>(std::forward<Ts>(filters)...);
             }
         }
 

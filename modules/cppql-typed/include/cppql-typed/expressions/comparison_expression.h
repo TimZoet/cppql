@@ -70,10 +70,7 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        [[nodiscard]] bool containsTables(const auto&... tables) const
-        {
-            return column.containsTables(tables...);
-        }
+        [[nodiscard]] bool containsTables(const auto&... tables) const { return column.containsTables(tables...); }
 
         void generateIndices(int32_t& idx)
         {
@@ -98,12 +95,19 @@ namespace sql
         {
             if constexpr (std::is_pointer_v<value_t>)
             {
-                if (any(bind & BindParameters::Dynamic) && value)
+                if (any(bind & BindParameters::Dynamic))
                 {
-                    const auto res = stmt.bind(index + Statement::getFirstBindIndex(), *value);
-                    if (!res) throw SqliteError(std::format("Failed to bind dynamic parameter."), res.code);
+                    if (value)
+                    {
+                        const auto res = stmt.bind(index + Statement::getFirstBindIndex(), *value);
+                        if (!res) throw SqliteError(std::format("Failed to bind dynamic parameter."), res.code);
+                    }
+                    else
+                    {
+                        const auto res = stmt.bind(index + Statement::getFirstBindIndex(), nullptr);
+                        if (!res) throw SqliteError(std::format("Failed to bind dynamic parameter."), res.code);
+                    }
                 }
-                // TODO: Explicitly bind null if value == nullptr?
             }
             else
             {
@@ -205,6 +209,32 @@ namespace sql
         return ComparisonExpression<C, V*, ComparisonOperator::Eq, false>(std::forward<C>(col), ptr);
     }
 
+    /**
+     * \brief Require column == NULL.
+     * \tparam C ColumnExpression type.
+     * \param col ColumnExpression object.
+     * \return ComparisonExpression object.
+     */
+    template<is_column_expression C>
+    auto operator==(C&& col, std::nullptr_t)
+    {
+        return ComparisonExpression<C, typename C::value_t*, ComparisonOperator::Eq, true>(std::forward<C>(col),
+                                                                                           nullptr);
+    }
+
+    /**
+     * \brief Require NULL == column.
+     * \tparam C ColumnExpression type.
+     * \param col ColumnExpression object.
+     * \return ComparisonExpression object.
+     */
+    template<is_column_expression C, is_convertible_to<C> V>
+    auto operator==(std::nullptr_t, C&& col)
+    {
+        return ComparisonExpression<C, typename C::value_t*, ComparisonOperator::Eq, false>(std::forward<C>(col),
+                                                                                            nullptr);
+    }
+
     ////////////////////////////////////////////////////////////////
     // !=
     ////////////////////////////////////////////////////////////////
@@ -263,6 +293,32 @@ namespace sql
     auto operator!=(V* ptr, C&& col)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Ne, false>(std::forward<C>(col), ptr);
+    }
+
+    /**
+     * \brief Require column != NULL.
+     * \tparam C ColumnExpression type.
+     * \param col ColumnExpression object.
+     * \return ComparisonExpression object.
+     */
+    template<is_column_expression C>
+    auto operator!=(C&& col, std::nullptr_t)
+    {
+        return ComparisonExpression<C, typename C::value_t*, ComparisonOperator::Ne, true>(std::forward<C>(col),
+                                                                                           nullptr);
+    }
+
+    /**
+     * \brief Require NULL != column.
+     * \tparam C ColumnExpression type.
+     * \param col ColumnExpression object.
+     * \return ComparisonExpression object.
+     */
+    template<is_column_expression C, is_convertible_to<C> V>
+    auto operator!=(std::nullptr_t, C&& col)
+    {
+        return ComparisonExpression<C, typename C::value_t*, ComparisonOperator::Ne, false>(std::forward<C>(col),
+                                                                                            nullptr);
     }
 
     ////////////////////////////////////////////////////////////////

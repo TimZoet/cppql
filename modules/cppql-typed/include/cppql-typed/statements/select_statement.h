@@ -19,6 +19,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/enums.h"
+#include "cppql-typed/fwd.h"
 #include "cppql-typed/typed_table.h"
 
 namespace sql

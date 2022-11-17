@@ -4,7 +4,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql-typed/type_traits.h"
+#include "cppql-typed/fwd.h"
 
 namespace sql
 {

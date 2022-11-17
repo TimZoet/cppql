@@ -4,9 +4,9 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/fwd.h"
 #include "cppql-typed/join.h"
 #include "cppql-typed/join_type.h"
-#include "cppql-typed/type_traits.h"
 #include "cppql-typed/typed_table.h"
 #include "cppql-typed/clauses/columns.h"
 #include "cppql-typed/clauses/limit.h"

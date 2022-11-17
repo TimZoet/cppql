@@ -24,8 +24,8 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/fwd.h"
 #include "cppql-typed/join_type.h"
-#include "cppql-typed/type_traits.h"
 #include "cppql-typed/clauses/columns.h"
 #include "cppql-typed/expressions/column_comparison_expression.h"
 #include "cppql-typed/expressions/column_expression.h"
@@ -113,6 +113,7 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         template<size_t... Indices>
+            requires((Indices < column_count) && ...)
         [[nodiscard]] auto insert() const
         {
             return InsertQuery<table_t, ColumnExpression<table_t, Indices>...>(*table, Columns(col<Indices>()...));

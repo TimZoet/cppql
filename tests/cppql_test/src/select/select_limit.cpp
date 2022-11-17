@@ -106,49 +106,49 @@ void SelectLimit::operator()()
     // Try a bunch of different combinations of limit and offset for select without filter.
 
     {
-        auto sel = table.select<int64_t>().limitOffset(10, 0).compile().bind(sql::BindParameters::None);
+        auto sel = table.select<int64_t>().limitOffset(10, 0).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(10));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(33, 0).compile().bind(sql::BindParameters::None);
+        auto sel = table.select<int64_t>().limitOffset(33, 0).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(33));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(10, 10).compile().bind(sql::BindParameters::None);
+        auto sel = table.select<int64_t>().limitOffset(10, 10).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(10));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(33, 20).compile().bind(sql::BindParameters::None);
+        auto sel = table.select<int64_t>().limitOffset(33, 20).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(33));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(50, 0).compile().bind(sql::BindParameters::None);
+        auto sel = table.select<int64_t>().limitOffset(50, 0).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(50));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(50, 10).compile().bind(sql::BindParameters::None);
+        auto sel = table.select<int64_t>().limitOffset(50, 10).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(50));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(50, 60).compile().bind(sql::BindParameters::None);
+        auto sel = table.select<int64_t>().limitOffset(50, 60).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(40));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(-1, 60).compile().bind(sql::BindParameters::None);
+        auto sel = table.select<int64_t>().limitOffset(-1, 60).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(40));
     }

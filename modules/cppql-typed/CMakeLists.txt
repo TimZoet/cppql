@@ -12,7 +12,6 @@ set(HEADERS
     ${INCLUDE_DIR}/include_all.h
     ${INCLUDE_DIR}/join.h
     ${INCLUDE_DIR}/join_type.h
-    ${INCLUDE_DIR}/type_traits.h
     ${INCLUDE_DIR}/typed_table.h
     ${INCLUDE_DIR}/clauses/columns.h
     ${INCLUDE_DIR}/clauses/limit.h

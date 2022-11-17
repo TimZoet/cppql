@@ -29,7 +29,7 @@ namespace sql
 
         FilterExpression(FilterExpression&&) noexcept = default;
 
-        FilterExpression(Ts... expr) : expressions(std::make_tuple<Ts...>(std::move(expr)...)) {}
+        explicit FilterExpression(Ts... expr) : expressions(std::make_tuple<Ts...>(std::move(expr)...)) {}
 
         ~FilterExpression() noexcept override = default;
 

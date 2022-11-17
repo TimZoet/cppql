@@ -18,7 +18,7 @@
 
 namespace sql
 {
-    template<typename T, is_column_expression... Cs>
+    template<is_typed_table T, is_column_expression... Cs>
     class InsertQuery
     {
     public:

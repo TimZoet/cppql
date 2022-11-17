@@ -27,7 +27,7 @@ void SelectOne::operator()()
 
     // Create select one.
     int64_t id  = 0;
-    auto    sel = table.select<0, 1, 2>().where(table.col<0>() == &id).compileOne().bind(sql::BindParameters::None);
+    auto    sel = table.select<0, 1, 2>().where(table.col<0>() == &id).compileOne();
 
     // Select by several IDs that should result in exactly one row.
     expectNoThrow([&id, &sel] {

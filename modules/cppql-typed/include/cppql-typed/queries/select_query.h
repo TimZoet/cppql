@@ -11,6 +11,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/fwd.h"
 #include "cppql-typed/clauses/columns.h"
 #include "cppql-typed/clauses/limit.h"
 #include "cppql-typed/clauses/order_by.h"
@@ -46,11 +47,11 @@ namespace sql
     using lazy_table_list_t = typename lazy_table_list<T>::type;
 
     template<typename R,
-             typename J,
-             typename F,
-             typename O,
-             typename L,
-             is_column_expression C,
+             is_join_or_typed_table         J,
+             is_filter_expression_or_none   F,
+             is_order_by_expression_or_none O,
+             is_true_type_or_none           L,
+             is_column_expression           C,
              is_column_expression... Cs>
         requires(constructible_from<R, typename C::value_t, typename Cs::value_t...>)
     class SelectQuery

@@ -25,7 +25,7 @@
 
 namespace sql
 {
-    template<typename T, typename F, typename O, typename L>
+    template<is_typed_table T, is_filter_expression_or_none F, is_order_by_expression_or_none O, is_true_type_or_none L>
     class DeleteQuery
     {
     public:
@@ -168,7 +168,6 @@ namespace sql
             // Optionally create filter expression.
             BaseFilterExpressionPtr f;
             if constexpr (filter_t::valid)
-                //f = std::make_unique<typename filter_t::filter_t>(std::forward<Self>(self).filter.filter);
                 f = std::make_unique<FilterExpression<typename filter_t::filter_t>>(
                   std::forward<Self>(self).filter.filter);
 

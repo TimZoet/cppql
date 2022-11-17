@@ -10,6 +10,12 @@
 #include <string>
 
 ////////////////////////////////////////////////////////////////
+// Module includes.
+////////////////////////////////////////////////////////////////
+
+#include "common/type_traits.h"
+
+////////////////////////////////////////////////////////////////
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
@@ -17,7 +23,6 @@
 
 namespace sql
 {
-    // TODO: Restrict, if possible.
     template<typename L, typename R>
     class OrderByExpression;
 
@@ -26,26 +31,28 @@ namespace sql
       std::same_as<std::remove_cvref_t<T>,
                    OrderByExpression<typename std::remove_cvref_t<T>::left_t, typename std::decay_t<T>::right_t>>;
 
+    template<typename T>
+    concept is_order_by_expression_or_none = std::same_as<std::nullopt_t, T> || is_order_by_expression<T>;
+
     template<typename T, typename Tables>
     concept is_valid_order_by_expression =
       is_order_by_expression<T> && tuple_is_subset<typename std::remove_cvref_t<T>::unique_table_list_t, Tables>;
 
-    template<typename T>
+    template<typename...>
     struct get_order_table_list
     {
-        using table_list_t = std::tuple<>;
     };
 
-    template<is_order_by_expression T>
+    template<typename T>
     struct get_order_table_list<T>
     {
         using table_list_t = typename T::table_list_t;
     };
 
-    template<is_column_expression T>
+    template<std::same_as<std::nullopt_t> T>
     struct get_order_table_list<T>
     {
-        using table_list_t = std::tuple<typename T::table_t>;
+        using table_list_t = std::tuple<>;
     };
 
     template<typename T>

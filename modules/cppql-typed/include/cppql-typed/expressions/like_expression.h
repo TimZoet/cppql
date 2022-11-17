@@ -20,6 +20,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql-typed/fwd.h"
 #include "cppql-typed/type_traits.h"
 #include "cppql-typed/expressions/column_expression.h"
 

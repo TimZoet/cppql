@@ -42,7 +42,7 @@ void InnerJoin::operator()()
 
 
     auto stmt = table0.join(sql::InnerJoin{}, table1)
-                  .on(table0.col<0>() == table1.col<0>())
+                  .usings(table0.col<0>(), table0.col<1>())
                   .join(sql::InnerJoin{}, table2)
                   .on(table1.col<0>() == table2.col<0>())
                   .select(table2.col<0>())

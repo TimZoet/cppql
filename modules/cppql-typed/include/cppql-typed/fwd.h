@@ -7,10 +7,17 @@
 #include <type_traits>
 
 ////////////////////////////////////////////////////////////////
+// Module includes.
+////////////////////////////////////////////////////////////////
+
+#include "common/type_traits.h"
+#include "cppql-core/column.h"
+
+////////////////////////////////////////////////////////////////
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql-typed/type_traits.h"
+#include "cppql-typed/join_type.h"
 
 namespace sql
 {
@@ -37,6 +44,14 @@ namespace sql
     template<typename T, size_t I>
     concept is_valid_index = is_typed_table<T> && I < T::column_count;
 
+    /**
+     * \brief Get the type of a table column by index.
+     * \tparam Index Column index.
+     * \tparam T Table.
+     */
+    template<size_t Index, typename T>
+    using col_t = std::tuple_element_t<Index, typename T::row_t>;
+
     ////////////////////////////////////////////////////////////////
     // FilterExpression.
     ////////////////////////////////////////////////////////////////
@@ -51,6 +66,9 @@ namespace sql
 
     template<typename T>
     concept is_filter_expression = is_filter_expression_v<T>;
+
+    template<typename T>
+    concept is_filter_expression_or_none = std::same_as<std::nullopt_t, T> || is_filter_expression<T>;
 
     template<typename F, typename Tables>
     concept is_valid_filter_expression =
@@ -88,24 +106,29 @@ namespace sql
     template<typename T, typename C>
     concept is_convertible_to = is_column_expression<C> && std::convertible_to<T, typename C::value_t>;
 
+    template<typename R, typename... Cs>
+    concept constructible_from = std::constructible_from<R, get_column_return_t<Cs>...>;
+
     ////////////////////////////////////////////////////////////////
     // Join.
     ////////////////////////////////////////////////////////////////
-
-    // TODO: Require J to be a JoinTypeWrapper, L to be a join or TypedTable and R to a TypedTable. Require F to be a FilterExpression.
-    template<typename J, typename L, typename R, typename F, typename... Cs>
-    class Join;
 
     template<typename J, typename... Ts>
     struct _is_join : std::false_type
     {
     };
 
+    template<typename T>
+    concept is_join = _is_join<T>::value;
+
+    template<typename T>
+    concept is_join_or_typed_table = is_join<T> || is_typed_table<T>;
+
+    template<is_join_wrapper J, is_join_or_typed_table L, is_typed_table R, is_filter_expression_or_none F, is_column_expression... Cs>
+    class Join;
+
     template<typename J, typename L, typename R, typename F, typename... Cs>
     struct _is_join<Join<J, L, R, F, Cs...>> : std::true_type
     {
     };
-
-    template<typename T>
-    concept is_join = _is_join<T>::value;
 }  // namespace sql

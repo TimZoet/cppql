@@ -32,8 +32,7 @@ void SelectOrderByNull::operator()()
     auto select =
       table.select()
         .orderBy(ascending(table.col<0>(), sql::Nulls::Last) + descending(table.col<1>(), sql::Nulls::First))
-        .compile()
-        .bind(sql::BindParameters::None);// TODO: Discard all bind(None)?
+        .compile();
     const std::vector<std::tuple<int64_t, int64_t>> rows(select.begin(), select.end());
     compareEQ(rows.size(), static_cast<size_t>(6)).fatal("");
     compareEQ(vals, rows);

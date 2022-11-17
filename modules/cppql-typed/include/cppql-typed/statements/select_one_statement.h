@@ -11,6 +11,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/enums.h"
+#include "cppql-typed/fwd.h"
 #include "cppql-typed/statements/select_statement.h"
 
 namespace sql

@@ -16,8 +16,6 @@
 
 namespace sql
 {
-    // TODO: Is this class ever instantiated with 0 arguments? E.g. when doing a default insert? Will toString even work then?
-    // Or should this class get a specialization for non-zero column count?
     template<is_column_expression... Cs>
     class Columns
     {
