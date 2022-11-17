@@ -1,13 +1,10 @@
 #pragma once
-// TODO: Reimplement.
-#if 0
+
 ////////////////////////////////////////////////////////////////
 // Standard includes.
 ////////////////////////////////////////////////////////////////
 
-#include <concepts>
 #include <format>
-#include <memory>
 #include <string>
 
 ////////////////////////////////////////////////////////////////
@@ -21,63 +18,104 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/fwd.h"
-#include "cppql-typed/type_traits.h"
 #include "cppql-typed/expressions/column_expression.h"
 
 namespace sql
 {
-    ////////////////////////////////////////////////////////////////
-    // LikeExpression class.
-    ////////////////////////////////////////////////////////////////
-
-    /**
-     * \brief The LikeExpression class holds a string column and a
-     * fixed or dynamic value to use for pattern matching.
-     * \tparam T Table type.
-     */
-    template<typename T>
-    class LikeExpression final : public SingleFilterExpression<T>
+    template<is_column_expression C, bool Dynamic>
+    class LikeExpression
     {
     public:
+        ////////////////////////////////////////////////////////////////
+        // Types.
+        ////////////////////////////////////////////////////////////////
+
+        using col_t = C;
+
+        using value_t = std::conditional_t<Dynamic, std::string*, std::string>;
+
+        using table_list_t = std::tuple<typename C::table_t>;
+
+        using unique_table_list_t = table_list_t;
+
+        ////////////////////////////////////////////////////////////////
+        // Constructors.
+        ////////////////////////////////////////////////////////////////
+
         LikeExpression() = delete;
 
-        LikeExpression(const LikeExpression& other);
+        LikeExpression(const LikeExpression& other) = default;
 
-        LikeExpression(LikeExpression&& other) noexcept;
+        LikeExpression(LikeExpression&& other) noexcept = default;
 
-        LikeExpression(BaseColumnExpressionPtr<T> col, std::string val);
+        LikeExpression(col_t col, value_t val) : column(std::move(col)), value(std::move(val)) {}
 
-        LikeExpression(BaseColumnExpressionPtr<T> col, std::string* p);
+        ~LikeExpression() noexcept = default;
 
-        ~LikeExpression() override = default;
+        LikeExpression& operator=(const LikeExpression& other) = default;
 
-        LikeExpression& operator=(const LikeExpression& other);
+        LikeExpression& operator=(LikeExpression&& other) noexcept = default;
 
-        LikeExpression& operator=(LikeExpression&& other) noexcept;
+        ////////////////////////////////////////////////////////////////
+        // Generate.
+        ////////////////////////////////////////////////////////////////
 
-        [[nodiscard]] std::string toString(int32_t& pIndex) override;
+        [[nodiscard]] bool containsTables(const auto&... tables) const { return column.containsTables(tables...); }
 
-        void bind(Statement& stmt, BindParameters bind) const override;
+        void generateIndices(int32_t& idx)
+        {
+            index = idx++;
+            column.generateIndices(idx);
+        }
 
-        [[nodiscard]] BaseFilterExpressionPtr clone() const override;
+        /**
+         * \brief Generate expression doing a pattern match on a column.
+         * \return String with format "<col> LIKE ?<index>".
+         */
+        [[nodiscard]] std::string toString() { return std::format("{0} LIKE ?{1}", column.fullName(), index + 1); }
 
-        [[nodiscard]] SingleFilterExpressionPtr<T> cloneSingle() const override;
+        void bind(Statement& stmt, const BindParameters bind) const
+        {
+            if constexpr (Dynamic)
+            {
+                if (any(bind & BindParameters::Dynamic))
+                {
+                    if (value)
+                    {
+                        const auto res = stmt.bind(index + Statement::getFirstBindIndex(), sql::toText(*value));
+                        if (!res) throw SqliteError(std::format("Failed to bind dynamic parameter."), res.code);
+                    }
+                    else
+                    {
+                        const auto res = stmt.bind(index + Statement::getFirstBindIndex(), nullptr);
+                        if (!res) throw SqliteError(std::format("Failed to bind dynamic parameter."), res.code);
+                    }
+                }
+            }
+            else
+            {
+                if (any(bind & BindParameters::Fixed))
+                {
+                    const auto res = stmt.bind(index + Statement::getFirstBindIndex(), sql::toText(value));
+                    if (!res) throw SqliteError(std::format("Failed to bind fixed parameter."), res.code);
+                }
+            }
+        }
 
     private:
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
+
         /**
          * \brief Column to compare.
          */
-        BaseColumnExpressionPtr<T> column;
+        col_t column;
 
         /**
-         * \brief Fixed value.
+         * \brief Value.
          */
-        std::string value;
-
-        /**
-         * \brief Dynamic value.
-         */
-        std::string* ptr = nullptr;
+        value_t value;
 
         /**
          * \brief Index for parameter binding.
@@ -86,82 +124,13 @@ namespace sql
     };
 
     ////////////////////////////////////////////////////////////////
-    // Implementation.
+    // Type traits.
     ////////////////////////////////////////////////////////////////
 
-    template<typename T>
-    LikeExpression<T>::LikeExpression(const LikeExpression& other) :
-        column(other.column->clone()), value(other.value), ptr(other.ptr), index(other.index)
+    template<typename T, bool Dynamic>
+    struct _is_filter_expression<LikeExpression<T, Dynamic>> : std::true_type
     {
-    }
-
-    template<typename T>
-    LikeExpression<T>::LikeExpression(LikeExpression&& other) noexcept :
-        column(std::move(other.column)), value(other.value), ptr(other.ptr), index(other.index)
-    {
-    }
-
-    template<typename T>
-    LikeExpression<T>::LikeExpression(BaseColumnExpressionPtr<T> col, std::string val) :
-        column(std::move(col)), value(std::move(val))
-    {
-    }
-
-    template<typename T>
-    LikeExpression<T>::LikeExpression(BaseColumnExpressionPtr<T> col, std::string* p) : column(std::move(col)), ptr(p)
-    {
-    }
-
-    template<typename T>
-    LikeExpression<T>& LikeExpression<T>::operator=(const LikeExpression& other)
-    {
-        column = other.column->clone();
-        value  = other.value;
-        ptr    = other.ptr;
-        index  = other.index;
-        return *this;
-    }
-
-    template<typename T>
-    LikeExpression<T>& LikeExpression<T>::operator=(LikeExpression&& other) noexcept
-    {
-        column = std::move(other.column);
-        value  = other.value;
-        ptr    = other.ptr;
-        index  = other.index;
-        return *this;
-    }
-
-    template<typename T>
-    std::string LikeExpression<T>::toString(int32_t& pIndex)
-    {
-        // Store unincremented index value. Use incremented value in string, because sqlite parameter indices start at 1.
-        index    = pIndex++;
-        auto col = column->toString();
-        return std::format("{0} LIKE ?{1}", column->toString(), pIndex);
-    }
-
-    template<typename T>
-    void LikeExpression<T>::bind(Statement& stmt, const BindParameters bind) const
-    {
-        Result res;
-        if (any(bind & BindParameters::Fixed) && !ptr) res = stmt.bind(index + Statement::getFirstBindIndex(), value);
-        if (!res) throw SqliteError(std::format("Failed to bind parameter."), res.code);
-        if (any(bind & BindParameters::Dynamic) && ptr) res = stmt.bind(index + Statement::getFirstBindIndex(), *ptr);
-        if (!res) throw SqliteError(std::format("Failed to bind parameter."), res.code);
-    }
-
-    template<typename T>
-    BaseFilterExpressionPtr LikeExpression<T>::clone() const
-    {
-        return std::make_unique<LikeExpression<T>>(*this);
-    }
-
-    template<typename T>
-    SingleFilterExpressionPtr<T> LikeExpression<T>::cloneSingle() const
-    {
-        return std::make_unique<LikeExpression<T>>(*this);
-    }
+    };
 
     ////////////////////////////////////////////////////////////////
     // like()
@@ -169,34 +138,27 @@ namespace sql
 
     /**
      * \brief Require column LIKE fixed value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
+     * \tparam C ColumnExpression type.
      * \param col Column object.
      * \param val Value.
      * \return LikeExpression object.
      */
-    template<typename T, size_t Index>
-    requires(std::same_as<std::string, col_t<Index, T>>) auto like(ColumnExpression<T, Index> col, std::string val)
+    template<is_column_expression C>
+    auto like(C&& col, std::string val)
     {
-        using C = LikeExpression<T>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::make_unique<D>(std::move(col)), std::move(val));
+        return LikeExpression<C, false>(std::forward<C>(col), std::move(val));
     }
 
     /**
      * \brief Require column LIKE dynamic value.
-     * \tparam T Table type.
-     * \tparam Index Column index.
+     * \tparam C ColumnExpression type.
      * \param col Column object.
-     * \param val Pointer to value.
-     * \return ComparisonExpression object.
+     * \param val Value.
+     * \return LikeExpression object.
      */
-    template<typename T, size_t Index>
-    requires(std::same_as<std::string, col_t<Index, T>>) auto like(ColumnExpression<T, Index> col, std::string* val)
+    template<is_column_expression C>
+    auto like(C&& col, std::string* val)
     {
-        using C = LikeExpression<T>;
-        using D = ColumnExpression<T, Index>;
-        return C(std::make_unique<D>(std::move(col)), val);
+        return LikeExpression<C, true>(std::forward<C>(col), val);
     }
 }  // namespace sql
-#endif

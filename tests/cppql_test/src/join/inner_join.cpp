@@ -46,6 +46,7 @@ void InnerJoin::operator()()
                   .join(sql::InnerJoin{}, table2)
                   .on(table1.col<0>() == table2.col<0>())
                   .select(table2.col<0>())
+                  .where(like(table0.col<2>(), "abc"))
                   .compile()
                   .bind(sql::BindParameters::All);
     //constexpr bool x = decltype(select)::has_filter_list;

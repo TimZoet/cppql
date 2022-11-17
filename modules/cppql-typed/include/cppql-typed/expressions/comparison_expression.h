@@ -130,9 +130,9 @@ namespace sql
         col_t column;
 
         /**
-         * \brief Fixed value.
+         * \brief Value.
          */
-        V value;
+        value_t value;
 
         /**
          * \brief Index for parameter binding.
