@@ -12,6 +12,7 @@
 #include "cppql-typed/clauses/limit.h"
 #include "cppql-typed/clauses/on.h"
 #include "cppql-typed/clauses/order_by.h"
+#include "cppql-typed/clauses/union.h"
 #include "cppql-typed/clauses/using.h"
 #include "cppql-typed/clauses/where.h"
 #include "cppql-typed/expressions/column_comparison_expression.h"

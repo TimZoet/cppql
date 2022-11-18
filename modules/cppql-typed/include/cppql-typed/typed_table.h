@@ -148,6 +148,7 @@ namespace sql
                                    std::nullopt_t,
                                    std::nullopt_t,
                                    std::nullopt_t,
+                                   std::nullopt_t,
                                    ColumnExpression<table_t, Indices>...>(
                   *this, Columns<ColumnExpression<table_t, Indices>...>(col<Indices>()...));
             else
@@ -166,6 +167,7 @@ namespace sql
             if constexpr (sizeof...(Indices))
                 return SelectQuery<R,
                                    table_t,
+                                   std::nullopt_t,
                                    std::nullopt_t,
                                    std::nullopt_t,
                                    std::nullopt_t,

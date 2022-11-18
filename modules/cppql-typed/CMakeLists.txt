@@ -17,6 +17,7 @@ set(HEADERS
     ${INCLUDE_DIR}/clauses/limit.h
     ${INCLUDE_DIR}/clauses/on.h
     ${INCLUDE_DIR}/clauses/order_by.h
+    ${INCLUDE_DIR}/clauses/union.h
     ${INCLUDE_DIR}/clauses/using.h
     ${INCLUDE_DIR}/clauses/where.h
     ${INCLUDE_DIR}/expressions/base_filter_expression.h

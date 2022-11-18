@@ -1,6 +1,12 @@
 #pragma once
 
 ////////////////////////////////////////////////////////////////
+// Standard includes.
+////////////////////////////////////////////////////////////////
+
+#include <type_traits>
+
+////////////////////////////////////////////////////////////////
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
@@ -25,7 +31,8 @@ namespace sql
              is_filter_expression_or_none   F,
              is_order_by_expression_or_none O,
              is_true_type_or_none           L,
-             is_column_expression           C,
+             typename U,
+             is_column_expression C,
              is_column_expression... Cs>
         requires(constructible_from<R, typename C::value_t, typename Cs::value_t...>)
     class SelectQuery;
@@ -37,4 +44,17 @@ namespace sql
              is_column_expression           C,
              is_column_expression... Cs>
     class UpdateQuery;
+
+    template<typename...>
+    struct _is_select_query : std::false_type
+    {
+    };
+
+    template<typename... Ts>
+    struct _is_select_query<SelectQuery<Ts...>> : std::true_type
+    {
+    };
+
+    template<typename T>
+    concept is_select_query = _is_select_query<std::remove_cvref_t<T>>::value;
 }  // namespace sql

@@ -25,25 +25,45 @@ namespace sql
     };
 
     template<ComparisonOperator>
-    struct ComparisonOperatorType{};
+    struct ComparisonOperatorType
+    {
+    };
 
     template<>
-    struct ComparisonOperatorType<ComparisonOperator::Eq> { inline static const std::string str = "="; };
+    struct ComparisonOperatorType<ComparisonOperator::Eq>
+    {
+        inline static const std::string str = "=";
+    };
 
     template<>
-    struct ComparisonOperatorType<ComparisonOperator::Ne> { inline static const std::string str = "!="; };
+    struct ComparisonOperatorType<ComparisonOperator::Ne>
+    {
+        inline static const std::string str = "!=";
+    };
 
     template<>
-    struct ComparisonOperatorType<ComparisonOperator::Lt> { inline static const std::string str = "<"; };
+    struct ComparisonOperatorType<ComparisonOperator::Lt>
+    {
+        inline static const std::string str = "<";
+    };
 
     template<>
-    struct ComparisonOperatorType<ComparisonOperator::Gt> { inline static const std::string str = ">"; };
+    struct ComparisonOperatorType<ComparisonOperator::Gt>
+    {
+        inline static const std::string str = ">";
+    };
 
     template<>
-    struct ComparisonOperatorType<ComparisonOperator::Le> { inline static const std::string str = "<="; };
+    struct ComparisonOperatorType<ComparisonOperator::Le>
+    {
+        inline static const std::string str = "<=";
+    };
 
     template<>
-    struct ComparisonOperatorType<ComparisonOperator::Ge> { inline static const std::string str = ">="; };
+    struct ComparisonOperatorType<ComparisonOperator::Ge>
+    {
+        inline static const std::string str = ">=";
+    };
 
     enum class JoinType
     {
@@ -78,23 +98,79 @@ namespace sql
     };
 
     template<Order>
-    struct OrderString {};
+    struct OrderString
+    {
+    };
 
     template<>
-    struct OrderString<Order::Asc> { inline static const std::string str = "ASC"; };
+    struct OrderString<Order::Asc>
+    {
+        inline static const std::string str = "ASC";
+    };
 
     template<>
-    struct OrderString<Order::Desc> { inline static const std::string str = "DESC"; };
+    struct OrderString<Order::Desc>
+    {
+        inline static const std::string str = "DESC";
+    };
 
     template<Nulls>
-    struct NullsString {};
+    struct NullsString
+    {
+    };
 
     template<>
-    struct NullsString<Nulls::None> { inline static const std::string str; };
+    struct NullsString<Nulls::None>
+    {
+        inline static const std::string str;
+    };
 
     template<>
-    struct NullsString<Nulls::First> { inline static const std::string str = "NULLS FIRST"; };
+    struct NullsString<Nulls::First>
+    {
+        inline static const std::string str = "NULLS FIRST";
+    };
 
     template<>
-    struct NullsString<Nulls::Last> { inline static const std::string str = "NULLS LAST"; };
+    struct NullsString<Nulls::Last>
+    {
+        inline static const std::string str = "NULLS LAST";
+    };
+
+    enum class UnionOperator
+    {
+        Union,
+        UnionAll,
+        Intersect,
+        Except
+    };
+
+    template<UnionOperator>
+    struct UnionString
+    {
+    };
+
+    template<>
+    struct UnionString<UnionOperator::Union>
+    {
+        inline static const std::string str = "UNION";
+    };
+
+    template<>
+    struct UnionString<UnionOperator::UnionAll>
+    {
+        inline static const std::string str = "UNION ALL";
+    };
+
+    template<>
+    struct UnionString<UnionOperator::Intersect>
+    {
+        inline static const std::string str = "INTERSECT";
+    };
+
+    template<>
+    struct UnionString<UnionOperator::Except>
+    {
+        inline static const std::string str = "EXCEPT";
+    };
 }  // namespace sql
