@@ -27,7 +27,7 @@ void Update::operator()()
     {
         int64_t param  = 0;
         auto    update = table.update<1>().where(table.col<0>() == &param).compile();
-        auto    select = table.select<float, 1>().where(table.col<0>() == &param).compileOne();
+        auto    select = table.selectAs<float, 1>().where(table.col<0>() == &param).compileOne();
 
         param = 10;
         expectNoThrow([&] { update.bind(sql::BindParameters::All)(5.0f); });

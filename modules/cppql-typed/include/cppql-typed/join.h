@@ -202,23 +202,25 @@ namespace sql
         }
 
         template<typename Self,
-                 is_valid_column_expression<table_list_t> C,
-                 is_valid_column_expression<table_list_t>... Cs>
+                 is_valid_result_expression<table_list_t> C,
+                 is_valid_result_expression<table_list_t>... Cs>
         auto select(this Self&& self, C&& c, Cs&&... cs)
         {
             if ((!self.containsTables(c) || ... || !self.containsTables(cs)))
                 throw CppqlError(std::format("Cannot apply select to join because at least one of the columns contains "
                                              "a table not in the query."));
 
-            return SelectQuery<std::tuple<typename C::value_t, typename Cs::value_t...>,
-                               std::remove_cvref_t<Self>,
-                               std::nullopt_t,
-                               std::nullopt_t,
-                               std::nullopt_t,
-                               std::nullopt_t,
-                               std::remove_cvref_t<C>,
-                               std::remove_cvref_t<Cs>...>(
-              std::forward<Self>(self), Columns<C, Cs...>(std::forward<C>(c), std::forward<Cs>(cs)...));
+            return SelectQuery<
+              std::tuple<typename std::remove_cvref_t<C>::value_t, typename std::remove_cvref_t<Cs>::value_t...>,
+              std::remove_cvref_t<Self>,
+              std::nullopt_t,
+              std::nullopt_t,
+              std::nullopt_t,
+              std::nullopt_t,
+              std::remove_cvref_t<C>,
+              std::remove_cvref_t<Cs>...>(
+              std::forward<Self>(self),
+              Columns<std::remove_cvref_t<C>, std::remove_cvref_t<Cs>...>(std::forward<C>(c), std::forward<Cs>(cs)...));
         }
 
         ////////////////////////////////////////////////////////////////

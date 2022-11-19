@@ -16,7 +16,7 @@
 
 namespace sql
 {
-    template<is_column_expression... Cs>
+    template<is_result_expression... Cs>
     class Columns
     {
     public:
@@ -73,9 +73,9 @@ namespace sql
             const auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
             {
                 if constexpr (sizeof...(Is) == 0)
-                    return std::get<I>(columns).fullName();
+                    return std::get<I>(columns).toString();
                 else
-                    return std::get<I>(columns).fullName() + (... + ("," + std::get<Is>(columns).fullName()));
+                    return std::get<I>(columns).toString() + (... + ("," + std::get<Is>(columns).toString()));
             };
 
             return cols(std::index_sequence_for<Cs...>());

@@ -30,7 +30,7 @@ void UpdateLimit::operator()()
 
     {
         auto update = table.update<1>().orderBy(ascending(table.col<0>())).limitOffset(2, 0).compile();
-        auto select = table.select<float, 1>().compile();
+        auto select = table.selectAs<float, 1>().compile();
 
         expectNoThrow([&] { update(5.0f); });
         const std::vector<float> rows(select.begin(), select.end());
@@ -47,7 +47,7 @@ void UpdateLimit::operator()()
                         .limitOffset(1, 1)
                         .compile()
                         .bind(sql::BindParameters::All);
-        auto select = table.select<float, 1>().compile();
+        auto select = table.selectAs<float, 1>().compile();
 
         expectNoThrow([&] { update(11.0f); });
         const std::vector<float> rows(select.begin(), select.end());
@@ -59,7 +59,7 @@ void UpdateLimit::operator()()
 
     {
         auto update = table.update<1>().orderBy(descending(table.col<0>())).limitOffset(2, 0).compile();
-        auto select = table.select<float, 1>().compile();
+        auto select = table.selectAs<float, 1>().compile();
 
         expectNoThrow([&] { update(13.0f); });
         const std::vector<float> rows(select.begin(), select.end());

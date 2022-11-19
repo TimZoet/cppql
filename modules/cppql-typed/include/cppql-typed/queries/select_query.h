@@ -24,7 +24,6 @@
 
 namespace sql
 {
-    // TODO: Aggregates.
     // TODO: Group by.
     // TODO: Having.
     // TODO: Unions.
@@ -53,8 +52,8 @@ namespace sql
              is_order_by_expression_or_none O,
              is_true_type_or_none           L,
              typename U,
-             is_column_expression C,
-             is_column_expression... Cs>
+             is_result_expression C,
+             is_result_expression... Cs>
         requires(constructible_from<R, typename C::value_t, typename Cs::value_t...>)
     class SelectQuery
     {
@@ -146,6 +145,8 @@ namespace sql
               std::forward<Self>(self).limit,
               std::forward<Self>(self).unionClause);
         }
+
+        // TODO: groupBy.
 
         /**
          * \brief Order result rows by an expression. This query should not have an order applied yet.

@@ -77,6 +77,11 @@ namespace sql
             return std::format("{}.{}", table->getName(), table->getColumn(Index).getName());
         }
 
+        [[nodiscard]] std::string toString() const
+        {
+            return fullName();
+        }
+
         static void bind(Statement&, BindParameters) {}
 
     private:

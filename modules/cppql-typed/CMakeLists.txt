@@ -13,6 +13,12 @@ set(HEADERS
     ${INCLUDE_DIR}/join.h
     ${INCLUDE_DIR}/join_type.h
     ${INCLUDE_DIR}/typed_table.h
+    ${INCLUDE_DIR}/aggregates/average_aggregate.h
+    ${INCLUDE_DIR}/aggregates/count_aggregate.h
+    ${INCLUDE_DIR}/aggregates/max_aggregate.h
+    ${INCLUDE_DIR}/aggregates/min_aggregate.h
+    ${INCLUDE_DIR}/aggregates/sum_aggregate.h
+    ${INCLUDE_DIR}/aggregates/total_aggregate.h
     ${INCLUDE_DIR}/clauses/columns.h
     ${INCLUDE_DIR}/clauses/limit.h
     ${INCLUDE_DIR}/clauses/on.h
@@ -20,6 +26,7 @@ set(HEADERS
     ${INCLUDE_DIR}/clauses/union.h
     ${INCLUDE_DIR}/clauses/using.h
     ${INCLUDE_DIR}/clauses/where.h
+    ${INCLUDE_DIR}/expressions/aggregate_expression.h
     ${INCLUDE_DIR}/expressions/base_filter_expression.h
     ${INCLUDE_DIR}/expressions/column_comparison_expression.h
     ${INCLUDE_DIR}/expressions/column_expression.h

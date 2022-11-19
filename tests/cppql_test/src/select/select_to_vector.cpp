@@ -56,7 +56,7 @@ void SelectToVector::operator()()
 
     // Create select queries.
     auto sel0 = table.select<0, 1, 2>().where(table.col<0>() >= 20).compile().bind(sql::BindParameters::All);
-    auto sel1 = table.select<Foo, 0, 1, 2>().where(table.col<0>() >= 20).compile().bind(sql::BindParameters::All);
+    auto sel1 = table.selectAs<Foo, 0, 1, 2>().where(table.col<0>() >= 20).compile().bind(sql::BindParameters::All);
 
     // Select to vectors.
     const std::vector<std::tuple<int64_t, float, std::string>> vals0(sel0.begin(), sel0.end());

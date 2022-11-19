@@ -138,22 +138,45 @@ namespace sql
         // Select.
         ////////////////////////////////////////////////////////////////
 
+        template<is_valid_result_expression<std::tuple<table_t>> Col,
+                 is_valid_result_expression<std::tuple<table_t>>... Cols>
+        [[nodiscard]] auto select(Col&& c, Cols&&... cs)
+        {
+            return selectAs<std::tuple<typename Col::value_t, typename Cols::value_t...>>(std::forward<Col>(c),
+                                                                                          std::forward<Cols>(cs)...);
+        }
+
+        template<typename R,
+                 is_valid_result_expression<std::tuple<table_t>> Col,
+                 is_valid_result_expression<std::tuple<table_t>>... Cols>
+            requires(constructible_from<R, typename Col::value_t, typename Cols::value_t...>)
+        [[nodiscard]] auto selectAs(Col&& c, Cols&&... cs)
+        {
+            return SelectQuery<R,
+                               table_t,
+                               std::nullopt_t,
+                               std::nullopt_t,
+                               std::nullopt_t,
+                               std::nullopt_t,
+                               std::remove_cvref_t<Col>,
+                               std::remove_cvref_t<Cols>...>(
+              *this,
+              Columns<std::remove_cvref_t<Col>, std::remove_cvref_t<Cols>...>(std::forward<Col>(c),
+                                                                              std::forward<Cols>(cs)...));
+        }
+
         template<size_t... Indices>
             requires((Indices < column_count) && ...)
         [[nodiscard]] auto select()
         {
             if constexpr (sizeof...(Indices))
-                return SelectQuery<std::tuple<col_t<Indices, table_t>...>,
-                                   table_t,
-                                   std::nullopt_t,
-                                   std::nullopt_t,
-                                   std::nullopt_t,
-                                   std::nullopt_t,
-                                   ColumnExpression<table_t, Indices>...>(
-                  *this, Columns<ColumnExpression<table_t, Indices>...>(col<Indices>()...));
+                return selectAs<std::tuple<col_t<Indices, table_t>...>, Indices...>();
             else
             {
-                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return select<Is...>(); };
+                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>)
+                {
+                    return selectAs<row_t>(col<Is>()...);
+                };
 
                 return f(std::index_sequence_for<C, Cs...>{});
             }
@@ -162,20 +185,13 @@ namespace sql
         template<typename R, size_t... Indices>
             requires(((Indices < column_count) && ...) &&
                      constructible_from<R, std::tuple_element_t<Indices, row_t>...>)
-        [[nodiscard]] auto select()
+        [[nodiscard]] auto selectAs()
         {
             if constexpr (sizeof...(Indices))
-                return SelectQuery<R,
-                                   table_t,
-                                   std::nullopt_t,
-                                   std::nullopt_t,
-                                   std::nullopt_t,
-                                   std::nullopt_t,
-                                   ColumnExpression<table_t, Indices>...>(
-                  *this, Columns<ColumnExpression<table_t, Indices>...>(col<Indices>()...));
+                return selectAs<R>(col<Indices>()...);
             else
             {
-                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return select<R, Is...>(); };
+                const auto f = [this]<std::size_t... Is>(std::index_sequence<Is...>) { return selectAs<R, Is...>(); };
 
                 return f(std::index_sequence_for<C, Cs...>{});
             }

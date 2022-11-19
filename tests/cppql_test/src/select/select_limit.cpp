@@ -24,7 +24,7 @@ void SelectLimit::operator()()
     // Try a bunch of different combinations of limit and offset for select with filter.
 
     {
-        auto sel = table.select<int64_t>()
+        auto sel = table.selectAs<int64_t>()
                      .where(table.col<0>() >= static_cast<int64_t>(0))
                      .limitOffset(10, 0)
                      .compile()
@@ -34,7 +34,7 @@ void SelectLimit::operator()()
     }
 
     {
-        auto sel = table.select<int64_t>()
+        auto sel = table.selectAs<int64_t>()
                      .where(table.col<0>() >= static_cast<int64_t>(0))
                      .limitOffset(33, 0)
                      .compile()
@@ -44,7 +44,7 @@ void SelectLimit::operator()()
     }
 
     {
-        auto sel = table.select<int64_t>()
+        auto sel = table.selectAs<int64_t>()
                      .where(table.col<0>() >= static_cast<int64_t>(0))
                      .limitOffset(10, 10)
                      .compile()
@@ -54,7 +54,7 @@ void SelectLimit::operator()()
     }
 
     {
-        auto sel = table.select<int64_t>()
+        auto sel = table.selectAs<int64_t>()
                      .where(table.col<0>() >= static_cast<int64_t>(0))
                      .limitOffset(33, 20)
                      .compile()
@@ -64,7 +64,7 @@ void SelectLimit::operator()()
     }
 
     {
-        auto sel = table.select<int64_t>()
+        auto sel = table.selectAs<int64_t>()
                      .where(table.col<0>() >= static_cast<int64_t>(50))
                      .limitOffset(50, 0)
                      .compile()
@@ -74,7 +74,7 @@ void SelectLimit::operator()()
     }
 
     {
-        auto sel = table.select<int64_t>()
+        auto sel = table.selectAs<int64_t>()
                      .where(table.col<0>() >= static_cast<int64_t>(50))
                      .limitOffset(60, 0)
                      .compile()
@@ -84,7 +84,7 @@ void SelectLimit::operator()()
     }
 
     {
-        auto sel = table.select<int64_t>()
+        auto sel = table.selectAs<int64_t>()
                      .where(table.col<0>() >= static_cast<int64_t>(50))
                      .limitOffset(50, 10)
                      .compile()
@@ -94,7 +94,7 @@ void SelectLimit::operator()()
     }
 
     {
-        auto sel = table.select<int64_t>()
+        auto sel = table.selectAs<int64_t>()
                      .where(table.col<0>() >= static_cast<int64_t>(50))
                      .limitOffset(50, 50)
                      .compile()
@@ -106,49 +106,49 @@ void SelectLimit::operator()()
     // Try a bunch of different combinations of limit and offset for select without filter.
 
     {
-        auto sel = table.select<int64_t>().limitOffset(10, 0).compile();
+        auto                       sel = table.selectAs<int64_t>().limitOffset(10, 0).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(10));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(33, 0).compile();
+        auto                       sel = table.selectAs<int64_t>().limitOffset(33, 0).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(33));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(10, 10).compile();
+        auto                       sel = table.selectAs<int64_t>().limitOffset(10, 10).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(10));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(33, 20).compile();
+        auto                       sel = table.selectAs<int64_t>().limitOffset(33, 20).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(33));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(50, 0).compile();
+        auto                       sel = table.selectAs<int64_t>().limitOffset(50, 0).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(50));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(50, 10).compile();
+        auto                       sel = table.selectAs<int64_t>().limitOffset(50, 10).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(50));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(50, 60).compile();
+        auto                       sel = table.selectAs<int64_t>().limitOffset(50, 60).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(40));
     }
 
     {
-        auto sel = table.select<int64_t>().limitOffset(-1, 60).compile();
+        auto                       sel = table.selectAs<int64_t>().limitOffset(-1, 60).compile();
         const std::vector<int64_t> rows(sel.begin(), sel.end());
         compareEQ(rows.size(), static_cast<size_t>(40));
     }

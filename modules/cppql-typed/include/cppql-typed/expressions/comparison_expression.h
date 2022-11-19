@@ -33,7 +33,7 @@ namespace sql
      * \tparam Lhs Boolean indicating column is on left hand side of comparison.
      */
     template<is_column_expression C, typename V, ComparisonOperator Op, bool Lhs>
-    class ComparisonExpression final
+    class ComparisonExpression
     {
     public:
         ////////////////////////////////////////////////////////////////

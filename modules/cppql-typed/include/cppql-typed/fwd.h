@@ -82,13 +82,22 @@ namespace sql
         requires(is_valid_index<T, Index>)
     class ColumnExpression;
 
+    template<typename...>
+    struct _is_column_expression : std::false_type
+    {
+    };
+
+    template<typename T, size_t Index>
+    struct _is_column_expression<ColumnExpression<T, Index>> : std::true_type
+    {
+    };
+
     /**
      * \brief Check if a type is a ColumnExpression.
      * \tparam C Type.
      */
     template<typename C>
-    concept is_column_expression =
-      std::same_as<std::remove_cvref_t<C>, ColumnExpression<typename C::table_t, C::index>>;
+    concept is_column_expression = _is_column_expression<std::remove_cvref_t<C>>::value;
 
     /**
      * \brief Check if a type is a ColumnExpression for a TypedTable in the provided list of types.
@@ -96,7 +105,8 @@ namespace sql
      * \tparam Tables Tuple containing a list of TypedTables.
      */
     template<typename C, typename Tables>
-    concept is_valid_column_expression = is_column_expression<C> && tuple_contains_type<typename C::table_t, Tables>;
+    concept is_valid_column_expression =
+      is_column_expression<C> && tuple_contains_type<typename std::remove_cvref_t<C>::table_t, Tables>;
 
     /**
      * \brief Check if a type is convertible to the value type of a ColumnExpression.
@@ -108,6 +118,57 @@ namespace sql
 
     template<typename R, typename... Cs>
     concept constructible_from = std::constructible_from<R, get_column_return_t<Cs>...>;
+
+    ////////////////////////////////////////////////////////////////
+    // AggregateExpression.
+    ////////////////////////////////////////////////////////////////
+
+    template<typename A>
+    concept is_aggregate_function = requires {
+                                        {
+                                            A::toString(std::declval<std::string>())
+                                            } -> std::same_as<std::string>;
+                                    };
+
+    template<is_column_expression C, is_aggregate_function A>
+    class AggregateExpression;
+
+    template<typename...>
+    struct _is_aggregate_expression : std::false_type
+    {
+    };
+
+    template<typename C, typename A>
+    struct _is_aggregate_expression<AggregateExpression<C, A>> : std::true_type
+    {
+    };
+
+    /**
+     * \brief Check if a type is an AggregateExpression.
+     * \tparam T Type.
+     */
+    template<typename T>
+    concept is_aggregate_expression = _is_aggregate_expression<std::remove_cvref_t<T>>::value;
+
+    /**
+     * \brief Check if a type is a AggregateExpression for a TypedTable in the provided list of types.
+     * \tparam T Type.
+     * \tparam Tables Tuple containing a list of TypedTables.
+     */
+    template<typename T, typename Tables>
+    concept is_valid_aggregate_expression =
+      is_aggregate_expression<T> && tuple_contains_type<typename std::remove_cvref_t<T>::table_t, Tables>;
+
+    ////////////////////////////////////////////////////////////////
+    // Result.
+    ////////////////////////////////////////////////////////////////
+
+    template<typename T>
+    concept is_result_expression = is_column_expression<T> || is_aggregate_expression<T>;
+
+    template<typename T, typename Tables>
+    concept is_valid_result_expression =
+      is_valid_column_expression<T, Tables> || is_valid_aggregate_expression<T, Tables>;
 
     ////////////////////////////////////////////////////////////////
     // Join.
@@ -124,7 +185,11 @@ namespace sql
     template<typename T>
     concept is_join_or_typed_table = is_join<T> || is_typed_table<T>;
 
-    template<is_join_wrapper J, is_join_or_typed_table L, is_typed_table R, is_filter_expression_or_none F, is_column_expression... Cs>
+    template<is_join_wrapper              J,
+             is_join_or_typed_table       L,
+             is_typed_table               R,
+             is_filter_expression_or_none F,
+             is_column_expression... Cs>
     class Join;
 
     template<typename J, typename L, typename R, typename F, typename... Cs>
