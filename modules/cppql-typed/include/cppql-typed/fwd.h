@@ -108,14 +108,6 @@ namespace sql
     concept is_valid_column_expression =
       is_column_expression<C> && tuple_contains_type<typename std::remove_cvref_t<C>::table_t, Tables>;
 
-    /**
-     * \brief Check if a type is convertible to the value type of a ColumnExpression.
-     * \tparam T Type.
-     * \tparam C ColumnExpression type.
-     */
-    template<typename T, typename C>
-    concept is_convertible_to = is_column_expression<C> && std::convertible_to<T, typename C::value_t>;
-
     template<typename R, typename... Cs>
     concept constructible_from = std::constructible_from<R, get_column_return_t<Cs>...>;
 
@@ -169,6 +161,14 @@ namespace sql
     template<typename T, typename Tables>
     concept is_valid_result_expression =
       is_valid_column_expression<T, Tables> || is_valid_aggregate_expression<T, Tables>;
+
+    /**
+     * \brief Check if a type is convertible to the value type of a ColumnExpression/AggregateExpression.
+     * \tparam T Type.
+     * \tparam C ColumnExpression type.
+     */
+    template<typename T, typename C>
+    concept is_convertible_to = is_result_expression<C> && std::convertible_to<T, typename C::value_t>;
 
     ////////////////////////////////////////////////////////////////
     // Join.

@@ -13,6 +13,8 @@
 
 #include "cppql-typed/fwd.h"
 #include "cppql-typed/clauses/columns.h"
+#include "cppql-typed/clauses/group_by.h"
+#include "cppql-typed/clauses/having.h"
 #include "cppql-typed/clauses/limit.h"
 #include "cppql-typed/clauses/order_by.h"
 #include "cppql-typed/clauses/union.h"
@@ -24,9 +26,6 @@
 
 namespace sql
 {
-    // TODO: Group by.
-    // TODO: Having.
-    // TODO: Unions.
     // TODO: Aliases.
 
     ////////////////////////////////////////////////////////////////
@@ -46,13 +45,28 @@ namespace sql
     template<typename T>
     using lazy_table_list_t = typename lazy_table_list<T>::type;
 
+    /**
+     * \brief 
+     * \tparam R Return type. Must be constructible from the value types of {C, Cs...}.
+     * \tparam J TypedTable type or Join type.
+     * \tparam F Filter expression type (or std::nullopt_t if not yet initialized). Is used to generate the WHERE clause.
+     * \tparam O OrderBy expression type (or std::nullopt_t if not yet initialized). Is used to generate the ORDER BY clause.
+     * \tparam L 
+     * \tparam G GroupBy<Cols...> type (or std::nullopt_t if not yet initialized). Is used to generate the GROUP BY clause.
+     * \tparam H Filter expression type (or std::nullopt_t if not yet initialized). Is used to generate the HAVING clause.
+     * \tparam U Union<Qs...> type (or std::nullopt_t if not yet initialized), where Qs... is a set of valid SelectQuery types. Is used to generate the sequence of UNION clauses.
+     * \tparam C Result expression type.
+     * \tparam Cs Result expression types.
+     */
     template<typename R,
              is_join_or_typed_table         J,
              is_filter_expression_or_none   F,
              is_order_by_expression_or_none O,
              is_true_type_or_none           L,
-             typename U,
-             is_result_expression C,
+             is_group_by_or_none            G,
+             is_filter_expression_or_none   H,
+             is_union_or_none               U,
+             is_result_expression           C,
              is_result_expression... Cs>
         requires(constructible_from<R, typename C::value_t, typename Cs::value_t...>)
     class SelectQuery
@@ -69,14 +83,18 @@ namespace sql
         using filter_t                 = Where<F>;
         using order_t                  = OrderBy<O>;
         using limit_t                  = Limit<L>;
-        using union_t                  = std::conditional_t<std::same_as<std::nullopt_t, U>, Union<std::nullopt_t>, U>;
-        using table_list_t             = lazy_table_list_t<join_t>;
+        using group_t      = std::conditional_t<std::same_as<std::nullopt_t, G>, GroupBy<std::nullopt_t>, G>;
+        using having_t     = Having<H>;
+        using union_t      = std::conditional_t<std::same_as<std::nullopt_t, U>, Union<std::nullopt_t>, U>;
+        using table_list_t = lazy_table_list_t<join_t>;
 
         join_t        join;
         columns_t     columns;
         filter_t      filter;
         order_t       order;
         limit_t       limit;
+        group_t       groups;
+        having_t      havings;
         union_t       unionClause;
         UnionOperator unionOp = UnionOperator::Union;
 
@@ -92,12 +110,14 @@ namespace sql
 
         SelectQuery(join_t j, columns_t cs) : join(std::move(j)), columns(std::move(cs)) {}
 
-        SelectQuery(join_t j, columns_t cs, filter_t f, order_t o, limit_t l, union_t u) :
+        SelectQuery(join_t j, columns_t cs, filter_t f, order_t o, limit_t l, group_t g, having_t h, union_t u) :
             join(std::move(j)),
             columns(std::move(cs)),
             filter(std::move(f)),
             order(std::move(o)),
             limit(std::move(l)),
+            groups(std::move(g)),
+            havings(std::move(h)),
             unionClause(std::move(u))
         {
         }
@@ -137,16 +157,77 @@ namespace sql
                       "Cannot apply filter to query because the expression contains a table not in the query."));
             }
 
-            return SelectQuery<R, J, std::remove_cvref_t<Filter>, O, L, U, C, Cs...>(
+            return SelectQuery<R, J, std::remove_cvref_t<Filter>, O, L, G, H, U, C, Cs...>(
               std::forward<Self>(self).join,
               std::forward<Self>(self).columns,
               Where<std::remove_cvref_t<Filter>>(std::forward<Filter>(filter)),
               std::forward<Self>(self).order,
               std::forward<Self>(self).limit,
+              std::forward<Self>(self).groups,
+              std::forward<Self>(self).havings,
               std::forward<Self>(self).unionClause);
         }
 
-        // TODO: groupBy.
+        template<typename Self,
+                 is_valid_column_expression<table_list_t> Col,
+                 is_valid_column_expression<table_list_t>... Cols>
+            requires(!group_t::valid)
+        [[nodiscard]] auto groupBy(this Self&& self, Col&& col, Cols&&... cols)
+        {
+            if constexpr (is_table)
+            {
+                if ((!col.containsTables(self.join.getTable()) || ... || !cols.containsTables(self.join.getTable())))
+                    throw CppqlError(std::format("Cannot apply group by to query because at least one of the columns "
+                                                 "contains a table not in the query."));
+            }
+            else
+            {
+                if ((!self.join.containsTables(col, self.join.getTable()) || ... ||
+                     !self.join.containsTables(cols, self.join.getTable())))
+                    throw CppqlError(std::format("Cannot apply group by to query because at least one of the columns "
+                                                 "contains a table not in the query."));
+            }
+
+            using clause = GroupBy<std::remove_cvref_t<Col>, std::remove_cvref_t<Cols>...>;
+            return SelectQuery<R, J, F, O, L, clause, H, U, C, Cs...>(
+              std::forward<Self>(self).join,
+              std::forward<Self>(self).columns,
+              std::forward<Self>(self).filter,
+              std::forward<Self>(self).order,
+              std::forward<Self>(self).limit,
+              clause(std::forward<Col>(col), std::forward<Cols>(cols)...),
+              std::forward<Self>(self).havings,
+              std::forward<Self>(self).unionClause);
+        }
+
+
+        template<typename Self, is_valid_filter_expression<table_list_t> Filter>
+            requires(group_t::valid && !having_t::valid)
+        [[nodiscard]] auto having(this Self&& self, Filter&& filter)
+        {
+            if constexpr (is_table)
+            {
+                if (!filter.containsTables(self.join.getTable()))
+                    throw CppqlError(std::format(
+                      "Cannot apply having to query because the expression contains a table not in the query."));
+            }
+            else
+            {
+                if (!self.join.containsTables(filter, self.join.getTable()))
+                    throw CppqlError(std::format(
+                      "Cannot apply having to query because the expression contains a table not in the query."));
+            }
+
+            return SelectQuery<R, J, F, O, L, G, std::remove_cvref_t<Filter>, U, C, Cs...>(
+              std::forward<Self>(self).join,
+              std::forward<Self>(self).columns,
+              std::forward<Self>(self).filter,
+              std::forward<Self>(self).order,
+              std::forward<Self>(self).limit,
+              std::forward<Self>(self).groups,
+              Having<std::remove_cvref_t<Filter>>(std::forward<Filter>(filter)),
+              std::forward<Self>(self).unionClause);
+        }
 
         /**
          * \brief Order result rows by an expression. This query should not have an order applied yet.
@@ -175,12 +256,14 @@ namespace sql
                       "Cannot apply ordering to query because the expression contains a table not in the query."));
             }
 
-            return SelectQuery<R, J, F, std::remove_cvref_t<Order>, L, U, C, Cs...>(
+            return SelectQuery<R, J, F, std::remove_cvref_t<Order>, L, G, H, U, C, Cs...>(
               std::forward<Self>(self).join,
               std::forward<Self>(self).columns,
               std::forward<Self>(self).filter,
               OrderBy<std::remove_cvref_t<Order>>(std::forward<Order>(order)),
               std::forward<Self>(self).limit,
+              std::forward<Self>(self).groups,
+              std::forward<Self>(self).havings,
               std::forward<Self>(self).unionClause);
         }
 
@@ -196,12 +279,14 @@ namespace sql
             requires(!limit_t::valid)
         [[nodiscard]] auto limitOffset(this Self&& self, const int64_t limit, const int64_t offset)
         {
-            return SelectQuery<R, J, F, O, std::true_type, U, C, Cs...>(std::forward<Self>(self).join,
-                                                                        std::forward<Self>(self).columns,
-                                                                        std::forward<Self>(self).filter,
-                                                                        std::forward<Self>(self).order,
-                                                                        Limit<std::true_type>(limit, offset),
-                                                                        std::forward<Self>(self).unionClause);
+            return SelectQuery<R, J, F, O, std::true_type, G, H, U, C, Cs...>(std::forward<Self>(self).join,
+                                                                              std::forward<Self>(self).columns,
+                                                                              std::forward<Self>(self).filter,
+                                                                              std::forward<Self>(self).order,
+                                                                              Limit<std::true_type>(limit, offset),
+                                                                              std::forward<Self>(self).groups,
+                                                                              std::forward<Self>(self).havings,
+                                                                              std::forward<Self>(self).unionClause);
         }
 
         /**
@@ -221,24 +306,28 @@ namespace sql
             if constexpr (union_t::valid)
             {
                 using clause = merge_unions_t<std::remove_cvref_t<Q>, typename union_t::query_t>;
-                return SelectQuery<R, J, F, O, L, clause, C, Cs...>(
+                return SelectQuery<R, J, F, O, L, G, H, clause, C, Cs...>(
                   std::forward<Self>(self).join,
                   std::forward<Self>(self).columns,
                   std::forward<Self>(self).filter,
                   std::forward<Self>(self).order,
                   std::forward<Self>(self).limit,
+                  std::forward<Self>(self).groups,
+                  std::forward<Self>(self).havings,
                   clause(op, std::forward<Self>(self).unionClause.query, std::forward<Q>(query)));
             }
             // This query does not yet have a Union clause. Construct with single query.
             else
             {
                 using clause = Union<std::remove_cvref_t<Q>>;
-                return SelectQuery<R, J, F, O, L, clause, C, Cs...>(std::forward<Self>(self).join,
-                                                                    std::forward<Self>(self).columns,
-                                                                    std::forward<Self>(self).filter,
-                                                                    std::forward<Self>(self).order,
-                                                                    std::forward<Self>(self).limit,
-                                                                    clause(op, std::forward<Q>(query)));
+                return SelectQuery<R, J, F, O, L, G, H, clause, C, Cs...>(std::forward<Self>(self).join,
+                                                                          std::forward<Self>(self).columns,
+                                                                          std::forward<Self>(self).filter,
+                                                                          std::forward<Self>(self).order,
+                                                                          std::forward<Self>(self).limit,
+                                                                          std::forward<Self>(self).groups,
+                                                                          std::forward<Self>(self).havings,
+                                                                          clause(op, std::forward<Q>(query)));
             }
         }
 
@@ -248,11 +337,13 @@ namespace sql
 
         [[nodiscard]] std::string toString()
         {
-            // SELECT <cols> FROM <table> JOIN <tables...> WHERE <expr> <union> ORDER BY <expr> LIMIT <val> OFFSET <val>
-            auto sql = std::format("SELECT {0} FROM {1} {2} {3} {4} {5}",
+            // SELECT <cols> FROM <table> JOIN <tables...> WHERE <expr> GROUP BY <cols> <HAVING> <expr> <union> ORDER BY <expr> LIMIT <val> OFFSET <val>
+            auto sql = std::format("SELECT {0} FROM {1} {2} {3} {4} {5} {6} {7}",
                                    columns.toStringFull(),
                                    join.toString(),
                                    filter.toString(),
+                                   groups.toString(),
+                                   havings.toString(),
                                    unionClause.toString(),
                                    order.toString(),
                                    limit.toString());
@@ -272,6 +363,7 @@ namespace sql
             int32_t index = 0;
             if constexpr (!is_table) std::forward<Self>(self).join.generateIndices(index);
             std::forward<Self>(self).filter.generateIndices(index);
+            std::forward<Self>(self).havings.generateIndices(index);
 
             auto select = []<std::size_t... Is>(auto&& self, std::index_sequence<Is...>)
             {

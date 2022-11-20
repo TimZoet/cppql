@@ -20,6 +20,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/enums.h"
+#include "cppql-typed/clauses/fwd.h"
 #include "cppql-typed/queries/fwd.h"
 
 namespace sql
@@ -145,19 +146,4 @@ namespace sql
 
         query_t query;
     };
-
-    template<typename Q, typename...>
-    struct merge_unions
-    {
-        using type = Union<Q>;
-    };
-
-    template<typename Q, typename... Qs>
-    struct merge_unions<Q, std::tuple<Qs...>>
-    {
-        using type = Union<Qs..., Q>;
-    };
-
-    template<typename Q, typename Prev>
-    using merge_unions_t = typename merge_unions<Q, Prev>::type;
 }  // namespace sql

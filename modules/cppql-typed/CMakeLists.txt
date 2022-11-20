@@ -20,6 +20,9 @@ set(HEADERS
     ${INCLUDE_DIR}/aggregates/sum_aggregate.h
     ${INCLUDE_DIR}/aggregates/total_aggregate.h
     ${INCLUDE_DIR}/clauses/columns.h
+    ${INCLUDE_DIR}/clauses/fwd.h
+    ${INCLUDE_DIR}/clauses/group_by.h
+    ${INCLUDE_DIR}/clauses/having.h
     ${INCLUDE_DIR}/clauses/limit.h
     ${INCLUDE_DIR}/clauses/on.h
     ${INCLUDE_DIR}/clauses/order_by.h

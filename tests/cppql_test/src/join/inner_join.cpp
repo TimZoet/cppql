@@ -39,20 +39,17 @@ void InnerJoin::operator()()
     sql::TypedTable<int64_t, float, int32_t>     table3(*t3);
 
     //auto tuple = sql::tuple_swizzle_t<std::tuple<float, int, double>, -1, 1, 2>();
-
-    auto query0 = table0.select(table0.col<0>(), table0.col<1>());
-    auto query1 = query0.unions(sql::UnionOperator::Except, table1.select())
-                    .unions(sql::UnionOperator::Intersect, table2.select<0, 1>());
-    auto stmt = query1.compile();
-    /*auto aggr = sql::avg<float, true>(table0.col<1>());
+    auto aggr = sql::avg<float, true>(table0.col<1>());
     auto stmt = table0.join(sql::InnerJoin{}, table1)
                   .usings(table0.col<0>(), table0.col<1>())
                   .join(sql::InnerJoin{}, table2)
                   .on(table1.col<0>() == table2.col<0>())
                   .select(aggr, table2.col<0>())
+                  .groupBy(table0.col<0>(), table0.col<1>(), table0.col<2>())
+                  .having(avg(table0.col<1>()) > 0)
                   .where(like(table0.col<2>(), "abc"))
                   .compile()
-                  .bind(sql::BindParameters::All);*/
+                  .bind(sql::BindParameters::All);
     //constexpr bool x = decltype(select)::has_filter_list;
     //static_cast<void>(x);
 }

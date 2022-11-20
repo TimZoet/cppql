@@ -73,10 +73,7 @@ namespace sql
          * \brief Generate aggregate expression on a column.
          * \return String with format "<func>(<col>)".
          */
-        [[nodiscard]] std::string toString() const
-        {
-            return A::toString(column.fullName());
-        }
+        [[nodiscard]] std::string toString() const { return A::toString(column.fullName()); }
 
         static void bind(Statement&, const BindParameters) {}
 
@@ -89,5 +86,10 @@ namespace sql
          * \brief Column.
          */
         col_t column;
+    };
+
+    template<typename C, typename A>
+    struct _is_filter_expression<AggregateExpression<C, A>> : std::true_type
+    {
     };
 }  // namespace sql

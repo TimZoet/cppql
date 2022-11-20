@@ -65,7 +65,6 @@ namespace sql
         void generateIndices(int32_t& idx)
         {
             index = idx++;
-            column.generateIndices(idx);
         }
 
         /**

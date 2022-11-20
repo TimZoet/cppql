@@ -24,7 +24,7 @@
 
 namespace sql
 {
-    template<is_column_expression L, is_column_expression R, ComparisonOperator Op>
+    template<is_result_expression L, is_result_expression R, ComparisonOperator Op>
     class ColumnComparisonExpression
     {
     public:
@@ -67,11 +67,7 @@ namespace sql
             return left.containsTables(tables...) && right.containsTables(tables...);
         }
 
-        void generateIndices(int32_t& idx)
-        {
-            left.generateIndices(idx);
-            right.generateIndices(idx);
-        }
+        static void generateIndices(int32_t&) {}
 
         /**
          * \brief Generate expression comparing two columns.
@@ -111,7 +107,7 @@ namespace sql
      * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<is_column_expression L, is_column_expression R>
+    template<is_result_expression L, is_result_expression R>
     auto operator==(L&& lhs, R&& rhs)
     {
         return ColumnComparisonExpression<L, R, ComparisonOperator::Eq>(std::forward<L>(lhs), std::forward<R>(rhs));
@@ -125,7 +121,7 @@ namespace sql
      * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<is_column_expression L, is_column_expression R>
+    template<is_result_expression L, is_result_expression R>
     auto operator!=(L&& lhs, R&& rhs)
     {
         return ColumnComparisonExpression<L, R, ComparisonOperator::Ne>(std::forward<L>(lhs), std::forward<R>(rhs));
@@ -139,7 +135,7 @@ namespace sql
      * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<is_column_expression L, is_column_expression R>
+    template<is_result_expression L, is_result_expression R>
     auto operator<(L&& lhs, R&& rhs)
     {
         return ColumnComparisonExpression<L, R, ComparisonOperator::Lt>(std::forward<L>(lhs), std::forward<R>(rhs));
@@ -153,7 +149,7 @@ namespace sql
      * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<is_column_expression L, is_column_expression R>
+    template<is_result_expression L, is_result_expression R>
     auto operator>(L&& lhs, R&& rhs)
     {
         return ColumnComparisonExpression<L, R, ComparisonOperator::Gt>(std::forward<L>(lhs), std::forward<R>(rhs));
@@ -167,7 +163,7 @@ namespace sql
      * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<is_column_expression L, is_column_expression R>
+    template<is_result_expression L, is_result_expression R>
     auto operator<=(L&& lhs, R&& rhs)
     {
         return ColumnComparisonExpression<L, R, ComparisonOperator::Le>(std::forward<L>(lhs), std::forward<R>(rhs));
@@ -181,7 +177,7 @@ namespace sql
      * \param rhs Value.
      * \return ColumnComparisonExpression object.
      */
-    template<is_column_expression L, is_column_expression R>
+    template<is_result_expression L, is_result_expression R>
     auto operator>=(L&& lhs, R&& rhs)
     {
         return ColumnComparisonExpression<L, R, ComparisonOperator::Ge>(std::forward<L>(lhs), std::forward<R>(rhs));

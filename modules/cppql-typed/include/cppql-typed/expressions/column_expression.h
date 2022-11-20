@@ -60,8 +60,6 @@ namespace sql
 
         [[nodiscard]] bool containsTables(const auto&... tables) const { return ((&tables == table) || ...); }
 
-        static void generateIndices(int32_t&) {}
-
         /**
          * \brief Get column name.
          * \return String with format "column-name".

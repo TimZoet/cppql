@@ -11,6 +11,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "cppql-typed/fwd.h"
+#include "cppql-typed/clauses/fwd.h"
 
 namespace sql
 {
@@ -31,8 +32,10 @@ namespace sql
              is_filter_expression_or_none   F,
              is_order_by_expression_or_none O,
              is_true_type_or_none           L,
-             typename U,
-             is_result_expression C,
+             is_group_by_or_none            G,
+             is_filter_expression_or_none   H,
+             is_union_or_none               U,
+             is_result_expression           C,
              is_result_expression... Cs>
         requires(constructible_from<R, typename C::value_t, typename Cs::value_t...>)
     class SelectQuery;

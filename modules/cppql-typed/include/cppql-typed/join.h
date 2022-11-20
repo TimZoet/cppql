@@ -217,6 +217,8 @@ namespace sql
               std::nullopt_t,
               std::nullopt_t,
               std::nullopt_t,
+              std::nullopt_t,
+              std::nullopt_t,
               std::remove_cvref_t<C>,
               std::remove_cvref_t<Cs>...>(
               std::forward<Self>(self),

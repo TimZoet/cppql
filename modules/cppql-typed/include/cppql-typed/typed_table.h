@@ -158,6 +158,8 @@ namespace sql
                                std::nullopt_t,
                                std::nullopt_t,
                                std::nullopt_t,
+                               std::nullopt_t,
+                               std::nullopt_t,
                                std::remove_cvref_t<Col>,
                                std::remove_cvref_t<Cols>...>(
               *this,
