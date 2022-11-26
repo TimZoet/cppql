@@ -131,8 +131,7 @@ set(SOURCES
 
 set(DEPS_PRIVATE
     bettertest::bettertest
-	cppql-core
-	cppql-typed
+	cppql
 )
 
 make_target(

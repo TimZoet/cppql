@@ -1,6 +1,6 @@
 #include "cppql_test/typed_table/create_typed_table_int.h"
 
-#include "cppql-typed/typed_table.h"
+#include "cppql/include_all.h"
 
 namespace
 {

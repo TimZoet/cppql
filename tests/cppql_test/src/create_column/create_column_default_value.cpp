@@ -1,6 +1,6 @@
 #include "cppql_test/create_column/create_column_default_value.h"
 
-#include "cppql-typed/typed_table.h"
+#include "cppql/include_all.h"
 
 void CreateColumnDefaultValue::operator()()
 {

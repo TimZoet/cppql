@@ -1,6 +1,6 @@
 #include "cppql_test/insert/insert_tuple.h"
 
-#include "cppql-typed/include_all.h"
+#include "cppql/include_all.h"
 
 using namespace std::string_literals;
 

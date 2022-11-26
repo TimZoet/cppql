@@ -1,6 +1,6 @@
 #include "cppql_test/insert/insert_blob.h"
 
-#include "cppql-typed/include_all.h"
+#include "cppql/include_all.h"
 
 namespace
 {
