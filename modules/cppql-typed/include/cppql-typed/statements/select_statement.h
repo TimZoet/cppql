@@ -25,9 +25,8 @@
 namespace sql
 {
     /**
-     * \brief The SelectStatement class wraps a SELECT <cols> FROM <table> WHERE <expr> statement.
-     * The statement is executed when calling the begin() method. Iterating over the
-     * object will return all rows that matched the expression.
+     * \brief The SelectStatement class manages a prepared statement to retrieve rows from a table (or unions and joins
+     * of tables). It can be constructed using a SelectQuery.
      * \tparam R Return type.
      * \tparam Cs Types of the columns to retrieve.
      */
@@ -67,7 +66,12 @@ namespace sql
                 code     = res.code;
 
                 if (code != Result::sqlite_row && code != Result::sqlite_done)
+                {
+                    static_cast<void>(stmt->reset());
                     throw SqliteError(std::format("Failed to step through select statement."), res.code);
+                }
+
+                // Reached last row. Reset statement for next invocation.
                 if (code == Result::sqlite_done)
                 {
                     res = stmt->reset();
@@ -131,10 +135,6 @@ namespace sql
 
         iterator begin()
         {
-            // Reset statement.
-            if (const auto res = stmt->reset(); !res)
-                throw SqliteError(std::format("Failed to reset select statement."), res.code);
-
             return iterator(*stmt);
         }
 
@@ -149,14 +149,24 @@ namespace sql
         template<typename Self>
         auto&& bind(this Self&& self, const BindParameters b)
         {
-            if (any(b) && self.exp)
-            {
-                self.exp->bind(*self.stmt, b);
-            }
+            if (any(b) && self.exp) { self.exp->bind(*self.stmt, b); }
             return std::forward<Self>(self);
         }
 
-        //private:
+        /**
+         * \brief Explicitly reset statement. Invalidates all iterators.
+         * \tparam Self Self type.
+         * \param self Self.
+         */
+        template<typename Self>
+        auto&& reset(this Self&& self)
+        {
+            if (const auto res = self.stmt->reset(); !res)
+                throw SqliteError(std::format("Failed to reset select statement."), res.code);
+            return std::forward<Self>(self);
+        }
+
+    private:
         ////////////////////////////////////////////////////////////////
         // Member variables.
         ////////////////////////////////////////////////////////////////

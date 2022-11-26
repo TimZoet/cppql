@@ -16,9 +16,9 @@
 namespace sql
 {
     /**
-     * \brief The Insert class wraps a INSERT INTO <table> VALUES <vals> statement. When invoked, it adds a row to the table.
-     * \tparam T Table type.
-     * \tparam Indices 0-based indices of the columns to insert.
+     * \brief The InsertStatement class manages a prepared statement for inserting new rows into a table. It can be
+     * constructed using a InsertQuery.
+     * \tparam Cols Types of the columns to insert.
      */
     template<typename... Cols>
     class InsertStatement
@@ -61,9 +61,6 @@ namespace sql
             requires(sizeof...(Cs) == column_count)
         void operator()(Cs&&... values)
         {
-            if (const auto res = stmt->reset(); !res)
-                throw SqliteError(std::format("Failed to reset insert statement."), res.code);
-
             // Only rebind if there are parameters.
             if constexpr (column_count > 0)
             {
@@ -72,7 +69,13 @@ namespace sql
             }
 
             if (const auto res = stmt->step(); !res)
+            {
+                static_cast<void>(stmt->reset());
                 throw SqliteError(std::format("Failed to step through insert statement."), res.code);
+            }
+
+            if (const auto res = stmt->reset(); !res)
+                throw SqliteError(std::format("Failed to reset insert statement."), res.code);
         }
 
         /**

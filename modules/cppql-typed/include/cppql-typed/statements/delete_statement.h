@@ -18,7 +18,8 @@
 namespace sql
 {
     /**
-     * \brief The Delete class wraps a DELETE FROM <table> WHERE <expr> statement. When invoked, it removes all rows from the table that match the expression.
+     * \brief The DeleteStatement class manages a prepared statement for removing rows from a table. It can be
+     * constructed using a DeleteQuery.
      */
     class DeleteStatement
     {
@@ -57,7 +58,7 @@ namespace sql
         template<typename Self>
         auto&& bind(this Self&& self, const BindParameters b)
         {
-            if (any(b) && self.exp)  self.exp->bind(*self.stmt, b);
+            if (any(b) && self.exp) self.exp->bind(*self.stmt, b);
             return std::forward<Self>(self);
         }
 
@@ -68,7 +69,10 @@ namespace sql
         {
             // Run statement.
             if (const auto res = stmt->step(); !res)
+            {
+                static_cast<void>(stmt->reset());
                 throw SqliteError(std::format("Failed to step through delete statement."), res.code);
+            }
 
             // Reset statement.
             if (const auto res = stmt->reset(); !res)

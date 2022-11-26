@@ -17,7 +17,8 @@
 namespace sql
 {
     /**
-     * \brief The Count class wraps a SELECT COUNT(*) FROM <table> WHERE <expr> statement. When invoked, it returns the number of rows that match the expression.
+     * \brief The CountStatement class manages a prepared statement for retrieving the number of rows in a table. It
+     * can be constructed using a CountQuery.
      */
     class CountStatement
     {
@@ -56,22 +57,22 @@ namespace sql
         template<typename Self>
         auto&& bind(this Self&& self, const BindParameters b)
         {
-            if (any(b) && self.exp)  self.exp->bind(*self.stmt, b);
+            if (any(b) && self.exp) self.exp->bind(*self.stmt, b);
             return std::forward<Self>(self);
         }
 
         /**
-         * \brief Run count statement. Optionally (re)binds parameters.
-         * \param b Parameters to bind.
+         * \brief Run count statement.
          * \return Number of rows.
          */
-        row_id operator()(const BindParameters b) const
+        row_id operator()() const
         {
-            bind(b);
-
             // Run statement.
             if (const auto res = stmt->step(); !res)
+            {
+                static_cast<void>(stmt->reset());
                 throw SqliteError(std::format("Failed to step through count statement."), res.code);
+            }
 
             // Retrieve number of rows.
             const auto rows = stmt->column<row_id>(0);

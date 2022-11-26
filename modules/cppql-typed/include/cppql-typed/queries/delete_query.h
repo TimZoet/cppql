@@ -25,6 +25,15 @@
 
 namespace sql
 {
+    /**
+     * \brief The DeleteQuery class can be used to prepare a statement counting the number of rows in a table. It is
+     * constructed using the del method of the TypedTable class. The generated code is of the format "DELETE FROM
+     * table WHERE expr ORDER BY expr LIMIT val OFFSET val;".
+     * \tparam T TypedTable type.
+     * \tparam F Filter expression type (or std::nullopt_t if not yet initialized). Is used to generate the WHERE clause.
+     * \tparam O OrderBy expression type (or std::nullopt_t if not yet initialized). Is used to generate the ORDER BY clause.
+     * \tparam L std::true_type to indicate a limit and offset value have been set (or std::nullopt_t if not yet initialized). Is used to generate the LIMIT OFFSET clause.
+     */
     template<is_typed_table T, is_filter_expression_or_none F, is_order_by_expression_or_none O, is_true_type_or_none L>
     class DeleteQuery
     {

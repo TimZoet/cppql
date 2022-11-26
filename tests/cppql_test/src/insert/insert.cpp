@@ -18,12 +18,26 @@ void Insert::operator()()
     sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
-    auto insert = table.insert().compile();
-    expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
-    expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
-    expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
-    expectNoThrow([&insert] { insert(40, 133.3f, sql::toText("gh\0ij")); });
-    expectNoThrow([&insert] { insert(50, 99.9f, sql::toText("")); });
+    expectNoThrow([&table] {
+        auto insert = table.insert().compile();
+        insert(10, 20.0f, sql::toText("abc"));
+    });
+    expectNoThrow([&table] {
+        auto insert = table.insert(table.col<0>(), table.col<1>(), table.col<2>()).compile();
+        insert(20, 40.5f, sql::toText("def"));
+    });
+    expectNoThrow([&table] {
+        auto insert = table.insert<0, 1, 2>().compile();
+        insert(30, 80.2f, sql::toText("ghij"));
+    });
+    expectNoThrow([&table] {
+        auto insert = table.insert<2, 1, 0>().compile();
+        insert(sql::toText("gh\0ij"), 133.3f, 40);
+    });
+    expectNoThrow([&table] {
+        auto insert = table.insert().compile();
+        insert(50, 99.9f, sql::toText(""));
+    });
 
     // Create select statement to select all data.
     const auto stmt = db->createStatement("SELECT * FROM myTable;", true);

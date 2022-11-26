@@ -46,12 +46,15 @@ namespace sql
     using lazy_table_list_t = typename lazy_table_list<T>::type;
 
     /**
-     * \brief 
+     * \brief The SelectQuery class can be used to prepare a statement that selects rows from a table. It is
+     * constructed using the select method of the TypedTable and Join classes. The generated code is of the
+     * format "SELECT cols FROM table JOIN tables... WHERE expr GROUP BY cols HAVING expr union ORDER BY expr LIMIT
+     * val OFFSET val;".
      * \tparam R Return type. Must be constructible from the value types of {C, Cs...}.
      * \tparam J TypedTable type or Join type.
      * \tparam F Filter expression type (or std::nullopt_t if not yet initialized). Is used to generate the WHERE clause.
      * \tparam O OrderBy expression type (or std::nullopt_t if not yet initialized). Is used to generate the ORDER BY clause.
-     * \tparam L 
+     * \tparam L std::true_type to indicate a limit and offset value have been set (or std::nullopt_t if not yet initialized). Is used to generate the LIMIT OFFSET clause.
      * \tparam G GroupBy<Cols...> type (or std::nullopt_t if not yet initialized). Is used to generate the GROUP BY clause.
      * \tparam H Filter expression type (or std::nullopt_t if not yet initialized). Is used to generate the HAVING clause.
      * \tparam U Union<Qs...> type (or std::nullopt_t if not yet initialized), where Qs... is a set of valid SelectQuery types. Is used to generate the sequence of UNION clauses.

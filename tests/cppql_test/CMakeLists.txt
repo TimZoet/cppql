@@ -48,6 +48,7 @@ set(HEADERS
     ${INCLUDE_DIR}/select/select_order_by.h
     ${INCLUDE_DIR}/select/select_order_by_null.h
     ${INCLUDE_DIR}/select/select_reorder.h
+    ${INCLUDE_DIR}/select/select_reset.h
     ${INCLUDE_DIR}/select/select_to_vector.h
     ${INCLUDE_DIR}/table/create_table.h
     ${INCLUDE_DIR}/table/drop_table.h
@@ -108,6 +109,7 @@ set(SOURCES
     ${SRC_DIR}/select/select_order_by.cpp
     ${SRC_DIR}/select/select_order_by_null.cpp
     ${SRC_DIR}/select/select_reorder.cpp
+    ${SRC_DIR}/select/select_reset.cpp
     ${SRC_DIR}/select/select_to_vector.cpp
     ${SRC_DIR}/table/create_table.cpp
     ${SRC_DIR}/table/drop_table.cpp

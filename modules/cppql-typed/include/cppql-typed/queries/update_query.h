@@ -21,6 +21,17 @@
 
 namespace sql
 {
+    /**
+     * \brief The UpdateQuery class can be used to prepare a statement that updates existing rows in a table. It is
+     * constructed using the update method of the TypedTable class. The generated code is of the format "UPDATE table
+     * SET (cols) = (vals) WHERE expr ORDER BY expr LIMIT val OFFSET val;".
+     * \tparam T TypedTable type.
+     * \tparam F Filter expression type (or std::nullopt_t if not yet initialized). Is used to generate the WHERE clause.
+     * \tparam O OrderBy expression type (or std::nullopt_t if not yet initialized). Is used to generate the ORDER BY clause.
+     * \tparam L std::true_type to indicate a limit and offset value have been set (or std::nullopt_t if not yet initialized). Is used to generate the LIMIT OFFSET clause.
+     * \tparam C List of ColumnExpression type. Must be a valid column of T.
+     * \tparam Cs List of ColumnExpression types. Must be a valid column of T.
+     */
     template<is_typed_table                 T,
              is_filter_expression_or_none   F,
              is_order_by_expression_or_none O,
@@ -151,7 +162,7 @@ namespace sql
             std::string vals = "?1";
             for (; index < columns_t::size; index++) vals += std::format(",?{0}", index + 1);
 
-            // UPDATE <table> SET (<cols>) = (<vals>) WHERE <expr> ORDER BY <expr> LIMIT <val> OFFSET <val>
+            // UPDATE <table> SET (<cols>) = (<vals>) WHERE <expr> ORDER BY <expr> LIMIT <val> OFFSET <val>;
             auto sql = std::format("UPDATE {0} SET ({1}) = ({2}) {3} {4};",
                                    table->getName(),
                                    columns.toString(),
@@ -187,7 +198,7 @@ namespace sql
                 f = std::make_unique<FilterExpression<typename filter_t::filter_t>>(
                   std::forward<Self>(self).filter.filter);
 
-            return UpdateStatement<C, Cs...>(std::move(stmt), std::move(f));
+            return UpdateStatement<typename C::value_t, typename Cs::value_t...>(std::move(stmt), std::move(f));
         }
     };
 }  // namespace sql

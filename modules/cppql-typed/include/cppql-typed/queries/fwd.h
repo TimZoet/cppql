@@ -24,7 +24,7 @@ namespace sql
     template<is_typed_table T, is_filter_expression_or_none F, is_order_by_expression_or_none O, is_true_type_or_none L>
     class DeleteQuery;
 
-    template<is_typed_table T, is_column_expression... Cs>
+    template<is_typed_table T, is_valid_column_expression<std::tuple<T>>... Cs>
     class InsertQuery;
 
     template<typename R,

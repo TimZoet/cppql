@@ -95,13 +95,13 @@ namespace sql
     template<typename T>
     concept is_join_wrapper = std::same_as<std::remove_cvref_t<T>, JoinTypeWrapper<std::remove_cvref_t<T>::type>>;
 
-    using CrossJoin        = JoinTypeWrapper<JoinType::Cross>;
-    using LeftJoin         = JoinTypeWrapper<JoinType::Left>;
-    using RightJoin        = JoinTypeWrapper<JoinType::Right>;
-    using FullJoin         = JoinTypeWrapper<JoinType::Full>;
-    using InnerJoin        = JoinTypeWrapper<JoinType::Inner>;
-    using NaturalLeftJoin  = JoinTypeWrapper<JoinType::NaturalLeft>;
-    using NaturalRightJoin = JoinTypeWrapper<JoinType::NaturalRight>;
-    using NaturalFullJoin  = JoinTypeWrapper<JoinType::NaturalFull>;
-    using NaturalInnerJoin = JoinTypeWrapper<JoinType::NaturalInner>;
+    constexpr auto CrossJoin        = JoinTypeWrapper<JoinType::Cross>{};
+    constexpr auto LeftJoin         = JoinTypeWrapper<JoinType::Left>{};
+    constexpr auto RightJoin        = JoinTypeWrapper<JoinType::Right>{};
+    constexpr auto FullJoin         = JoinTypeWrapper<JoinType::Full>{};
+    constexpr auto InnerJoin        = JoinTypeWrapper<JoinType::Inner>{};
+    constexpr auto NaturalLeftJoin  = JoinTypeWrapper<JoinType::NaturalLeft>{};
+    constexpr auto NaturalRightJoin = JoinTypeWrapper<JoinType::NaturalRight>{};
+    constexpr auto NaturalFullJoin  = JoinTypeWrapper<JoinType::NaturalFull>{};
+    constexpr auto NaturalInnerJoin = JoinTypeWrapper<JoinType::NaturalInner>{};
 }  // namespace sql

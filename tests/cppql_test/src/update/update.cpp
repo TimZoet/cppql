@@ -6,6 +6,8 @@ using namespace std::string_literals;
 
 void Update::operator()()
 {
+    // TODO: Add tests that don't just use the indexed methods.
+    // Add test for empty parameter list that should generate statement to update all columns.
     // Create table.
     sql::Table* t;
     expectNoThrow([&t, this] {

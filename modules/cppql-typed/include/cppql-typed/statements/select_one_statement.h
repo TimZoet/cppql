@@ -17,7 +17,8 @@
 namespace sql
 {
     /**
-     * \brief The SelectOneStatement class wraps around a Select instance. It uses the instance to return just one result row.
+     * \brief The SelectOneStatement class wraps around a Select instance. It uses the instance to return just one
+     * result row.
      * \tparam R Return type.
      * \tparam Cs Types of the columns to retrieve.
      */
@@ -73,7 +74,7 @@ namespace sql
         }
 
         /**
-         * \brief Execute statement.
+         * \brief Execute statement. Will throw if not exactly one row was returned.
          * \return Result row.
          */
         return_t operator()()
@@ -82,15 +83,21 @@ namespace sql
             auto it = stmt.begin();
 
             // Check if there is a result.
-            if (it == stmt.end()) throw CppqlError("Select returned no result.");
+            if (it == stmt.end())
+            {
+                stmt.reset();
+                throw CppqlError("Select returned no result.");
+            }
 
             // Get result.
             auto r = *it;
 
             // Check if there was only one result.
-            if (++it != stmt.end()) throw CppqlError("More than one result returned.");
-
-            static_cast<void>(stmt.stmt->reset());
+            if (++it != stmt.end())
+            {
+                stmt.reset();
+                throw CppqlError("More than one result returned.");
+            }
 
             return r;
         }

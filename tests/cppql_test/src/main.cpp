@@ -52,6 +52,7 @@
 #include "cppql_test/select/select_order_by.h"
 #include "cppql_test/select/select_order_by_null.h"
 #include "cppql_test/select/select_reorder.h"
+#include "cppql_test/select/select_reset.h"
 #include "cppql_test/select/select_to_vector.h"
 #include "cppql_test/table/create_table.h"
 #include "cppql_test/table/drop_table.h"
@@ -134,6 +135,7 @@ int main(const int argc, char** argv)
             SelectOrderBy,
             SelectOrderByNull,
             SelectReorder,
+            SelectReset,
             SelectToVector,
             StatementPrepare,
             StatementStep,

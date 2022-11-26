@@ -18,7 +18,14 @@
 
 namespace sql
 {
-    template<is_typed_table T, is_column_expression... Cs>
+    /**
+     * \brief The sql::InsertQuery class can be used to prepare a statement that inserts new values into a table. It is
+     * constructed using the insert method of the TypedTable class. The generated code is of the format "INSERT INTO
+     * table (cols) VALUES (vals);".
+     * \tparam T TypedTable type.
+     * \tparam Cs List of ColumnExpression type. Must be a valid column of T.
+     */
+    template<is_typed_table T, is_valid_column_expression<std::tuple<T>>... Cs>
     class InsertQuery
     {
     public:
@@ -58,14 +65,14 @@ namespace sql
         {
             if constexpr (columns_t::size == 0)
             {
-                return std::format("INSERT INTO {0} DEFAULT VALUES", table->getName());
+                return std::format("INSERT INTO {0} DEFAULT VALUES;", table->getName());
             }
             else
             {
                 std::string vals = "?1";
                 for (size_t i = 1; i < columns_t::size; i++) vals += std::format(",?{0}", i + 1);
                 return std::format(
-                  "INSERT INTO {0} ({1}) VALUES ({2})", table->getName(), columns.toString(), std::move(vals));
+                  "INSERT INTO {0} ({1}) VALUES ({2});", table->getName(), columns.toString(), std::move(vals));
             }
         }
 
@@ -85,7 +92,7 @@ namespace sql
                 throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
                                   stmt->getResult()->code);
 
-            return InsertStatement<Cs...>(std::move(stmt));
+            return InsertStatement<typename Cs::value_t...>(std::move(stmt));
         }
     };
 }  // namespace sql

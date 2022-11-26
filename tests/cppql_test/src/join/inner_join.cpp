@@ -38,11 +38,14 @@ void InnerJoin::operator()()
     sql::TypedTable<int64_t, float, int32_t>     table2(*t2);
     sql::TypedTable<int64_t, float, int32_t>     table3(*t3);
 
+    auto q0 = table0.select();
+    auto q1 = q0.limitOffset(10, 100);
+    
     //auto tuple = sql::tuple_swizzle_t<std::tuple<float, int, double>, -1, 1, 2>();
     auto aggr = sql::avg<float, true>(table0.col<1>());
-    auto stmt = table0.join(sql::InnerJoin{}, table1)
+    auto stmt = table0.join(sql::InnerJoin, table1)
                   .usings(table0.col<0>(), table0.col<1>())
-                  .join(sql::InnerJoin{}, table2)
+                  .join(sql::InnerJoin, table2)
                   .on(table1.col<0>() == table2.col<0>())
                   .select(aggr, table2.col<0>())
                   .groupBy(table0.col<0>(), table0.col<1>(), table0.col<2>())

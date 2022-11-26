@@ -17,9 +17,9 @@
 namespace sql
 {
     /**
-     * \brief The Update class wraps an UPDATE <table> SET <cols> = <vals> statement. When invoked, it updates the rows in the table.
-     * \tparam T Table type.
-     * \tparam Indices 0-based indices of the columns to update.
+     * \brief The UpdateStatement class manages a prepared statement for updating existing rows in a table. It can be
+     * constructed using a UpdateQuery.
+     * \tparam Cols Types of the columns to update.
      */
     template<typename... Cols>
     class UpdateStatement
@@ -65,7 +65,7 @@ namespace sql
         template<typename Self>
         auto&& bind(this Self&& self, const BindParameters b)
         {
-            if (any(b) && self.exp)  self.exp->bind(*self.stmt, b);
+            if (any(b) && self.exp) self.exp->bind(*self.stmt, b);
             return std::forward<Self>(self);
         }
 
@@ -83,7 +83,10 @@ namespace sql
                 throw SqliteError(std::format("Failed to bind parameters to update statement."), res.code);
 
             if (const auto res = stmt->step(); !res)
+            {
+                static_cast<void>(stmt->reset());
                 throw SqliteError(std::format("Failed to step through update statement."), res.code);
+            }
 
             if (const auto res = stmt->reset(); !res)
                 throw SqliteError(std::format("Failed to reset update statement."), res.code);
@@ -92,16 +95,15 @@ namespace sql
         /**
          * \brief Update table.
          * \tparam Cs Column types.
-         * \param bind Parameters to bind.
          * \param values Values.
          */
         template<bindable... Cs>
             requires(sizeof...(Cs) == column_count)
-        void operator()(const BindParameters bind, std::tuple<Cs...>&& values)
+        void operator()(std::tuple<Cs...>&& values)
         {
-            const auto unpack = [this, bind]<std::size_t... Is>(std::index_sequence<Is...>, auto&& vals)
+            const auto unpack = [this]<std::size_t... Is>(std::index_sequence<Is...>, auto&& vals)
             {
-                this->operator()(bind, std::get<Is>(vals)...);
+                this->operator()(std::get<Is>(vals)...);
             };
 
             return unpack(std::index_sequence_for<Cs...>{}, std::forward<std::tuple<Cs...>>(values));

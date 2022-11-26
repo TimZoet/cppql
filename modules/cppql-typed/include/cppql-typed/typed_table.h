@@ -112,6 +112,15 @@ namespace sql
         // Insert.
         ////////////////////////////////////////////////////////////////
 
+        // TODO: There is no detection of duplicate columns here yet. Same for update.
+
+        template<is_valid_column_expression<std::tuple<table_t>> Col,
+                 is_valid_column_expression<std::tuple<table_t>>... Cols>
+        [[nodiscard]] auto insert(Col&& c, Cols&&... cs)
+        {
+            return InsertQuery<table_t, Col, Cols...>(*table, Columns(std::forward<Col>(c), std::forward<Cols>(cs)...));
+        }
+
         template<size_t... Indices>
             requires((Indices < column_count) && ...)
         [[nodiscard]] auto insert() const
@@ -208,6 +217,14 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         // Update.
         ////////////////////////////////////////////////////////////////
+
+        template<is_valid_column_expression<std::tuple<table_t>> Col,
+                 is_valid_column_expression<std::tuple<table_t>>... Cols>
+        [[nodiscard]] auto update(Col&& c, Cols&&... cs)
+        {
+            return UpdateQuery<table_t, std::nullopt_t, std::nullopt_t, std::nullopt_t, Col, Cols...>(
+              *table, Columns(std::forward<Col>(c), std::forward<Cols>(cs)...));
+        }
 
         template<size_t... Indices>
             requires((Indices < column_count) && ...)
