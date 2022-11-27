@@ -76,6 +76,6 @@ namespace sql
     template<typename R = float, bool Distinct = false, is_column_expression C>
     auto sum(C&& col)
     {
-        return AggregateExpression<std::remove_cvref_t<C>, SumAggregate<R>>(std::forward<C>(col));
+        return AggregateExpression<std::remove_cvref_t<C>, SumAggregate<R, Distinct>>(std::forward<C>(col));
     }
 }  // namespace sql

@@ -216,8 +216,8 @@ namespace sql
                 Cs...>(std::forward<C>(c), std::forward<Cs>(cs)...);
         }
 
-        template<typename Self,
-                 typename R,
+        template<typename R,
+                 typename Self,
                  is_valid_result_expression<table_list_t> C,
                  is_valid_result_expression<table_list_t>... Cs>
         auto selectAs(this Self&& self, C&& c, Cs&&... cs)

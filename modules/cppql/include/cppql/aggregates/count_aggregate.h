@@ -76,6 +76,6 @@ namespace sql
     template<typename R = int64_t, bool Distinct = false, is_column_expression C>
     auto count(C&& col)
     {
-        return AggregateExpression<std::remove_cvref_t<C>, CountAggregate<R>>(std::forward<C>(col));
+        return AggregateExpression<std::remove_cvref_t<C>, CountAggregate<R, Distinct>>(std::forward<C>(col));
     }
 }  // namespace sql
