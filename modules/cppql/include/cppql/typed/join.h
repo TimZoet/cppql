@@ -210,8 +210,8 @@ namespace sql
         {
             return std::forward<Self>(self)
               .template selectAs<
-                Self,
                 std::tuple<typename std::remove_cvref_t<C>::value_t, typename std::remove_cvref_t<Cs>::value_t...>,
+                Self,
                 C,
                 Cs...>(std::forward<C>(c), std::forward<Cs>(cs)...);
         }
