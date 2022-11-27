@@ -18,16 +18,10 @@ namespace utils
 
     DatabaseMember::~DatabaseMember() noexcept
     {
-        try
-        {
-            db.reset();
-            const auto cwd    = std::filesystem::current_path();
-            const auto dbPath = cwd / "db.db";
-            std::filesystem::remove(dbPath);
-        }
-        catch (...)
-        {
-        }
+        db.reset();
+        const auto cwd    = std::filesystem::current_path();
+        const auto dbPath = cwd / "db.db";
+        std::filesystem::remove(dbPath);
     }
 
     void DatabaseMember::reopen()

@@ -31,6 +31,7 @@ set(HEADERS
     ${INCLUDE_DIR}/clauses/union.h
     ${INCLUDE_DIR}/clauses/using.h
     ${INCLUDE_DIR}/clauses/where.h
+    ${INCLUDE_DIR}/core/assert.h
     ${INCLUDE_DIR}/core/binding.h
     ${INCLUDE_DIR}/core/column.h
     ${INCLUDE_DIR}/core/database.h

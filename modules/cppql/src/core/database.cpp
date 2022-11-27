@@ -4,7 +4,6 @@
 // Standard includes.
 ////////////////////////////////////////////////////////////////
 
-#include <cassert>
 #include <format>
 
 ////////////////////////////////////////////////////////////////
@@ -17,6 +16,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql/core/assert.h"
 #include "cppql/error/sqlite_error.h"
 
 namespace sql
@@ -25,17 +25,28 @@ namespace sql
 
     Database::~Database()
     {
+        int32_t res = SQLITE_OK;
+
         if (db)
         {
+
             switch (close)
             {
             case Close::Off: break;
-            case Close::V1: assert(sqlite3_close(db) == SQLITE_OK); break;
-            case Close::V2: assert(sqlite3_close_v2(db) == SQLITE_OK); break;
+            case Close::V1: res = sqlite3_close(db); break;
+            case Close::V2: res = sqlite3_close_v2(db); break;
             }
+
+            CPPQL_ASSERT(res == SQLITE_OK);
         }
 
-        if (shutdown == Shutdown::On) assert(sqlite3_shutdown() == SQLITE_OK);
+        if (shutdown == Shutdown::On)
+        {
+            res = sqlite3_shutdown();
+            CPPQL_ASSERT(res == SQLITE_OK);
+        }
+
+        static_cast<void>(res);
     }
 
     ////////////////////////////////////////////////////////////////
@@ -45,7 +56,8 @@ namespace sql
     DatabasePtr Database::create(const std::filesystem::path& file)
     {
         if (exists(file))
-            throw CppqlError(std::format("Failed to create database at {}. Database file already exists", file.string()));
+            throw CppqlError(
+              std::format("Failed to create database at {}. Database file already exists", file.string()));
 
         // Try to create a new database.
         sqlite3* db = nullptr;
@@ -59,7 +71,8 @@ namespace sql
 
     DatabasePtr Database::open(const std::filesystem::path& file)
     {
-        if (!exists(file)) throw CppqlError(std::format("Failed to open database at {}. File does not exist", file.string()));
+        if (!exists(file))
+            throw CppqlError(std::format("Failed to open database at {}. File does not exist", file.string()));
 
         // Try to open database.
         sqlite3* db = nullptr;
