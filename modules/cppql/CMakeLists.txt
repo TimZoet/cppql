@@ -4,10 +4,6 @@ find_package(common REQUIRED)
 # precendence.
 find_package(SQLite3 PATHS ${CMAKE_BINARY_DIR} NO_DEFAULT_PATH REQUIRED)
 
-include(cppql_version_string)
-
-option(CPPQL_BIND_ZERO_BASED_INDICES "Use 0-based indices for all bind methods, instead of the default 1-based indices sqlite uses" ON)
-
 set(NAME cppql)
 set(TYPE module)
 set(INCLUDE_DIR "include/cppql")

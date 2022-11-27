@@ -35,7 +35,7 @@ class CppqlConan(ConanFile):
     
     def set_version(self):
         base = self.python_requires["pyreq"].module.BaseConan
-        base.set_version(self, "modules/cppql/cppql_version_string.cmake", "CPPQL_VERSION")
+        base.set_version(self, "cppqlVersionString.cmake", "CPPQL_VERSION")
     
     def init(self):
         base = self.python_requires["pyreq"].module.BaseConan
