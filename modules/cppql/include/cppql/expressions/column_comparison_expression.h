@@ -73,7 +73,7 @@ namespace sql
          * \brief Generate expression comparing two columns.
          * \return String with format "<lhs> <op> <right>".
          */
-        [[nodiscard]] std::string toString()
+        [[nodiscard]] std::string toString() const
         {
             return std::format("{0} {1} {2}", left.fullName(), ComparisonOperatorType<Op>::str, right.fullName());
         }

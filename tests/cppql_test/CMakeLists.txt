@@ -6,6 +6,12 @@ set(INCLUDE_DIR "include/cppql_test")
 set(SRC_DIR "src")
 
 set(HEADERS
+    ${INCLUDE_DIR}/aggregates/aggregate_average.h
+    ${INCLUDE_DIR}/aggregates/aggregate_count.h
+    ${INCLUDE_DIR}/aggregates/aggregate_max.h
+    ${INCLUDE_DIR}/aggregates/aggregate_min.h
+    ${INCLUDE_DIR}/aggregates/aggregate_sum.h
+    ${INCLUDE_DIR}/aggregates/aggregate_total.h
     ${INCLUDE_DIR}/binding/bind.h
     ${INCLUDE_DIR}/binding/bind_blob.h
     ${INCLUDE_DIR}/binding/bind_int.h
@@ -13,6 +19,15 @@ set(HEADERS
     ${INCLUDE_DIR}/binding/bind_real.h
     ${INCLUDE_DIR}/binding/bind_template.h
     ${INCLUDE_DIR}/binding/bind_text.h
+    ${INCLUDE_DIR}/clauses/clause_columns.h
+    ${INCLUDE_DIR}/clauses/clause_group_by.h
+    ${INCLUDE_DIR}/clauses/clause_having.h
+    ${INCLUDE_DIR}/clauses/clause_limit.h
+    ${INCLUDE_DIR}/clauses/clause_on.h
+    ${INCLUDE_DIR}/clauses/clause_order_by.h
+    ${INCLUDE_DIR}/clauses/clause_union.h
+    ${INCLUDE_DIR}/clauses/clause_using.h
+    ${INCLUDE_DIR}/clauses/clause_where.h
     ${INCLUDE_DIR}/create_column/create_column_blob.h
     ${INCLUDE_DIR}/create_column/create_column_default_value.h
     ${INCLUDE_DIR}/create_column/create_column_foreign_key.h
@@ -67,6 +82,12 @@ set(HEADERS
 )
 
 set(SOURCES
+    ${SRC_DIR}/aggregates/aggregate_average.cpp
+    ${SRC_DIR}/aggregates/aggregate_count.cpp
+    ${SRC_DIR}/aggregates/aggregate_max.cpp
+    ${SRC_DIR}/aggregates/aggregate_min.cpp
+    ${SRC_DIR}/aggregates/aggregate_sum.cpp
+    ${SRC_DIR}/aggregates/aggregate_total.cpp
     ${SRC_DIR}/binding/bind.cpp
     ${SRC_DIR}/binding/bind_blob.cpp
     ${SRC_DIR}/binding/bind_int.cpp
@@ -74,6 +95,15 @@ set(SOURCES
     ${SRC_DIR}/binding/bind_real.cpp
     ${SRC_DIR}/binding/bind_template.cpp
     ${SRC_DIR}/binding/bind_text.cpp
+    ${SRC_DIR}/clauses/clause_columns.cpp
+    ${SRC_DIR}/clauses/clause_group_by.cpp
+    ${SRC_DIR}/clauses/clause_having.cpp
+    ${SRC_DIR}/clauses/clause_limit.cpp
+    ${SRC_DIR}/clauses/clause_on.cpp
+    ${SRC_DIR}/clauses/clause_order_by.cpp
+    ${SRC_DIR}/clauses/clause_union.cpp
+    ${SRC_DIR}/clauses/clause_using.cpp
+    ${SRC_DIR}/clauses/clause_where.cpp
     ${SRC_DIR}/create_column/create_column_blob.cpp
     ${SRC_DIR}/create_column/create_column_default_value.cpp
     ${SRC_DIR}/create_column/create_column_foreign_key.cpp

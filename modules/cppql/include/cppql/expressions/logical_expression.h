@@ -64,7 +64,7 @@ namespace sql
          * \brief Generate expression checking left- and right-hand sides.
          * \return String with format "(<lhs> <op> <rhs>)".
          */
-        [[nodiscard]] std::string toString()
+        [[nodiscard]] std::string toString() const
         {
             auto l = left.toString();
             auto o = Op == LogicalOperator::And ? std::string("AND") : std::string("OR");

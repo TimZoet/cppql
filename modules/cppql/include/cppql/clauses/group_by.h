@@ -50,8 +50,8 @@ namespace sql
         [[nodiscard]] static std::string toString() { return {}; }
     };
 
-    template<is_column_expression... Cs>
-    class GroupBy<Cs...>
+    template<is_column_expression C, is_column_expression... Cs>
+    class GroupBy<C, Cs...>
     {
     public:
         ////////////////////////////////////////////////////////////////
@@ -59,8 +59,8 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         static constexpr bool valid  = true;
-        using group_t                = std::tuple<Cs...>;
-        static constexpr size_t size = sizeof...(Cs);
+        using group_t                = std::tuple<C, Cs...>;
+        static constexpr size_t size = 1 + sizeof...(Cs);
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
@@ -72,7 +72,7 @@ namespace sql
 
         GroupBy(GroupBy&& other) noexcept = default;
 
-        explicit GroupBy(Cs... cs) : group(std::make_tuple(std::move(cs)...)) {}
+        GroupBy(C c, Cs... cs) : group(std::make_tuple(std::move(c), std::move(cs)...)) {}
 
         ~GroupBy() noexcept = default;
 
@@ -92,10 +92,13 @@ namespace sql
         {
             const auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
             {
-                return std::get<I>(group).fullName() + (... + ("," + std::get<Is>(group).fullName()));
+                if constexpr (sizeof...(Is) == 0)
+                    return std::get<I>(group).fullName();
+                else
+                    return std::get<I>(group).fullName() + (... + ("," + std::get<Is>(group).fullName()));
             };
 
-            return std::format("GROUP BY {0}", cols(std::index_sequence_for<Cs...>{}));
+            return std::format("GROUP BY {0}", cols(std::index_sequence_for<C, Cs...>{}));
         }
 
     private:

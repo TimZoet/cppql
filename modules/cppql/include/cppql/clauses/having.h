@@ -90,7 +90,7 @@ namespace sql
          * \brief Generate HAVING clause with filter expression.
          * \return String with format "HAVING <expr>".
          */
-        [[nodiscard]] std::string toString() { return std::format(" HAVING {}", filter.toString()); }
+        [[nodiscard]] std::string toString() const { return std::format("HAVING {}", filter.toString()); }
 
         ////////////////////////////////////////////////////////////////
         // Member variables.

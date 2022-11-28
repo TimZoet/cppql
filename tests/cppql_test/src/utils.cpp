@@ -10,6 +10,8 @@ namespace utils
 {
     DatabaseMember::DatabaseMember()
     {
+        // TODO: Is it possible to create an in-memory database?
+        // Would allow running tests in parallel without issues.
         const auto cwd    = std::filesystem::current_path();
         const auto dbPath = cwd / "db.db";
         if (exists(dbPath)) std::filesystem::remove(dbPath);

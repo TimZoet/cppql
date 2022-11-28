@@ -78,7 +78,7 @@ namespace sql
          * \brief Generate expression comparing a column to a fixed or dynamic value.
          * \return String with format "<col> <op> ?<index>" or "?<index> <op> <col>".
          */
-        [[nodiscard]] std::string toString()
+        [[nodiscard]] std::string toString() const
         {
             // Format with column on LHS or RHS.
             if constexpr (Lhs)

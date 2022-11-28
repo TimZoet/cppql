@@ -90,7 +90,7 @@ namespace sql
          * \brief Generate WHERE clause with filter expression.
          * \return String with format "WHERE <expr>".
          */
-        [[nodiscard]] std::string toString() { return std::format(" WHERE {}", filter.toString()); }
+        [[nodiscard]] std::string toString() { return std::format("WHERE {}", filter.toString()); }
 
         ////////////////////////////////////////////////////////////////
         // Member variables.

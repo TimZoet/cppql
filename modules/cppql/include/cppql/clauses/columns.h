@@ -53,15 +53,20 @@ namespace sql
          */
         [[nodiscard]] std::string toString() const
         {
-            const auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
+            if constexpr (sizeof...(Cs) == 0)
+                return {};
+            else
             {
-                if constexpr (sizeof...(Is) == 0)
-                    return std::get<I>(columns).name();
-                else
-                    return std::get<I>(columns).name() + (... + ("," + std::get<Is>(columns).name()));
-            };
+                const auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
+                {
+                    if constexpr (sizeof...(Is) == 0)
+                        return std::get<I>(columns).name();
+                    else
+                        return std::get<I>(columns).name() + (... + ("," + std::get<Is>(columns).name()));
+                };
 
-            return cols(std::index_sequence_for<Cs...>());
+                return cols(std::index_sequence_for<Cs...>());
+            }
         }
 
         /**
@@ -70,15 +75,20 @@ namespace sql
          */
         [[nodiscard]] std::string toStringFull() const
         {
-            const auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
+            if constexpr (sizeof...(Cs) == 0)
+                return {};
+            else
             {
-                if constexpr (sizeof...(Is) == 0)
-                    return std::get<I>(columns).toString();
-                else
-                    return std::get<I>(columns).toString() + (... + ("," + std::get<Is>(columns).toString()));
-            };
+                const auto cols = [&]<std::size_t I, std::size_t... Is>(std::index_sequence<I, Is...>)
+                {
+                    if constexpr (sizeof...(Is) == 0)
+                        return std::get<I>(columns).toString();
+                    else
+                        return std::get<I>(columns).toString() + (... + ("," + std::get<Is>(columns).toString()));
+                };
 
-            return cols(std::index_sequence_for<Cs...>());
+                return cols(std::index_sequence_for<Cs...>());
+            }
         }
 
         ////////////////////////////////////////////////////////////////

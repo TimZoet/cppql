@@ -10,6 +10,12 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql_test/aggregates/aggregate_average.h"
+#include "cppql_test/aggregates/aggregate_count.h"
+#include "cppql_test/aggregates/aggregate_max.h"
+#include "cppql_test/aggregates/aggregate_min.h"
+#include "cppql_test/aggregates/aggregate_sum.h"
+#include "cppql_test/aggregates/aggregate_total.h"
 #include "cppql_test/binding/bind.h"
 #include "cppql_test/binding/bind_blob.h"
 #include "cppql_test/binding/bind_int.h"
@@ -17,6 +23,15 @@
 #include "cppql_test/binding/bind_real.h"
 #include "cppql_test/binding/bind_template.h"
 #include "cppql_test/binding/bind_text.h"
+#include "cppql_test/clauses/clause_columns.h"
+#include "cppql_test/clauses/clause_group_by.h"
+#include "cppql_test/clauses/clause_having.h"
+#include "cppql_test/clauses/clause_limit.h"
+#include "cppql_test/clauses/clause_on.h"
+#include "cppql_test/clauses/clause_order_by.h"
+#include "cppql_test/clauses/clause_union.h"
+#include "cppql_test/clauses/clause_using.h"
+#include "cppql_test/clauses/clause_where.h"
 #include "cppql_test/create_column/create_column_blob.h"
 #include "cppql_test/create_column/create_column_default_value.h"
 #include "cppql_test/create_column/create_column_foreign_key.h"
@@ -85,13 +100,28 @@ int main(const int argc, char** argv)
     }
 #endif
 
-    bt::run<Bind,
+    bt::run<AggregateAverage,
+            AggregateCount,
+            AggregateMax,
+            AggregateMin,
+            AggregateSum,
+            AggregateTotal,
+            Bind,
             BindBlob,
             BindInt,
             BindNull,
             BindReal,
             BindTemplate,
             BindText,
+            ClauseColumns,
+            ClauseGroupBy,
+            ClauseHaving,
+            ClauseLimit,
+            ClauseOn,
+            ClauseOrderBy,
+            ClauseUnion,
+            ClauseUsing,
+            ClauseWhere,
             CreateColumnBlob,
             CreateColumnDefaultValue,
             CreateColumnForeignKey,

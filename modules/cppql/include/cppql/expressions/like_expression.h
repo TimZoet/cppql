@@ -57,16 +57,16 @@ namespace sql
 
         [[nodiscard]] bool containsTables(const auto&... tables) const { return column.containsTables(tables...); }
 
-        void generateIndices(int32_t& idx)
-        {
-            index = idx++;
-        }
+        void generateIndices(int32_t& idx) { index = idx++; }
 
         /**
          * \brief Generate expression doing a pattern match on a column.
          * \return String with format "<col> LIKE ?<index>".
          */
-        [[nodiscard]] std::string toString() { return std::format("{0} LIKE ?{1}", column.fullName(), index + 1); }
+        [[nodiscard]] std::string toString() const
+        {
+            return std::format("{0} LIKE ?{1}", column.fullName(), index + 1);
+        }
 
         void bind(Statement& stmt, const BindParameters bind) const
         {
