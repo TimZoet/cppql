@@ -28,13 +28,13 @@ sql::TypedTable<int64_t, float, int32_t>     table2(...);
 
 // A complex query that, among other things, performs a join on 3 different tables.
 auto query = table0.join(sql::InnerJoin, table1)
-                    .usings(table0.col<0>(), table0.col<1>())
-                    .join(sql::InnerJoin, table2)
-                    .on(table1.col<0>() == table2.col<0>())
-                    .selectAs<Row>(sql::max(table2.col<2>()), sql::avg(table0.col<1>()))
-                    .where(like(table0.col<2>(), "abc"))
-                    .groupBy(table0.col<0>(), table0.col<1>(), table0.col<2>())
-                    .having(avg(table0.col<1>()) > 0);
+                   .usings(table0.col<0>(), table0.col<1>())
+                   .join(sql::InnerJoin, table2)
+                   .on(table1.col<0>() == table2.col<0>())
+                   .selectAs<Row>(sql::max(table2.col<2>()), sql::avg(table0.col<1>()))
+                   .where(like(table0.col<2>(), "abc"))
+                   .groupBy(table0.col<0>(), table0.col<1>(), table0.col<2>())
+                   .having(avg(table0.col<1>()) > 0);
 
 /* Compile query and prepare Sqlite statement. Will generate roughly the following code:
  * SELECT MAX(Table2.col0), AVG(Table0.col1)
