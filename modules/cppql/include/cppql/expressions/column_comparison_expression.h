@@ -64,7 +64,7 @@ namespace sql
 
         [[nodiscard]] bool containsTables(const auto&... tables) const
         {
-            return left.containsTables(tables...) && right.containsTables(tables...);
+            return left.containsTables(tables...) || right.containsTables(tables...);
         }
 
         static void generateIndices(int32_t&) {}
@@ -75,7 +75,7 @@ namespace sql
          */
         [[nodiscard]] std::string toString() const
         {
-            return std::format("{0} {1} {2}", left.fullName(), ComparisonOperatorType<Op>::str, right.fullName());
+            return std::format("{0} {1} {2}", left.toString(), ComparisonOperatorType<Op>::str, right.toString());
         }
 
         static void bind(Statement&, BindParameters) {}
@@ -98,6 +98,10 @@ namespace sql
     ////////////////////////////////////////////////////////////////
     // Operators.
     ////////////////////////////////////////////////////////////////
+
+    // TODO: There could be some additional checks here verifying that we're not comparing a column to itself.
+    // However... that's pretty difficult to do, because two tables with the same columns would make that
+    // impossible at compile time. Runtime check?
 
     /**
      * \brief Require lhs == rhs.

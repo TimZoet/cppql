@@ -75,8 +75,6 @@ namespace sql
             return fullName();
         }
 
-        static void bind(Statement&, BindParameters) {}
-
     private:
         ////////////////////////////////////////////////////////////////
         // Member variables.

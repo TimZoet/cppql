@@ -46,6 +46,14 @@
 #include "cppql_test/delete/delete_rows.h"
 #include "cppql_test/delete/delete_rows_all.h"
 #include "cppql_test/delete/delete_rows_limit.h"
+#include "cppql_test/expressions/expression_aggregate.h"
+#include "cppql_test/expressions/expression_column.h"
+#include "cppql_test/expressions/expression_column_comparison.h"
+#include "cppql_test/expressions/expression_comparison.h"
+#include "cppql_test/expressions/expression_filter.h"
+#include "cppql_test/expressions/expression_like.h"
+#include "cppql_test/expressions/expression_logical.h"
+#include "cppql_test/expressions/expression_order_by.h"
 #include "cppql_test/get_column/get_column_blob.h"
 #include "cppql_test/get_column/get_column_int.h"
 #include "cppql_test/get_column/get_column_real.h"
@@ -144,6 +152,14 @@ int main(const int argc, char** argv)
             DeleteRows,
             DeleteRowsAll,
             DeleteRowsLimit,
+            ExpressionAggregate,
+            ExpressionColumn,
+            ExpressionColumnComparison,
+            ExpressionComparison,
+            ExpressionFilter,
+            ExpressionLike,
+            ExpressionLogical,
+            ExpressionOrderBy,
             GetColumnBlob,
             GetColumnInt,
             GetColumnReal,

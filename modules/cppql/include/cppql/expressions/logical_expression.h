@@ -108,9 +108,10 @@ namespace sql
     ////////////////////////////////////////////////////////////////
 
     template<is_filter_expression L, is_filter_expression R>
-    auto operator&&(L&& lhs, R&& rhs)
+    [[nodiscard]] auto operator&&(L&& lhs, R&& rhs)
     {
-        return LogicalExpression<L, R, LogicalOperator::And>(std::forward<L>(lhs), std::forward<R>(rhs));
+        return LogicalExpression<std::remove_cvref_t<L>, std::remove_cvref_t<R>, LogicalOperator::And>(
+          std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     ////////////////////////////////////////////////////////////////
@@ -118,8 +119,9 @@ namespace sql
     ////////////////////////////////////////////////////////////////
 
     template<is_filter_expression L, is_filter_expression R>
-    auto operator||(L&& lhs, R&& rhs)
+    [[nodiscard]] auto operator||(L&& lhs, R&& rhs)
     {
-        return LogicalExpression<L, R, LogicalOperator::Or>(std::forward<L>(lhs), std::forward<R>(rhs));
+        return LogicalExpression<std::remove_cvref_t<L>, std::remove_cvref_t<R>, LogicalOperator::Or>(
+          std::forward<L>(lhs), std::forward<R>(rhs));
     }
 }  // namespace sql

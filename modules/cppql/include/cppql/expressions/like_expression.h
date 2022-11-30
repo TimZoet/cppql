@@ -138,7 +138,7 @@ namespace sql
      * \return LikeExpression object.
      */
     template<is_column_expression C>
-    auto like(C&& col, std::string val)
+    [[nodiscard]] auto like(C&& col, std::string val)
     {
         return LikeExpression<C, false>(std::forward<C>(col), std::move(val));
     }
@@ -151,7 +151,7 @@ namespace sql
      * \return LikeExpression object.
      */
     template<is_column_expression C>
-    auto like(C&& col, std::string* val)
+    [[nodiscard]] auto like(C&& col, std::string* val)
     {
         return LikeExpression<C, true>(std::forward<C>(col), val);
     }

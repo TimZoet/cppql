@@ -74,7 +74,7 @@ namespace sql
      * \return AggregateExpression object.
      */
     template<typename R = float, bool Distinct = false, is_column_expression C>
-    auto total(C&& col)
+    [[nodiscard]] auto total(C&& col)
     {
         return AggregateExpression<std::remove_cvref_t<C>, TotalAggregate<R, Distinct>>(std::forward<C>(col));
     }

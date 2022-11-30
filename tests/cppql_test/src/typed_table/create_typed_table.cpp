@@ -40,4 +40,6 @@ void CreateTypedTable::operator()()
         const sql::TypedTable<int8_t, double, std::string, std::vector<float>, uint64_t, double, std::string, Bar> t(table);
         static_cast<void>(t);
     });
+
+    // TODO: Create table with invalid column count.
 }

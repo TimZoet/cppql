@@ -126,7 +126,7 @@ namespace sql
         col_t column;
 
         /**
-         * \brief Value.
+         * \brief Pointer or value.
          */
         value_t value;
 
@@ -158,7 +158,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator==(C&& col, V&& val)
+    [[nodiscard]] auto operator==(C&& col, V&& val)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Eq, true>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -172,7 +172,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator==(V&& val, C&& col)
+    [[nodiscard]] auto operator==(V&& val, C&& col)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Eq, false>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -186,7 +186,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator==(C&& col, V* ptr)
+    [[nodiscard]] auto operator==(C&& col, V* ptr)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Eq, true>(std::forward<C>(col), ptr);
     }
@@ -200,7 +200,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator==(V* ptr, C&& col)
+    [[nodiscard]] auto operator==(V* ptr, C&& col)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Eq, false>(std::forward<C>(col), ptr);
     }
@@ -212,7 +212,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C>
-    auto operator==(C&& col, std::nullptr_t)
+    [[nodiscard]] auto operator==(C&& col, std::nullptr_t)
     {
         return ComparisonExpression<C, typename C::value_t*, ComparisonOperator::Eq, true>(std::forward<C>(col),
                                                                                            nullptr);
@@ -224,8 +224,8 @@ namespace sql
      * \param col ColumnExpression object.
      * \return ComparisonExpression object.
      */
-    template<is_result_expression C, is_convertible_to<C> V>
-    auto operator==(std::nullptr_t, C&& col)
+    template<is_result_expression C>
+    [[nodiscard]] auto operator==(std::nullptr_t, C&& col)
     {
         return ComparisonExpression<C, typename C::value_t*, ComparisonOperator::Eq, false>(std::forward<C>(col),
                                                                                             nullptr);
@@ -244,7 +244,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator!=(C&& col, V&& val)
+    [[nodiscard]] auto operator!=(C&& col, V&& val)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Ne, true>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -258,7 +258,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator!=(V&& val, C&& col)
+    [[nodiscard]] auto operator!=(V&& val, C&& col)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Ne, false>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -272,7 +272,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator!=(C&& col, V* ptr)
+    [[nodiscard]] auto operator!=(C&& col, V* ptr)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Ne, true>(std::forward<C>(col), ptr);
     }
@@ -286,7 +286,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator!=(V* ptr, C&& col)
+    [[nodiscard]] auto operator!=(V* ptr, C&& col)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Ne, false>(std::forward<C>(col), ptr);
     }
@@ -298,7 +298,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C>
-    auto operator!=(C&& col, std::nullptr_t)
+    [[nodiscard]] auto operator!=(C&& col, std::nullptr_t)
     {
         return ComparisonExpression<C, typename C::value_t*, ComparisonOperator::Ne, true>(std::forward<C>(col),
                                                                                            nullptr);
@@ -310,8 +310,8 @@ namespace sql
      * \param col ColumnExpression object.
      * \return ComparisonExpression object.
      */
-    template<is_result_expression C, is_convertible_to<C> V>
-    auto operator!=(std::nullptr_t, C&& col)
+    template<is_result_expression C>
+    [[nodiscard]] auto operator!=(std::nullptr_t, C&& col)
     {
         return ComparisonExpression<C, typename C::value_t*, ComparisonOperator::Ne, false>(std::forward<C>(col),
                                                                                             nullptr);
@@ -330,7 +330,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator<(C&& col, V&& val)
+    [[nodiscard]] auto operator<(C&& col, V&& val)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Lt, true>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -344,7 +344,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator<(V&& val, C&& col)
+    [[nodiscard]] auto operator<(V&& val, C&& col)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Lt, false>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -358,7 +358,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator<(C&& col, V* ptr)
+    [[nodiscard]] auto operator<(C&& col, V* ptr)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Lt, true>(std::forward<C>(col), ptr);
     }
@@ -372,7 +372,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator<(V* ptr, C&& col)
+    [[nodiscard]] auto operator<(V* ptr, C&& col)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Lt, false>(std::forward<C>(col), ptr);
     }
@@ -390,7 +390,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator>(C&& col, V&& val)
+    [[nodiscard]] auto operator>(C&& col, V&& val)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Gt, true>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -404,7 +404,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator>(V&& val, C&& col)
+    [[nodiscard]] auto operator>(V&& val, C&& col)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Gt, false>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -418,7 +418,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator>(C&& col, V* ptr)
+    [[nodiscard]] auto operator>(C&& col, V* ptr)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Gt, true>(std::forward<C>(col), ptr);
     }
@@ -432,7 +432,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator>(V* ptr, C&& col)
+    [[nodiscard]] auto operator>(V* ptr, C&& col)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Gt, false>(std::forward<C>(col), ptr);
     }
@@ -450,7 +450,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator<=(C&& col, V&& val)
+    [[nodiscard]] auto operator<=(C&& col, V&& val)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Le, true>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -464,7 +464,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator<=(V&& val, C&& col)
+    [[nodiscard]] auto operator<=(V&& val, C&& col)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Le, false>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -478,7 +478,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator<=(C&& col, V* ptr)
+    [[nodiscard]] auto operator<=(C&& col, V* ptr)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Le, true>(std::forward<C>(col), ptr);
     }
@@ -492,7 +492,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator<=(V* ptr, C&& col)
+    [[nodiscard]] auto operator<=(V* ptr, C&& col)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Le, false>(std::forward<C>(col), ptr);
     }
@@ -510,7 +510,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator>=(C&& col, V&& val)
+    [[nodiscard]] auto operator>=(C&& col, V&& val)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Ge, true>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -524,7 +524,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator>=(V&& val, C&& col)
+    [[nodiscard]] auto operator>=(V&& val, C&& col)
     {
         return ComparisonExpression<C, V, ComparisonOperator::Ge, false>(std::forward<C>(col), std::forward<V>(val));
     }
@@ -538,7 +538,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator>=(C&& col, V* ptr)
+    [[nodiscard]] auto operator>=(C&& col, V* ptr)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Ge, true>(std::forward<C>(col), ptr);
     }
@@ -552,7 +552,7 @@ namespace sql
      * \return ComparisonExpression object.
      */
     template<is_result_expression C, is_convertible_to<C> V>
-    auto operator>=(V* ptr, C&& col)
+    [[nodiscard]] auto operator>=(V* ptr, C&& col)
     {
         return ComparisonExpression<C, V*, ComparisonOperator::Ge, false>(std::forward<C>(col), ptr);
     }

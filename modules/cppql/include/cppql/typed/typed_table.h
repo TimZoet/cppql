@@ -255,6 +255,7 @@ namespace sql
         template<size_t Index, typename U, typename... Us>
         void validate()
         {
+            if (Index >= table->getColumnCount()) throw CppqlError("Invalid column count.");
             if (table->getColumn(Index).getType() != toColumnType<U>()) throw CppqlError("Invalid column type.");
 
             // Recurse.

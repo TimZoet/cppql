@@ -42,6 +42,13 @@ set(HEADERS
     ${INCLUDE_DIR}/delete/delete_rows.h
     ${INCLUDE_DIR}/delete/delete_rows_all.h
     ${INCLUDE_DIR}/delete/delete_rows_limit.h
+    ${INCLUDE_DIR}/expressions/expression_aggregate.h
+    ${INCLUDE_DIR}/expressions/expression_column.h
+    ${INCLUDE_DIR}/expressions/expression_column_comparison.h
+    ${INCLUDE_DIR}/expressions/expression_comparison.h
+    ${INCLUDE_DIR}/expressions/expression_like.h
+    ${INCLUDE_DIR}/expressions/expression_logical.h
+    ${INCLUDE_DIR}/expressions/expression_order_by.h
     ${INCLUDE_DIR}/get_column/get_column_blob.h
     ${INCLUDE_DIR}/get_column/get_column_int.h
     ${INCLUDE_DIR}/get_column/get_column_real.h
@@ -118,6 +125,13 @@ set(SOURCES
     ${SRC_DIR}/delete/delete_rows.cpp
     ${SRC_DIR}/delete/delete_rows_all.cpp
     ${SRC_DIR}/delete/delete_rows_limit.cpp
+    ${SRC_DIR}/expressions/expression_aggregate.cpp
+    ${SRC_DIR}/expressions/expression_column.cpp
+    ${SRC_DIR}/expressions/expression_column_comparison.cpp
+    ${SRC_DIR}/expressions/expression_comparison.cpp
+    ${SRC_DIR}/expressions/expression_like.cpp
+    ${SRC_DIR}/expressions/expression_logical.cpp
+    ${SRC_DIR}/expressions/expression_order_by.cpp
     ${SRC_DIR}/get_column/get_column_blob.cpp
     ${SRC_DIR}/get_column/get_column_int.cpp
     ${SRC_DIR}/get_column/get_column_real.cpp

@@ -74,7 +74,7 @@ namespace sql
      * \return AggregateExpression object.
      */
     template<typename R = float, bool Distinct = false, is_column_expression C>
-    auto min(C&& col)
+    [[nodiscard]] auto min(C&& col)
     {
         return AggregateExpression<std::remove_cvref_t<C>, MinAggregate<R, Distinct>>(std::forward<C>(col));
     }

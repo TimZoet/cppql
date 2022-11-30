@@ -67,15 +67,11 @@ namespace sql
 
         [[nodiscard]] bool containsTables(const auto&... tables) const { return column.containsTables(tables...); }
 
-        void generateIndices(int32_t& idx) { column.generateIndices(idx); }
-
         /**
          * \brief Generate aggregate expression on a column.
          * \return String with format "<func>(<col>)".
          */
         [[nodiscard]] std::string toString() const { return A::toString(column.fullName()); }
-
-        static void bind(Statement&, const BindParameters) {}
 
     private:
         ////////////////////////////////////////////////////////////////

@@ -62,7 +62,7 @@ namespace sql
     };
 
     template<typename T>
-    inline constexpr bool is_filter_expression_v = _is_filter_expression<T>::value;
+    inline constexpr bool is_filter_expression_v = _is_filter_expression<std::remove_cvref_t<T>>::value;
 
     template<typename T>
     concept is_filter_expression = is_filter_expression_v<T>;

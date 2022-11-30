@@ -102,7 +102,7 @@ namespace sql
             if constexpr (is_column_expression<left_t>)
                 return left.containsTables(tables...);
             else
-                return left.containsTables(tables...) && right.containsTables(tables...);
+                return left.containsTables(tables...) || right.containsTables(tables...);
         }
 
         ////////////////////////////////////////////////////////////////
