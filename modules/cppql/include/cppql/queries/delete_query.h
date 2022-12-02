@@ -105,7 +105,7 @@ namespace sql
          * \param order Expression to order rows by.
          * \return DeleteQuery with order by expression.
          */
-        template<typename Self, is_order_by_expression<table_t> Order>
+        template<typename Self, is_valid_order_by_expression<std::tuple<table_t>> Order>
             requires(!order_t::valid)
         [[nodiscard]] auto orderBy(this Self&& self, Order&& order)
         {
@@ -151,6 +151,12 @@ namespace sql
             return sql;
         }
 
+        void generateIndices()
+        {
+            int32_t index = 0;
+            filter.generateIndices(index);
+        }
+
         /**
          * \brief Generate DeleteStatement object. Generates and compiles SQL code and binds requested parameters.
          * \tparam Self Self type.
@@ -160,8 +166,7 @@ namespace sql
         template<typename Self>
         [[nodiscard]] auto compile(this Self&& self)
         {
-            int32_t index = 0;
-            std::forward<Self>(self).filter.generateIndices(index);
+            self.generateIndices();
 
             // Construct statement from generated SQL.
             auto stmt = std::make_unique<Statement>(self.table->getDatabase(), self.toString(), true);

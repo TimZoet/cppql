@@ -27,9 +27,9 @@ namespace sql
     class OrderByExpression;
 
     template<typename T>
-    concept is_order_by_expression =
-      std::same_as<std::remove_cvref_t<T>,
-                   OrderByExpression<typename std::remove_cvref_t<T>::left_t, typename std::decay_t<T>::right_t>>;
+    concept is_order_by_expression = std::same_as<
+      std::remove_cvref_t<T>,
+      OrderByExpression<typename std::remove_cvref_t<T>::left_t, typename std::remove_cvref_t<T>::right_t>>;
 
     template<typename T>
     concept is_order_by_expression_or_none = std::same_as<std::nullopt_t, T> || is_order_by_expression<T>;
@@ -161,7 +161,7 @@ namespace sql
     template<is_column_expression C>
     auto ascending(C&& col, Nulls nulls = Nulls::None)
     {
-        return OrderByExpression<C, std::nullopt_t>(std::forward<C>(col), Order::Asc, nulls);
+        return OrderByExpression<std::remove_cvref_t<C>, std::nullopt_t>(std::forward<C>(col), Order::Asc, nulls);
     }
 
     /**
@@ -174,13 +174,14 @@ namespace sql
     template<is_column_expression C>
     auto descending(C&& col, Nulls nulls = Nulls::None)
     {
-        return OrderByExpression<C, std::nullopt_t>(std::forward<C>(col), Order::Desc, nulls);
+        return OrderByExpression<std::remove_cvref_t<C>, std::nullopt_t>(std::forward<C>(col), Order::Desc, nulls);
     }
 
     template<is_order_by_expression L, is_order_by_expression R>
     auto operator+(L&& left, R&& right)
     {
-        return OrderByExpression<std::decay_t<L>, std::decay_t<R>>(std::forward<L>(left), std::forward<R>(right));
+        return OrderByExpression<std::remove_cvref_t<L>, std::remove_cvref_t<R>>(std::forward<L>(left),
+                                                                                 std::forward<R>(right));
     }
 
 }  // namespace sql

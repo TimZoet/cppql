@@ -91,14 +91,21 @@ namespace sql
         using union_t      = std::conditional_t<std::same_as<std::nullopt_t, U>, Union<std::nullopt_t>, U>;
         using table_list_t = lazy_table_list_t<join_t>;
 
-        join_t        join;
-        columns_t     columns;
-        filter_t      filter;
-        order_t       order;
-        limit_t       limit;
-        group_t       groups;
-        having_t      havings;
-        union_t       unionClause;
+    private:
+        ////////////////////////////////////////////////////////////////
+        // Member variables.
+        ////////////////////////////////////////////////////////////////
+
+        join_t    join;
+        columns_t columns;
+        filter_t  filter;
+        order_t   order;
+        limit_t   limit;
+        group_t   groups;
+        having_t  havings;
+        union_t   unionClause;
+
+    public:
         UnionOperator unionOp = UnionOperator::Union;
 
         ////////////////////////////////////////////////////////////////
@@ -302,7 +309,8 @@ namespace sql
          * \return SelectQuery with (additional) union.
          */
         template<typename Self, typename Q>
-            requires(!Q::order_t::valid && !Q::limit_t::valid && std::same_as<return_t, typename Q::return_t>)
+            requires(!std::remove_cvref_t<Q>::order_t::valid && !std::remove_cvref_t<Q>::limit_t::valid &&
+                     std::same_as<return_t, typename std::remove_cvref_t<Q>::return_t>)
         [[nodiscard]] auto unions(this Self&& self, const UnionOperator op, Q&& query)
         {
             // This query already has a valid Union clause. Append new query to it.
@@ -354,6 +362,14 @@ namespace sql
             return sql;
         }
 
+        void generateIndices(int32_t idx)
+        {
+            if constexpr (!is_table) join.generateIndices(idx);
+            filter.generateIndices(idx);
+            havings.generateIndices(idx);
+            unionClause.generateIndices(idx);
+        }
+
         /**
          * \brief Generate SelectStatement object. Generates and compiles SQL code and binds requested parameters.
          * \tparam Self Self type.
@@ -363,10 +379,8 @@ namespace sql
         template<typename Self>
         [[nodiscard]] auto compile(this Self&& self)
         {
-            int32_t index = 0;
-            if constexpr (!is_table) std::forward<Self>(self).join.generateIndices(index);
-            std::forward<Self>(self).filter.generateIndices(index);
-            std::forward<Self>(self).havings.generateIndices(index);
+            int32_t idx = 0;
+            self.generateIndices(idx);
 
             auto select = []<std::size_t... Is>(auto&& self, std::index_sequence<Is...>)
             {

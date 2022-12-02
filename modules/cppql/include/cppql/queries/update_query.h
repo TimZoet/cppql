@@ -116,7 +116,7 @@ namespace sql
          * \param order Expression to order rows by.
          * \return UpdateQuery with order by expression.
          */
-        template<typename Self, is_order_by_expression<table_t> Order>
+        template<typename Self, is_valid_order_by_expression<std::tuple<table_t>> Order>
             requires(!order_t::valid)
         [[nodiscard]] auto orderBy(this Self&& self, Order&& order)
         {
@@ -163,7 +163,7 @@ namespace sql
             for (; index < columns_t::size; index++) vals += std::format(",?{0}", index + 1);
 
             // UPDATE <table> SET (<cols>) = (<vals>) WHERE <expr> ORDER BY <expr> LIMIT <val> OFFSET <val>;
-            auto sql = std::format("UPDATE {0} SET ({1}) = ({2}) {3} {4};",
+            auto sql = std::format("UPDATE {0} SET ({1}) = ({2}) {3} {4} {5};",
                                    table->getName(),
                                    columns.toString(),
                                    std::move(vals),
@@ -172,6 +172,12 @@ namespace sql
                                    limit.toString());
 
             return sql;
+        }
+
+        void generateIndices()
+        {
+            int32_t index = columns_t::size;
+            filter.generateIndices(index);
         }
 
         /**
@@ -183,8 +189,7 @@ namespace sql
         template<typename Self>
         [[nodiscard]] auto compile(this Self&& self)
         {
-            int32_t index = columns_t::size;
-            std::forward<Self>(self).filter.generateIndices(index);
+            self.generateIndices();
 
             // Construct statement. Note: This generates the bind indices of all filter expressions
             // and should therefore happen before the BaseFilterExpressionPtr construction below.

@@ -160,7 +160,7 @@ namespace sql
         }
 
         ////////////////////////////////////////////////////////////////
-        // ...
+        // Join,
         ////////////////////////////////////////////////////////////////
 
         template<typename Self, is_join_wrapper J2, is_typed_table T>
@@ -202,6 +202,10 @@ namespace sql
               *self.right,
               Using<std::remove_cvref_t<C>, std::remove_cvref_t<Cs>...>(std::forward<C>(c), std::forward<Cs>(cs)...));
         }
+
+        ////////////////////////////////////////////////////////////////
+        // Select.
+        ////////////////////////////////////////////////////////////////
 
         template<typename Self,
                  is_valid_result_expression<table_list_t> C,
@@ -260,8 +264,10 @@ namespace sql
                 if constexpr (filter_t::valid)
                     return std::make_unique<FilterExpression<F, std::remove_cvref_t<Ts>...>>(
                       std::forward<Self>(self).filter.filter, std::forward<Ts>(filters)...);
-                else
+                else if constexpr (sizeof...(filters) > 0)
                     return std::make_unique<FilterExpression<std::remove_cvref_t<Ts>...>>(std::forward<Ts>(filters)...);
+                else
+                    return nullptr;
             }
         }
 

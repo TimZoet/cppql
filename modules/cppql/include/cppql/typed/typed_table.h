@@ -113,6 +113,10 @@ namespace sql
                  is_valid_column_expression<std::tuple<table_t>>... Cols>
         [[nodiscard]] auto insert(Col&& c, Cols&&... cs)
         {
+            if ((!c.containsTables(*table) || ... || !cs.containsTables(*table)))
+                throw CppqlError(
+                  std::format("Cannot insert because at least one of the columns is from a different table."));
+
             return InsertQuery<table_t, Col, Cols...>(*table, Columns(std::forward<Col>(c), std::forward<Cols>(cs)...));
         }
 
@@ -156,6 +160,10 @@ namespace sql
             requires(constructible_from<R, typename Col::value_t, typename Cols::value_t...>)
         [[nodiscard]] auto selectAs(Col&& c, Cols&&... cs)
         {
+            if ((!c.containsTables(*table) || ... || !cs.containsTables(*table)))
+                throw CppqlError(
+                    std::format("Cannot select because at least one of the columns is from a different table."));
+
             return SelectQuery<R,
                                table_t,
                                std::nullopt_t,
@@ -190,7 +198,7 @@ namespace sql
 
         template<typename R, size_t... Indices>
             requires(((Indices < column_count) && ...) &&
-                     constructible_from<R, std::tuple_element_t<Indices, row_t>...>)
+                     (sizeof...(Indices) == 0 && constructible_from<R, C, Cs...> || constructible_from<R, std::tuple_element_t<Indices, row_t>...>))
         [[nodiscard]] auto selectAs()
         {
             if constexpr (sizeof...(Indices))
@@ -217,6 +225,10 @@ namespace sql
                  is_valid_column_expression<std::tuple<table_t>>... Cols>
         [[nodiscard]] auto update(Col&& c, Cols&&... cs)
         {
+            if ((!c.containsTables(*table) || ... || !cs.containsTables(*table)))
+                throw CppqlError(
+                  std::format("Cannot insert because at least one of the columns is from a different table."));
+
             return UpdateQuery<table_t, std::nullopt_t, std::nullopt_t, std::nullopt_t, Col, Cols...>(
               *table, Columns(std::forward<Col>(c), std::forward<Cols>(cs)...));
         }

@@ -49,7 +49,7 @@ namespace sql
 
         CountQuery(CountQuery&& other) noexcept = default;
 
-        explicit CountQuery(Table& t) : table(&t), filter(std::nullopt) {}
+        explicit CountQuery(Table& t) : table(&t) {}
 
         CountQuery(Table& t, filter_t f) : table(&t), filter(std::move(f)) {}
 
@@ -95,6 +95,12 @@ namespace sql
             return sql;
         }
 
+        void generateIndices()
+        {
+            int32_t index = 0;
+            filter.generateIndices(index);
+        }
+
         /**
          * \brief Generate CountStatement object. Generates and compiles SQL code.
          * \tparam Self Self type.
@@ -104,8 +110,7 @@ namespace sql
         template<typename Self>
         [[nodiscard]] auto compile(this Self&& self)
         {
-            int32_t index = 0;
-            std::forward<Self>(self).filter.generateIndices(index);
+            self.generateIndices();
 
             // Construct statement from generated SQL.
             auto stmt = std::make_unique<Statement>(self.table->getDatabase(), self.toString(), true);

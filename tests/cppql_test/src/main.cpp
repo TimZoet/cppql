@@ -50,7 +50,6 @@
 #include "cppql_test/expressions/expression_column.h"
 #include "cppql_test/expressions/expression_column_comparison.h"
 #include "cppql_test/expressions/expression_comparison.h"
-#include "cppql_test/expressions/expression_filter.h"
 #include "cppql_test/expressions/expression_like.h"
 #include "cppql_test/expressions/expression_logical.h"
 #include "cppql_test/expressions/expression_order_by.h"
@@ -66,6 +65,12 @@
 #include "cppql_test/insert/insert_null.h"
 #include "cppql_test/insert/insert_tuple.h"
 #include "cppql_test/join/inner_join.h"
+#include "cppql_test/queries/query_count.h"
+#include "cppql_test/queries/query_delete.h"
+#include "cppql_test/queries/query_insert.h"
+#include "cppql_test/queries/query_join.h"
+#include "cppql_test/queries/query_select.h"
+#include "cppql_test/queries/query_update.h"
 #include "cppql_test/select/select.h"
 #include "cppql_test/select/select_all.h"
 #include "cppql_test/select/select_blob.h"
@@ -156,7 +161,6 @@ int main(const int argc, char** argv)
             ExpressionColumn,
             ExpressionColumnComparison,
             ExpressionComparison,
-            ExpressionFilter,
             ExpressionLike,
             ExpressionLogical,
             ExpressionOrderBy,
@@ -172,6 +176,12 @@ int main(const int argc, char** argv)
             InsertNull,
             InsertTuple,
             InnerJoin,
+            QueryCount,
+            QueryDelete,
+            QueryInsert,
+            QueryJoin,
+            QuerySelect,
+            QueryUpdate,
             Select,
             SelectAll,
             SelectBlob,
