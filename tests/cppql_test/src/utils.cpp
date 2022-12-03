@@ -6,32 +6,52 @@
 
 #include <filesystem>
 
+////////////////////////////////////////////////////////////////
+// External includes.
+////////////////////////////////////////////////////////////////
+
+#include "sqlite3.h"
+
 namespace utils
 {
-    DatabaseMember::DatabaseMember()
+    DatabaseMember::DatabaseMember(const bool inMem) : inMemory(inMem)
     {
-        // TODO: Is it possible to create an in-memory database?
-        // Would allow running tests in parallel without issues.
-        const auto cwd    = std::filesystem::current_path();
-        const auto dbPath = cwd / "db.db";
-        if (exists(dbPath)) std::filesystem::remove(dbPath);
-        db = sql::Database::create(dbPath);
+        if (inMemory) { db = sql::Database::create("", SQLITE_OPEN_MEMORY | SQLITE_OPEN_NOMUTEX); }
+        else
+        {
+            const auto cwd    = std::filesystem::current_path();
+            const auto dbPath = cwd / "db.db";
+            if (exists(dbPath)) std::filesystem::remove(dbPath);
+            db = sql::Database::create(dbPath);
+        }
     }
 
     DatabaseMember::~DatabaseMember() noexcept
     {
+        db->setClose(sql::Database::Close::V2);
+        db->setShutdown(sql::Database::Shutdown::Off);
         db.reset();
-        const auto cwd    = std::filesystem::current_path();
-        const auto dbPath = cwd / "db.db";
-        std::filesystem::remove(dbPath);
+        if (!inMemory)
+        {
+            const auto cwd    = std::filesystem::current_path();
+            const auto dbPath = cwd / "db.db";
+            std::filesystem::remove(dbPath);
+        }
     }
 
     void DatabaseMember::reopen()
     {
+        db->setClose(sql::Database::Close::V2);
+        db->setShutdown(sql::Database::Shutdown::Off);
         db.reset();
-        const auto cwd    = std::filesystem::current_path();
-        const auto dbPath = cwd / "db.db";
-        db                = sql::Database::open(dbPath);
+        if (!inMemory)
+        {
+            const auto cwd    = std::filesystem::current_path();
+            const auto dbPath = cwd / "db.db";
+            db                = sql::Database::open(dbPath);
+        }
+        else
+            throw std::runtime_error("Cannot reopen in-memory database.");
     }
 
 }  // namespace utils

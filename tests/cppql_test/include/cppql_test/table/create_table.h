@@ -17,6 +17,8 @@
 class CreateTable final : public bt::UnitTest<CreateTable, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
 {
 public:
+    CreateTable() : DatabaseMember(false) {}
+
     void operator()() override;
 
     void create();

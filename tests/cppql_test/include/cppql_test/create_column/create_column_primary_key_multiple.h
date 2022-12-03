@@ -19,6 +19,8 @@ class CreateColumnPrimaryKeyMultiple final
       utils::DatabaseMember
 {
 public:
+    CreateColumnPrimaryKeyMultiple() : DatabaseMember(false) {}
+
     void operator()() override;
 
     void create();

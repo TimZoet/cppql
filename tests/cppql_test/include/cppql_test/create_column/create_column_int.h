@@ -18,6 +18,8 @@ class CreateColumnInt final : public bt::UnitTest<CreateColumnInt, bt::CompareMi
                               utils::DatabaseMember
 {
 public:
+    CreateColumnInt() : DatabaseMember(false) {}
+
     void operator()() override;
 
     void create();

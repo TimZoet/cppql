@@ -18,6 +18,8 @@ class CreateColumnText final : public bt::UnitTest<CreateColumnText, bt::Compare
                                utils::DatabaseMember
 {
 public:
+    CreateColumnText() : DatabaseMember(false) {}
+
     void operator()() override;
 
     void create();

@@ -18,6 +18,8 @@ class CreateColumnReal final : public bt::UnitTest<CreateColumnReal, bt::Compare
                                utils::DatabaseMember
 {
 public:
+    CreateColumnReal() : DatabaseMember(false) {}
+
     void operator()() override;
 
     void create();

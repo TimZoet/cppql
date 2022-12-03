@@ -73,25 +73,29 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         /**
-         * \brief Create a new database.
+         * \brief Create a new database. Internally calls sqlite3_open_v2.
          * \param file Path to database file.
+         * \param flags Additional flags to pass to sqlite3_open_v2.
          * \return Database.
          */
-        [[nodiscard]] static DatabasePtr create(const std::filesystem::path& file);
+        [[nodiscard]] static DatabasePtr create(const std::filesystem::path& file, int32_t flags = 0);
 
         /**
-         * \brief Open an existing database.
+         * \brief Open an existing database. Internally calls sqlite3_open_v2.
          * \param file Path to database file.
+         * \param flags Additional flags to pass to sqlite3_open_v2.
          * \return Database.
          */
-        [[nodiscard]] static DatabasePtr open(const std::filesystem::path& file);
+        [[nodiscard]] static DatabasePtr open(const std::filesystem::path& file, int32_t flags = 0);
 
         /**
-         * \brief Open an existing database or create one if it does not exist.
+         * \brief Open an existing database or create one if it does not exist. Internally calls sqlite3_open_v2.
          * \param file Path to database file.
+         * \param flags Additional flags to pass to sqlite3_open_v2.
          * \return Database and boolean indicating whether a new database was created.
          */
-        [[nodiscard]] static std::pair<DatabasePtr, bool> openOrCreate(const std::filesystem::path& file);
+        [[nodiscard]] static std::pair<DatabasePtr, bool> openOrCreate(const std::filesystem::path& file,
+                                                                       int32_t                      flags = 0);
 
         ////////////////////////////////////////////////////////////////
         // Getters.
@@ -126,13 +130,13 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         /**
-         * \brief set close function that is called on destruction.
+         * \brief Set close function that is called on destruction.
          * \param value Close.
          */
         void setClose(Close value) noexcept;
 
         /**
-         * \brief set shutdown function that is called on destruction.
+         * \brief Set shutdown function that is called on destruction.
          * \param value Shutdown.
          */
         void setShutdown(Shutdown value) noexcept;

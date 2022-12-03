@@ -18,6 +18,8 @@ class CreateColumnPrimaryKey final : public bt::UnitTest<CreateColumnPrimaryKey,
                                      utils::DatabaseMember
 {
 public:
+    CreateColumnPrimaryKey() : DatabaseMember(false) {}
+
     void operator()() override;
 
     void create();

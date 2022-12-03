@@ -18,6 +18,8 @@ class CreateColumnNull final : public bt::UnitTest<CreateColumnNull, bt::Compare
                                utils::DatabaseMember
 {
 public:
+    CreateColumnNull() : DatabaseMember(false) {}
+
     void operator()() override;
 
     void create();

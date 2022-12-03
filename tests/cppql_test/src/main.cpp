@@ -1,6 +1,12 @@
 #include <iostream>
 
 ////////////////////////////////////////////////////////////////
+// External includes.
+////////////////////////////////////////////////////////////////
+
+#include "sqlite3.h"
+
+////////////////////////////////////////////////////////////////
 // Module includes.
 ////////////////////////////////////////////////////////////////
 
@@ -56,7 +62,6 @@
 #include "cppql_test/get_column/get_column_template.h"
 #include "cppql_test/get_column/get_column_text.h"
 #include "cppql_test/get_column/get_column_type.h"
-#include "cppql_test/join/inner_join.h"
 #include "cppql_test/queries/query_count.h"
 #include "cppql_test/queries/query_delete.h"
 #include "cppql_test/queries/query_insert.h"
@@ -119,17 +124,17 @@ int main(const int argc, char** argv)
             ClauseUnion,
             ClauseUsing,
             ClauseWhere,
-            CreateColumnBlob,
-            CreateColumnDefaultValue,
-            CreateColumnForeignKey,
-            CreateColumnInt,
-            CreateColumnNull,
-            CreateColumnPrimaryKey,
-            CreateColumnPrimaryKeyMultiple,
-            CreateColumnReal,
-            CreateColumnText,
-            CreateTable,
-            DatabaseCreate,
+            //CreateColumnBlob, TODO: These are disabled because they cannot be run in multithreaded mode.
+            //CreateColumnDefaultValue,
+            //CreateColumnForeignKey,
+            //CreateColumnInt,
+            //CreateColumnNull,
+            //CreateColumnPrimaryKey,
+            //CreateColumnPrimaryKeyMultiple,
+            //CreateColumnReal,
+            //CreateColumnText,
+            //CreateTable,
+            //DatabaseCreate,
             DatabaseVacuum,
             DropTable,
             RegisterTable,
@@ -151,7 +156,6 @@ int main(const int argc, char** argv)
             GetColumnTemplate,
             GetColumnText,
             GetColumnType,
-            InnerJoin,
             QueryCount,
             QueryDelete,
             QueryInsert,
@@ -166,5 +170,6 @@ int main(const int argc, char** argv)
             StatementSelectOne,
             StatementStep,
             StatementUpdate>(argc, argv, "cppql");
-    return 0;
+
+    return sqlite3_shutdown();
 }

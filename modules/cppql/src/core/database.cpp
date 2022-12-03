@@ -53,44 +53,44 @@ namespace sql
     // Static open/create methods.
     ////////////////////////////////////////////////////////////////
 
-    DatabasePtr Database::create(const std::filesystem::path& file)
+    DatabasePtr Database::create(const std::filesystem::path& file, const int32_t flags)
     {
-        if (exists(file))
+        if (!(flags & SQLITE_OPEN_MEMORY) && exists(file))
             throw CppqlError(
               std::format("Failed to create database at {}. Database file already exists", file.string()));
 
         // Try to create a new database.
         sqlite3* db = nullptr;
         if (const auto res =
-              sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
+              sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | flags, nullptr);
             res != SQLITE_OK)
             throw SqliteError(std::format("Failed to create database at {}.", file.string()), res);
 
         return std::make_unique<Database>(db);
     }
 
-    DatabasePtr Database::open(const std::filesystem::path& file)
+    DatabasePtr Database::open(const std::filesystem::path& file, const int32_t flags)
     {
-        if (!exists(file))
+        if (!(flags & SQLITE_OPEN_MEMORY) && !exists(file))
             throw CppqlError(std::format("Failed to open database at {}. File does not exist", file.string()));
 
         // Try to open database.
         sqlite3* db = nullptr;
-        if (const auto res = sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE, nullptr);
+        if (const auto res = sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | flags, nullptr);
             res != SQLITE_OK)
             throw SqliteError(std::format("Failed to open database at {}.", file.string()), res);
 
         return std::make_unique<Database>(db);
     }
 
-    std::pair<DatabasePtr, bool> Database::openOrCreate(const std::filesystem::path& file)
+    std::pair<DatabasePtr, bool> Database::openOrCreate(const std::filesystem::path& file, const int32_t flags)
     {
         const bool created = !exists(file);
 
         // Try to open or create database.
         sqlite3* db = nullptr;
         if (const auto res =
-              sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
+              sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | flags, nullptr);
             res != SQLITE_OK)
             throw SqliteError(std::format("Failed to open database at {}.", file.string()), res);
 

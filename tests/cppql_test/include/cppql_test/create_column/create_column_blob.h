@@ -18,6 +18,8 @@ class CreateColumnBlob final : public bt::UnitTest<CreateColumnBlob, bt::Compare
                                utils::DatabaseMember
 {
 public:
+    CreateColumnBlob() : DatabaseMember(false) {}
+
     void operator()() override;
 
     void create();

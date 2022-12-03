@@ -52,7 +52,6 @@ set(HEADERS
     ${INCLUDE_DIR}/get_column/get_column_template.h
     ${INCLUDE_DIR}/get_column/get_column_text.h
     ${INCLUDE_DIR}/get_column/get_column_type.h
-    ${INCLUDE_DIR}/join/inner_join.h
     ${INCLUDE_DIR}/queries/query_count.h
     ${INCLUDE_DIR}/queries/query_delete.h
     ${INCLUDE_DIR}/queries/query_insert.h
@@ -126,7 +125,6 @@ set(SOURCES
     ${SRC_DIR}/get_column/get_column_template.cpp
     ${SRC_DIR}/get_column/get_column_text.cpp
     ${SRC_DIR}/get_column/get_column_type.cpp
-    ${SRC_DIR}/join/inner_join.cpp
     ${SRC_DIR}/queries/query_count.cpp
     ${SRC_DIR}/queries/query_delete.cpp
     ${SRC_DIR}/queries/query_insert.cpp

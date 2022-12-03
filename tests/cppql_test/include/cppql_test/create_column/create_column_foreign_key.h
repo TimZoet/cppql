@@ -18,6 +18,8 @@ class CreateColumnForeignKey final : public bt::UnitTest<CreateColumnForeignKey,
                                      utils::DatabaseMember
 {
 public:
+    CreateColumnForeignKey() : DatabaseMember(false) {}
+
     void operator()() override;
 
     void create();

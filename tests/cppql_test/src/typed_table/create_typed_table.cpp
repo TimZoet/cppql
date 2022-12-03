@@ -37,9 +37,16 @@ void CreateTypedTable::operator()()
         static_cast<void>(t);
     });
     expectNoThrow([&table] {
-        const sql::TypedTable<int8_t, double, std::string, std::vector<float>, uint64_t, double, std::string, Bar> t(table);
+        const sql::TypedTable<int8_t, double, std::string, std::vector<float>, uint64_t, double, std::string, Bar> t(
+          table);
         static_cast<void>(t);
     });
 
-    // TODO: Create table with invalid column count.
+    // Create table with invalid column count.
+    expectThrow([&table] {
+        const sql::
+          TypedTable<int64_t, double, std::string, std::vector<float>, uint16_t, float, std::string, Foo, float>
+            t(table);
+        static_cast<void>(t);
+    });
 }

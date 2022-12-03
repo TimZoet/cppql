@@ -11,7 +11,7 @@ namespace utils
     class DatabaseMember
     {
     public:
-        DatabaseMember();
+        DatabaseMember(bool inMem = true);
 
         DatabaseMember(const DatabaseMember&) = delete;
 
@@ -27,5 +27,6 @@ namespace utils
 
     protected:
         sql::DatabasePtr db;
+        bool             inMemory;
     };
-}
+}  // namespace utils
