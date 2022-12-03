@@ -14,7 +14,8 @@
 
 #include "cppql_test/utils.h"
 
-class SelectLimit final : public bt::UnitTest<SelectLimit, bt::CompareMixin, bt::ExceptionMixin>, utils::DatabaseMember
+class StatementSelect final : public bt::UnitTest<StatementSelect, bt::CompareMixin, bt::ExceptionMixin>,
+                              utils::DatabaseMember
 {
 public:
     void operator()() override;

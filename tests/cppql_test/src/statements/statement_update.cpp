@@ -1,14 +1,11 @@
-#include "cppql_test/update/update.h"
+#include "cppql_test/statements/statement_update.h"
 
 #include "cppql/include_all.h"
 
 using namespace std::string_literals;
 
-void Update::operator()()
+void StatementUpdate::operator()()
 {
-    // TODO: Add tests that don't just use the indexed methods.
-    // Add test for empty parameter list that should generate statement to update all columns.
-    // Create table.
     sql::Table* t;
     expectNoThrow([&t, this] {
         t = &db->createTable("myTable");
@@ -20,10 +17,12 @@ void Update::operator()()
     sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
-    auto insert = table.insert().compile();
-    expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
-    expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
-    expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });
+    expectNoThrow([&] {
+        auto insert = table.insert().compile();
+        insert(10, 20.0f, sql::toText("abc"));
+        insert(20, 40.5f, sql::toText("def"));
+        insert(30, 80.2f, sql::toText("ghij"));
+    });
 
     // Update one column at a time.
     {
@@ -36,9 +35,7 @@ void Update::operator()()
         compareEQ(5.0f, select.bind(sql::BindParameters::All)());
 
         param = 10;
-        expectNoThrow([&] {
-            update.bind(sql::BindParameters::All)(nullptr);
-        });
+        expectNoThrow([&] { update.bind(sql::BindParameters::All)(nullptr); });
         compareEQ(0.0f, select.bind(sql::BindParameters::All)());
 
         param = 20;

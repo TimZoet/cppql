@@ -39,9 +39,6 @@ set(HEADERS
     ${INCLUDE_DIR}/create_column/create_column_text.h
     ${INCLUDE_DIR}/database/database_create.h
     ${INCLUDE_DIR}/database/database_vacuum.h
-    ${INCLUDE_DIR}/delete/delete_rows.h
-    ${INCLUDE_DIR}/delete/delete_rows_all.h
-    ${INCLUDE_DIR}/delete/delete_rows_limit.h
     ${INCLUDE_DIR}/expressions/expression_aggregate.h
     ${INCLUDE_DIR}/expressions/expression_column.h
     ${INCLUDE_DIR}/expressions/expression_column_comparison.h
@@ -55,11 +52,6 @@ set(HEADERS
     ${INCLUDE_DIR}/get_column/get_column_template.h
     ${INCLUDE_DIR}/get_column/get_column_text.h
     ${INCLUDE_DIR}/get_column/get_column_type.h
-    ${INCLUDE_DIR}/insert/insert.h
-    ${INCLUDE_DIR}/insert/insert_blob.h
-    ${INCLUDE_DIR}/insert/insert_default.h
-    ${INCLUDE_DIR}/insert/insert_null.h
-    ${INCLUDE_DIR}/insert/insert_tuple.h
     ${INCLUDE_DIR}/join/inner_join.h
     ${INCLUDE_DIR}/queries/query_count.h
     ${INCLUDE_DIR}/queries/query_delete.h
@@ -67,17 +59,12 @@ set(HEADERS
     ${INCLUDE_DIR}/queries/query_join.h
     ${INCLUDE_DIR}/queries/query_select.h
     ${INCLUDE_DIR}/queries/query_update.h
-    ${INCLUDE_DIR}/select/select.h
-    ${INCLUDE_DIR}/select/select_all.h
-    ${INCLUDE_DIR}/select/select_blob.h
-    ${INCLUDE_DIR}/select/select_custom_return_type.h
-    ${INCLUDE_DIR}/select/select_limit.h
-    ${INCLUDE_DIR}/select/select_one.h
-    ${INCLUDE_DIR}/select/select_order_by.h
-    ${INCLUDE_DIR}/select/select_order_by_null.h
-    ${INCLUDE_DIR}/select/select_reorder.h
-    ${INCLUDE_DIR}/select/select_reset.h
-    ${INCLUDE_DIR}/select/select_to_vector.h
+    ${INCLUDE_DIR}/statements/statement_count.h
+    ${INCLUDE_DIR}/statements/statement_delete.h
+    ${INCLUDE_DIR}/statements/statement_insert.h
+    ${INCLUDE_DIR}/statements/statement_select.h
+    ${INCLUDE_DIR}/statements/statement_select_one.h
+    ${INCLUDE_DIR}/statements/statement_update.h
     ${INCLUDE_DIR}/table/create_table.h
     ${INCLUDE_DIR}/table/drop_table.h
     ${INCLUDE_DIR}/table/register_table.h
@@ -86,8 +73,6 @@ set(HEADERS
     ${INCLUDE_DIR}/typed_table/create_typed_table_int.h
     ${INCLUDE_DIR}/typed_table/create_typed_table_real.h
     ${INCLUDE_DIR}/typed_table/create_typed_table_text.h
-    ${INCLUDE_DIR}/update/update.h
-    ${INCLUDE_DIR}/update/update_limit.h
 
     ${INCLUDE_DIR}/statement_prepare.h
     ${INCLUDE_DIR}/statement_step.h
@@ -128,9 +113,6 @@ set(SOURCES
     ${SRC_DIR}/create_column/create_column_text.cpp
     ${SRC_DIR}/database/database_create.cpp
     ${SRC_DIR}/database/database_vacuum.cpp
-    ${SRC_DIR}/delete/delete_rows.cpp
-    ${SRC_DIR}/delete/delete_rows_all.cpp
-    ${SRC_DIR}/delete/delete_rows_limit.cpp
     ${SRC_DIR}/expressions/expression_aggregate.cpp
     ${SRC_DIR}/expressions/expression_column.cpp
     ${SRC_DIR}/expressions/expression_column_comparison.cpp
@@ -144,11 +126,6 @@ set(SOURCES
     ${SRC_DIR}/get_column/get_column_template.cpp
     ${SRC_DIR}/get_column/get_column_text.cpp
     ${SRC_DIR}/get_column/get_column_type.cpp
-    ${SRC_DIR}/insert/insert.cpp
-    ${SRC_DIR}/insert/insert_blob.cpp
-    ${SRC_DIR}/insert/insert_default.cpp
-    ${SRC_DIR}/insert/insert_null.cpp
-    ${SRC_DIR}/insert/insert_tuple.cpp
     ${SRC_DIR}/join/inner_join.cpp
     ${SRC_DIR}/queries/query_count.cpp
     ${SRC_DIR}/queries/query_delete.cpp
@@ -156,17 +133,12 @@ set(SOURCES
     ${SRC_DIR}/queries/query_join.cpp
     ${SRC_DIR}/queries/query_select.cpp
     ${SRC_DIR}/queries/query_update.cpp
-    ${SRC_DIR}/select/select.cpp
-    ${SRC_DIR}/select/select_all.cpp
-    ${SRC_DIR}/select/select_blob.cpp
-    ${SRC_DIR}/select/select_custom_return_type.cpp
-    ${SRC_DIR}/select/select_limit.cpp
-    ${SRC_DIR}/select/select_one.cpp
-    ${SRC_DIR}/select/select_order_by.cpp
-    ${SRC_DIR}/select/select_order_by_null.cpp
-    ${SRC_DIR}/select/select_reorder.cpp
-    ${SRC_DIR}/select/select_reset.cpp
-    ${SRC_DIR}/select/select_to_vector.cpp
+    ${SRC_DIR}/statements/statement_count.cpp
+    ${SRC_DIR}/statements/statement_delete.cpp
+    ${SRC_DIR}/statements/statement_insert.cpp
+    ${SRC_DIR}/statements/statement_select.cpp
+    ${SRC_DIR}/statements/statement_select_one.cpp
+    ${SRC_DIR}/statements/statement_update.cpp
     ${SRC_DIR}/table/create_table.cpp
     ${SRC_DIR}/table/drop_table.cpp
     ${SRC_DIR}/table/register_table.cpp
@@ -175,8 +147,6 @@ set(SOURCES
     ${SRC_DIR}/typed_table/create_typed_table_int.cpp
     ${SRC_DIR}/typed_table/create_typed_table_real.cpp
     ${SRC_DIR}/typed_table/create_typed_table_text.cpp
-    ${SRC_DIR}/update/update.cpp
-    ${SRC_DIR}/update/update_limit.cpp
 
     ${SRC_DIR}/main.cpp
     

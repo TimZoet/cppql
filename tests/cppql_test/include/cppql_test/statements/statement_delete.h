@@ -14,7 +14,7 @@
 
 #include "cppql_test/utils.h"
 
-class DeleteRowsLimit final : public bt::UnitTest<DeleteRowsLimit, bt::CompareMixin, bt::ExceptionMixin>,
+class StatementDelete final : public bt::UnitTest<StatementDelete, bt::CompareMixin, bt::ExceptionMixin>,
                               utils::DatabaseMember
 {
 public:

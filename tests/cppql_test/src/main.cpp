@@ -43,9 +43,6 @@
 #include "cppql_test/create_column/create_column_text.h"
 #include "cppql_test/database/database_create.h"
 #include "cppql_test/database/database_vacuum.h"
-#include "cppql_test/delete/delete_rows.h"
-#include "cppql_test/delete/delete_rows_all.h"
-#include "cppql_test/delete/delete_rows_limit.h"
 #include "cppql_test/expressions/expression_aggregate.h"
 #include "cppql_test/expressions/expression_column.h"
 #include "cppql_test/expressions/expression_column_comparison.h"
@@ -59,11 +56,6 @@
 #include "cppql_test/get_column/get_column_template.h"
 #include "cppql_test/get_column/get_column_text.h"
 #include "cppql_test/get_column/get_column_type.h"
-#include "cppql_test/insert/insert.h"
-#include "cppql_test/insert/insert_blob.h"
-#include "cppql_test/insert/insert_default.h"
-#include "cppql_test/insert/insert_null.h"
-#include "cppql_test/insert/insert_tuple.h"
 #include "cppql_test/join/inner_join.h"
 #include "cppql_test/queries/query_count.h"
 #include "cppql_test/queries/query_delete.h"
@@ -71,17 +63,12 @@
 #include "cppql_test/queries/query_join.h"
 #include "cppql_test/queries/query_select.h"
 #include "cppql_test/queries/query_update.h"
-#include "cppql_test/select/select.h"
-#include "cppql_test/select/select_all.h"
-#include "cppql_test/select/select_blob.h"
-#include "cppql_test/select/select_custom_return_type.h"
-#include "cppql_test/select/select_limit.h"
-#include "cppql_test/select/select_one.h"
-#include "cppql_test/select/select_order_by.h"
-#include "cppql_test/select/select_order_by_null.h"
-#include "cppql_test/select/select_reorder.h"
-#include "cppql_test/select/select_reset.h"
-#include "cppql_test/select/select_to_vector.h"
+#include "cppql_test/statements/statement_count.h"
+#include "cppql_test/statements/statement_delete.h"
+#include "cppql_test/statements/statement_insert.h"
+#include "cppql_test/statements/statement_select.h"
+#include "cppql_test/statements/statement_select_one.h"
+#include "cppql_test/statements/statement_update.h"
 #include "cppql_test/table/create_table.h"
 #include "cppql_test/table/drop_table.h"
 #include "cppql_test/table/register_table.h"
@@ -90,9 +77,6 @@
 #include "cppql_test/typed_table/create_typed_table_int.h"
 #include "cppql_test/typed_table/create_typed_table_real.h"
 #include "cppql_test/typed_table/create_typed_table_text.h"
-#include "cppql_test/update/update.h"
-#include "cppql_test/update/update_limit.h"
-
 #include "cppql_test/statement_prepare.h"
 #include "cppql_test/statement_step.h"
 
@@ -154,9 +138,6 @@ int main(const int argc, char** argv)
             CreateTypedTableInt,
             CreateTypedTableReal,
             CreateTypedTableText,
-            DeleteRows,
-            DeleteRowsAll,
-            DeleteRowsLimit,
             ExpressionAggregate,
             ExpressionColumn,
             ExpressionColumnComparison,
@@ -170,11 +151,6 @@ int main(const int argc, char** argv)
             GetColumnTemplate,
             GetColumnText,
             GetColumnType,
-            Insert,
-            InsertBlob,
-            InsertDefault,
-            InsertNull,
-            InsertTuple,
             InnerJoin,
             QueryCount,
             QueryDelete,
@@ -182,20 +158,13 @@ int main(const int argc, char** argv)
             QueryJoin,
             QuerySelect,
             QueryUpdate,
-            Select,
-            SelectAll,
-            SelectBlob,
-            SelectCustomReturnType,
-            SelectLimit,
-            SelectOne,
-            SelectOrderBy,
-            SelectOrderByNull,
-            SelectReorder,
-            SelectReset,
-            SelectToVector,
+            StatementCount,
+            StatementDelete,
+            StatementInsert,
             StatementPrepare,
+            StatementSelect,
+            StatementSelectOne,
             StatementStep,
-            Update,
-            UpdateLimit>(argc, argv, "cppql");
+            StatementUpdate>(argc, argv, "cppql");
     return 0;
 }
