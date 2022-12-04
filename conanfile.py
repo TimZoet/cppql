@@ -50,6 +50,7 @@ class CppqlConan(ConanFile):
     
     def export_sources(self):
         self.copy("CMakeLists.txt")
+        self.copy("cppqlVersionString.cmake")
         self.copy("license")
         self.copy("readme.md")
         self.copy("cmake/*")
