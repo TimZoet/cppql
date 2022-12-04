@@ -44,4 +44,11 @@ void ExpressionColumnComparison::operator()()
     compareTrue(eq.containsTables(*t0, *t1, *t2));
     compareTrue(eq.containsTables(*t0, *t2));
     compareFalse(eq.containsTables(*t2));
+
+    expectThrow([&] { static_cast<void>(table0.col<0>() == table0.col<0>()); });
+    expectThrow([&] { static_cast<void>(table0.col<0>() != table0.col<0>()); });
+    expectThrow([&] { static_cast<void>(table0.col<0>() < table0.col<0>()); });
+    expectThrow([&] { static_cast<void>(table0.col<0>() > table0.col<0>()); });
+    expectThrow([&] { static_cast<void>(table0.col<0>() <= table0.col<0>()); });
+    expectThrow([&] { static_cast<void>(table0.col<0>() >= table0.col<0>()); });
 }

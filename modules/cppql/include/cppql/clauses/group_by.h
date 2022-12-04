@@ -14,9 +14,6 @@
 
 namespace sql
 {
-    // TODO: It is a bit silly that there is no GroupByExpression, just like how there is an OrderByExpression.
-    // Perhaps that should be changed to have more consistent interfaces.
-
     template<typename...>
     class GroupBy
     {

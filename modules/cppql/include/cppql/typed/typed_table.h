@@ -107,10 +107,9 @@ namespace sql
         // Insert.
         ////////////////////////////////////////////////////////////////
 
-        // TODO: There is no detection of duplicate columns here yet. Same for update.
-
         template<is_valid_column_expression<std::tuple<table_t>> Col,
                  is_valid_column_expression<std::tuple<table_t>>... Cols>
+            requires(is_unique_tuple<std::tuple<Col, Cols...>>)
         [[nodiscard]] auto insert(Col&& c, Cols&&... cs)
         {
             if ((!c.containsTables(*table) || ... || !cs.containsTables(*table)))
@@ -162,7 +161,7 @@ namespace sql
         {
             if ((!c.containsTables(*table) || ... || !cs.containsTables(*table)))
                 throw CppqlError(
-                    std::format("Cannot select because at least one of the columns is from a different table."));
+                  std::format("Cannot select because at least one of the columns is from a different table."));
 
             return SelectQuery<R,
                                table_t,
@@ -198,7 +197,8 @@ namespace sql
 
         template<typename R, size_t... Indices>
             requires(((Indices < column_count) && ...) &&
-                     (sizeof...(Indices) == 0 && constructible_from<R, C, Cs...> || constructible_from<R, std::tuple_element_t<Indices, row_t>...>))
+                     (sizeof...(Indices) == 0 && constructible_from<R, C, Cs...> ||
+                      constructible_from<R, std::tuple_element_t<Indices, row_t>...>))
         [[nodiscard]] auto selectAs()
         {
             if constexpr (sizeof...(Indices))
@@ -223,6 +223,7 @@ namespace sql
 
         template<is_valid_column_expression<std::tuple<table_t>> Col,
                  is_valid_column_expression<std::tuple<table_t>>... Cols>
+            requires(is_unique_tuple<std::tuple<Col, Cols...>>)
         [[nodiscard]] auto update(Col&& c, Cols&&... cs)
         {
             if ((!c.containsTables(*table) || ... || !cs.containsTables(*table)))

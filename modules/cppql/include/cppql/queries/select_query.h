@@ -26,8 +26,6 @@
 
 namespace sql
 {
-    // TODO: Aliases.
-
     ////////////////////////////////////////////////////////////////
 
     template<typename T>
@@ -251,8 +249,6 @@ namespace sql
             requires(!order_t::valid)
         [[nodiscard]] auto orderBy(this Self&& self, Order&& order)
         {
-            // TODO: For unions, there are some additional restrictions on the columns that may occur in the ORDER BY clause.
-            // See https://www.sqlite.org/lang_select.html 4. The ORDER BY clause.
             if constexpr (is_table)
             {
                 if (!order.containsTables(self.join.getTable()))

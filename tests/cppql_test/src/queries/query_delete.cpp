@@ -43,7 +43,8 @@ void QueryDelete::operator()()
     compareTrue(decltype(q2)::order_t::valid);
     expectNoThrow([&] { q2.generateIndices(); });
     compareEQ(q2.toString(), "DELETE FROM Table0  ORDER BY Table0.col2 ASC  ;");
-    expectNoThrow([&] { static_cast<void>(q2.compile()); });
+    expectNoThrow([&] { static_cast<void>(q2.compile()); }).info("ORDER BY not supported.");
+    ;
 
     // Add order by clause with wrong table.
     expectThrow([&] { static_cast<void>(q0.orderBy(ascending(table1.col<1>()))); });
@@ -53,7 +54,8 @@ void QueryDelete::operator()()
     compareTrue(decltype(q3)::limit_t::valid);
     expectNoThrow([&] { q3.generateIndices(); });
     compareEQ(q3.toString(), "DELETE FROM Table0   LIMIT 10 OFFSET 20;");
-    expectNoThrow([&] { static_cast<void>(q3.compile()); });
+    expectNoThrow([&] { static_cast<void>(q3.compile()); }).info("LIMIT OFFSET not supported.");
+    ;
 
     // Add all clauses.
     auto q4 = q0.where(table0.col<0>() > 0).orderBy(ascending(table0.col<1>())).limitOffset(10, 20);
@@ -62,5 +64,5 @@ void QueryDelete::operator()()
     compareTrue(decltype(q4)::limit_t::valid);
     expectNoThrow([&] { q4.generateIndices(); });
     compareEQ(q4.toString(), "DELETE FROM Table0 WHERE Table0.col1 > ?1 ORDER BY Table0.col2 ASC  LIMIT 10 OFFSET 20;");
-    expectNoThrow([&] { static_cast<void>(q4.compile()); });
+    expectNoThrow([&] { static_cast<void>(q4.compile()); }).info("ORDER BY/LIMIT OFFSET not supported.");
 }

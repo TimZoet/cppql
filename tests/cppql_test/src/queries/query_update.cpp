@@ -55,7 +55,7 @@ void QueryUpdate::operator()()
     compareTrue(decltype(q4)::order_t::valid);
     expectNoThrow([&] { q4.generateIndices(); });
     compareEQ(q4.toString(), "UPDATE Table0 SET (col1,col2,col3) = (?1,?2,?3)  ORDER BY Table0.col2 ASC  ;");
-    expectNoThrow([&] { static_cast<void>(q4.compile()); });
+    expectNoThrow([&] { static_cast<void>(q4.compile()); }).info("ORDER BY not supported.");
 
     // Add order by clause with wrong table.
     expectThrow([&] { static_cast<void>(q0.orderBy(ascending(table1.col<1>()))); });
@@ -65,7 +65,7 @@ void QueryUpdate::operator()()
     compareTrue(decltype(q5)::limit_t::valid);
     expectNoThrow([&] { q5.generateIndices(); });
     compareEQ(q5.toString(), "UPDATE Table0 SET (col1,col2,col3) = (?1,?2,?3)   LIMIT 10 OFFSET 20;");
-    expectNoThrow([&] { static_cast<void>(q5.compile()); });
+    expectNoThrow([&] { static_cast<void>(q5.compile()); }).info("LIMIT OFFSET not supported.");
 
     // Add all clauses.
     auto q6 = q0.where(table0.col<0>() > 0).orderBy(ascending(table0.col<1>())).limitOffset(10, 20);
@@ -76,5 +76,5 @@ void QueryUpdate::operator()()
     compareEQ(q6.toString(),
               "UPDATE Table0 SET (col1,col2,col3) = (?1,?2,?3) WHERE Table0.col1 > ?4 ORDER BY Table0.col2 ASC  LIMIT "
               "10 OFFSET 20;");
-    expectNoThrow([&] { static_cast<void>(q6.compile()); });
+    expectNoThrow([&] { static_cast<void>(q6.compile()); }).info("ORDER BY/LIMIT OFFSET not supported.");
 }
