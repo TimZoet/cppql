@@ -172,8 +172,7 @@ namespace sql
 
         // Execute drop table statement.
         const auto stmt = createStatement(std::format("DROP TABLE {};", name), true);
-        const auto res  = stmt.step();
-        if (!res) throw SqliteError(std::format("Failed to drop table."), res.code);
+        if (const auto res = stmt.step(); !res) throw SqliteError(std::format("Failed to drop table."), res.code);
 
         // Erase table object from map.
         tables.erase(name);
@@ -182,8 +181,7 @@ namespace sql
     void Database::vacuum()
     {
         const auto stmt = createStatement("VACUUM", true);
-        const auto res  = stmt.step();
-        if (!res) throw SqliteError(std::format("Failed to VACUUM database."), res.code);
+        if (const auto res = stmt.step(); !res) throw SqliteError(std::format("Failed to VACUUM database."), res.code);
     }
 
     void Database::initializeTables()

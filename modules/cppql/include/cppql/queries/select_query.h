@@ -358,7 +358,7 @@ namespace sql
             return sql;
         }
 
-        void generateIndices(int32_t idx)
+        void generateIndices(int32_t& idx)
         {
             if constexpr (!is_table) join.generateIndices(idx);
             filter.generateIndices(idx);

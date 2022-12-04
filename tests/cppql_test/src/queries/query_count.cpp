@@ -19,8 +19,8 @@ void QueryCount::operator()()
         t1->createColumn("col3", sql::Column::Type::Text);
         t1->commit();
     });
-    sql::TypedTable<int64_t, float, std::string> table0(*t0);
-    sql::TypedTable<int64_t, float, std::string> table1(*t1);
+    const sql::TypedTable<int64_t, float, std::string> table0(*t0);
+    const sql::TypedTable<int64_t, float, std::string> table1(*t1);
 
     // Construct default query.
     auto q0 = table0.count();

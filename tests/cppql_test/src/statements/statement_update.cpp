@@ -14,7 +14,7 @@ void StatementUpdate::operator()()
         t->createColumn("col3", sql::Column::Type::Text);
         t->commit();
     });
-    sql::TypedTable<int64_t, float, std::string> table(*t);
+    const sql::TypedTable<int64_t, float, std::string> table(*t);
 
     // Insert several rows.
     expectNoThrow([&] {

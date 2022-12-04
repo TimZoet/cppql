@@ -29,10 +29,10 @@ void BindTemplate::operator()()
     compareTrue(stmt.bind<float>(0, 10.0f));
     compareTrue(stmt.bind<double>(0, 10.0));
     compareTrue(stmt.bind<std::nullptr_t>(0, nullptr));
-    compareTrue(stmt.bind(0, sql::Text{str1, 6, [](void* p) { delete[] static_cast<const char*>(p); }}));
+    compareTrue(stmt.bind(0, sql::Text{str1, 6, [](void* p) { delete[] static_cast<char*>(p); }}));
     compareTrue(stmt.bind(0, sql::StaticText{str2.c_str(), 6}));
     compareTrue(stmt.bind(0, sql::TransientText{str3.c_str(), 6}));
-    compareTrue(stmt.bind(0, sql::Blob{data1, 6, [](void* p) { delete[] static_cast<const uint8_t*>(p); }}));
+    compareTrue(stmt.bind(0, sql::Blob{data1, 6, [](void* p) { delete[] static_cast<uint8_t*>(p); }}));
     compareTrue(stmt.bind(0, sql::StaticBlob{data2, 6}));
     compareTrue(stmt.bind(0, sql::TransientBlob{data3, 6}));
 

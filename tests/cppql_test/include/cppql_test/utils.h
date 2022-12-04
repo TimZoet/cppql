@@ -11,7 +11,7 @@ namespace utils
     class DatabaseMember
     {
     public:
-        DatabaseMember(bool inMem = true);
+        explicit DatabaseMember(bool inMem = true);
 
         DatabaseMember(const DatabaseMember&) = delete;
 

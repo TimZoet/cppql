@@ -110,7 +110,7 @@ namespace sql
         template<is_valid_column_expression<std::tuple<table_t>> Col,
                  is_valid_column_expression<std::tuple<table_t>>... Cols>
             requires(is_unique_tuple<std::tuple<Col, Cols...>>)
-        [[nodiscard]] auto insert(Col&& c, Cols&&... cs)
+        [[nodiscard]] auto insert(Col&& c, Cols&&... cs) const
         {
             if ((!c.containsTables(*table) || ... || !cs.containsTables(*table)))
                 throw CppqlError(
@@ -147,7 +147,7 @@ namespace sql
 
         template<is_valid_result_expression<std::tuple<table_t>> Col,
                  is_valid_result_expression<std::tuple<table_t>>... Cols>
-        [[nodiscard]] auto select(Col&& c, Cols&&... cs)
+        [[nodiscard]] auto select(Col&& c, Cols&&... cs) const
         {
             return selectAs<std::tuple<typename Col::value_t, typename Cols::value_t...>>(std::forward<Col>(c),
                                                                                           std::forward<Cols>(cs)...);
@@ -157,7 +157,7 @@ namespace sql
                  is_valid_result_expression<std::tuple<table_t>> Col,
                  is_valid_result_expression<std::tuple<table_t>>... Cols>
             requires(constructible_from<R, typename Col::value_t, typename Cols::value_t...>)
-        [[nodiscard]] auto selectAs(Col&& c, Cols&&... cs)
+        [[nodiscard]] auto selectAs(Col&& c, Cols&&... cs) const
         {
             if ((!c.containsTables(*table) || ... || !cs.containsTables(*table)))
                 throw CppqlError(
@@ -180,7 +180,7 @@ namespace sql
 
         template<size_t... Indices>
             requires((Indices < column_count) && ...)
-        [[nodiscard]] auto select()
+        [[nodiscard]] auto select() const
         {
             if constexpr (sizeof...(Indices))
                 return selectAs<std::tuple<col_t<Indices, table_t>...>, Indices...>();
@@ -199,7 +199,7 @@ namespace sql
             requires(((Indices < column_count) && ...) &&
                      (sizeof...(Indices) == 0 && constructible_from<R, C, Cs...> ||
                       constructible_from<R, std::tuple_element_t<Indices, row_t>...>))
-        [[nodiscard]] auto selectAs()
+        [[nodiscard]] auto selectAs() const
         {
             if constexpr (sizeof...(Indices))
                 return selectAs<R>(col<Indices>()...);
@@ -224,7 +224,7 @@ namespace sql
         template<is_valid_column_expression<std::tuple<table_t>> Col,
                  is_valid_column_expression<std::tuple<table_t>>... Cols>
             requires(is_unique_tuple<std::tuple<Col, Cols...>>)
-        [[nodiscard]] auto update(Col&& c, Cols&&... cs)
+        [[nodiscard]] auto update(Col&& c, Cols&&... cs) const
         {
             if ((!c.containsTables(*table) || ... || !cs.containsTables(*table)))
                 throw CppqlError(
@@ -258,10 +258,10 @@ namespace sql
         ////////////////////////////////////////////////////////////////
 
         template<is_join_wrapper J, is_typed_table R>
-        [[nodiscard]] auto join(J&&, R&& rhs) const
+        [[nodiscard]] auto join(J&&, const R& rhs) const
         {
-            return Join<std::remove_cvref_t<J>, table_t, std::remove_cvref_t<R>, std::nullopt_t>(
-              *table, std::forward<R>(rhs).getTable());
+            return Join<std::remove_cvref_t<J>, table_t, std::remove_cvref_t<R>, std::nullopt_t>(*table,
+                                                                                                 rhs.getTable());
         }
 
     private:

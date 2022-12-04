@@ -21,7 +21,7 @@ void BindText::operator()()
     const std::string data4 = "abc";
 
     // Do some valid and invalid binds.
-    compareTrue(stmt.bindText(0, data1, 10, [](void* p) { delete[] static_cast<const char*>(p); }));
+    compareTrue(stmt.bindText(0, data1, 10, [](void* p) { delete[] static_cast<char*>(p); }));
     compareTrue(stmt.bindStaticText(1, data2, 10));
     compareTrue(stmt.bindStaticText(1, data4));
     compareTrue(stmt.bindTransientText(2, data3, 10));

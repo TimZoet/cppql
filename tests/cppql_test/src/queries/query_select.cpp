@@ -178,7 +178,7 @@ void QuerySelect::operator()()
     compareEQ(q11.toString(),
               "SELECT Table0.col1,Table0.col2 FROM Table0 WHERE Table0.col1 = ?1   INTERSECT SELECT "
               "Table0.col1,Table0.col2 FROM Table0 WHERE Table0.col1 = ?2     UNION ALL SELECT Table1.col1,Table1.col2 "
-              "FROM Table1 WHERE Table1.col2 <= ?2       ");
+              "FROM Table1 WHERE Table1.col2 <= ?3       ");
     expectNoThrow([&] { static_cast<void>(q11.compile()); });
 
     // Add all clauses.

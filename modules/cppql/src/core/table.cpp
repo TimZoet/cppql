@@ -35,8 +35,7 @@ namespace sql
         // Create and run CREATE TABLE statement.
         const auto sql  = generateSql();
         const auto stmt = Statement(*db, sql, true);
-        const auto res  = stmt.step();
-        if (!res) throw SqliteError(std::format("Failed to commit table."), res.code);
+        if (const auto res = stmt.step(); !res) throw SqliteError(std::format("Failed to commit table."), res.code);
 
         committed = true;
     }
@@ -116,10 +115,7 @@ namespace sql
 
     Column& Table::getColumn(const std::string& columnName) const { return *columns[columnMap.at(columnName)]; }
 
-    Column& Table::getColumn(const size_t index) const
-    {
-        return *columns[index];
-    }
+    Column& Table::getColumn(const size_t index) const { return *columns[index]; }
 
     ////////////////////////////////////////////////////////////////
     // Columns.
@@ -163,11 +159,11 @@ namespace sql
     {
         const auto pkCount =
           std::ranges::count_if(columns.begin(), columns.end(), [](const auto& col) { return col->isPrimaryKey(); });
-        const auto autoIncCount =
-          std::ranges::count_if(columns.begin(), columns.end(), [](const auto& col) { return col->isAutoIncrement(); });
 
         // Autoincrement is not allowed when there are more than 1 primary keys.
-        if (pkCount > 1 && autoIncCount != 0)
+        if (const auto autoIncCount = std::ranges::count_if(
+              columns.begin(), columns.end(), [](const auto& col) { return col->isAutoIncrement(); });
+            pkCount > 1 && autoIncCount != 0)
             throw CppqlError(std::format(
               "Failed to validate table {}. here is an auto increment column and more than 1 primary key columns.",
               name));
@@ -190,9 +186,17 @@ namespace sql
             const char* dt      = nullptr;
             const char* coll    = nullptr;
             auto        notNull = 0, primaryKey = 0, autoInc = 0;
-            const auto  res = sqlite3_table_column_metadata(
-              db->get(), nullptr, getName().c_str(), columnName.c_str(), &dt, &coll, &notNull, &primaryKey, &autoInc);
-            if (res != SQLITE_OK) throw SqliteError(std::format("Could not retrieve column metadata."), res);
+            if (const auto res = sqlite3_table_column_metadata(db->get(),
+                                                               nullptr,
+                                                               getName().c_str(),
+                                                               columnName.c_str(),
+                                                               &dt,
+                                                               &coll,
+                                                               &notNull,
+                                                               &primaryKey,
+                                                               &autoInc);
+                res != SQLITE_OK)
+                throw SqliteError(std::format("Could not retrieve column metadata."), res);
 
             // Determine column type. If returned data type string is null, column has a null type.
             auto columnType = Column::Type::Null;
@@ -217,10 +221,13 @@ namespace sql
     }
 
     void Table::resolveForeignKeys(
-      std::unordered_map<std::string, std::vector<std::tuple<std::string, std::string, std::string>>>& foreignKeys,
-      std::unordered_map<std::string, TablePtr>&                                                       tables)
+      const std::unordered_map<std::string, std::vector<std::tuple<std::string, std::string, std::string>>>&
+                                                 foreignKeys,
+      std::unordered_map<std::string, TablePtr>& tables)
     {
-        for (const auto& fk : foreignKeys[getName()])
+        if (const auto it = foreignKeys.find(getName()); it == foreignKeys.end()) return;
+
+        for (const auto& fk : foreignKeys.at(getName()))
         {
             const auto& tableName    = std::get<0>(fk);
             const auto& columnName   = std::get<1>(fk);

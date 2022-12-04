@@ -100,8 +100,8 @@ namespace sql
                     }
                     else
                     {
-                        const auto res = stmt.bind(index + Statement::getFirstBindIndex(), nullptr);
-                        if (!res) throw SqliteError(std::format("Failed to bind dynamic parameter."), res.code);
+                        if (const auto res = stmt.bind(index + Statement::getFirstBindIndex(), nullptr); !res)
+                            throw SqliteError(std::format("Failed to bind dynamic parameter."), res.code);
                     }
                 }
             }

@@ -189,7 +189,7 @@ namespace sql
              is_join_or_typed_table       L,
              is_typed_table               R,
              is_filter_expression_or_none F,
-             is_column_expression... Cs>
+             is_column_expression... Cols>
     class Join;
 
     template<typename J, typename L, typename R, typename F, typename... Cs>

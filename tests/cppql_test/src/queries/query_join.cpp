@@ -41,9 +41,9 @@ void QueryJoin::operator()()
         t2->createColumn("col3", sql::Column::Type::Text);
         t2->commit();
     });
-    sql::TypedTable<int64_t, float, std::string> table0(*t0);
-    sql::TypedTable<int64_t, float, std::string> table1(*t1);
-    sql::TypedTable<int64_t, float, std::string> table2(*t2);
+    const sql::TypedTable<int64_t, float, std::string> table0(*t0);
+    const sql::TypedTable<int64_t, float, std::string> table1(*t1);
+    const sql::TypedTable<int64_t, float, std::string> table2(*t2);
 
     expectNoThrow([&] { static_cast<void>(table0.join(sql::CrossJoin, table1)); });
     expectNoThrow([&] { static_cast<void>(table0.join(sql::LeftJoin, table1)); });
@@ -86,13 +86,15 @@ void QueryJoin::operator()()
     auto q3 =
       table0.join(sql::InnerJoin, table1).select(table0.col<0>(), table0.col<1>(), table0.col<2>(), table1.col<2>());
     compareTrue(std::same_as<decltype(q3)::return_t, std::tuple<int64_t, float, std::string, std::string>>);
-    compareEQ(q3.toString(), "SELECT Table0.col1,Table0.col2,Table0.col3,Table1.col3 FROM Table0 INNER JOIN Table1       ");
+    compareEQ(q3.toString(),
+              "SELECT Table0.col1,Table0.col2,Table0.col3,Table1.col3 FROM Table0 INNER JOIN Table1       ");
     expectNoThrow([&] { static_cast<void>(q3.compile()); });
 
     // Construct select query.
     auto q4 = table0.join(sql::InnerJoin, table1)
                 .selectAs<Row>(table0.col<0>(), table0.col<1>(), table0.col<2>(), table1.col<2>());
     compareTrue(std::same_as<decltype(q4)::return_t, Row>);
-    compareEQ(q4.toString(), "SELECT Table0.col1,Table0.col2,Table0.col3,Table1.col3 FROM Table0 INNER JOIN Table1       ");
+    compareEQ(q4.toString(),
+              "SELECT Table0.col1,Table0.col2,Table0.col3,Table1.col3 FROM Table0 INNER JOIN Table1       ");
     expectNoThrow([&] { static_cast<void>(q4.compile()); });
 }

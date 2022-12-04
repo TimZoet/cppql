@@ -89,13 +89,13 @@ namespace sql
      * \tparam L Join or TypedTable table. Left hand side of join.
      * \tparam R TypedTable type. Right hand side of join.
      * \tparam F Filter expression type (or std::nullopt_t if not yet initialized). Is used to generate the ON clause.
-     * \tparam Cs List of ColumnExpression types (or empty if not yet initialized). Are used to generate the USING clause.
+     * \tparam Cols List of ColumnExpression types (or empty if not yet initialized). Are used to generate the USING clause.
      */
     template<is_join_wrapper              J,
              is_join_or_typed_table       L,
              is_typed_table               R,
              is_filter_expression_or_none F,
-             is_column_expression... Cs>
+             is_column_expression... Cols>
     class Join
     {
     public:
@@ -105,19 +105,19 @@ namespace sql
 
         static constexpr bool recursive       = is_join<L>;
         using join_t                          = J;
-        using left_t                          = std::conditional_t<recursive, L, Table*>;
+        using left_t                          = std::conditional_t<recursive, L, const Table*>;
         using table_t                         = R;
         using filter_t                        = On<F>;
-        using using_t                         = Using<Cs...>;
+        using using_t                         = Using<Cols...>;
         using table_list_t                    = tuple_cat_t<get_table_list_t<L>, R>;
         using left_table_t                    = tuple_element_wrapped_t<table_list_t, -2>;
         using filter_list_t                   = lazy_filter_list_t<recursive, left_t, F>;
         static constexpr bool has_filter_list = std::tuple_size_v<filter_list_t> > 0;
 
-        left_t   left;
-        Table*   right;
-        filter_t filter;
-        using_t  usingCols;
+        left_t       left;
+        const Table* right;
+        filter_t     filter;
+        using_t      usingCols;
 
         ////////////////////////////////////////////////////////////////
         // Constructors.
@@ -129,13 +129,13 @@ namespace sql
 
         Join(Join&& other) noexcept = default;
 
-        Join(Table& l, Table& r) : left(&l), right(&r) {}
+        Join(const Table& l, const Table& r) : left(&l), right(&r) {}
 
-        Join(left_t l, Table& r, filter_t f) : left(std::move(l)), right(&r), filter(std::move(f)) {}
+        Join(left_t l, const Table& r, filter_t f) : left(std::move(l)), right(&r), filter(std::move(f)) {}
 
-        Join(left_t l, Table& r, using_t u) : left(std::move(l)), right(&r), usingCols(std::move(u)) {}
+        Join(left_t l, const Table& r, using_t u) : left(std::move(l)), right(&r), usingCols(std::move(u)) {}
 
-        Join(left_t l, Table& r) : left(std::move(l)), right(&r) {}
+        Join(left_t l, const Table& r) : left(std::move(l)), right(&r) {}
 
         ~Join() noexcept = default;
 
@@ -146,8 +146,6 @@ namespace sql
         ////////////////////////////////////////////////////////////////
         // Getters.
         ////////////////////////////////////////////////////////////////
-
-        Table& getTable() noexcept { return *right; }
 
         [[nodiscard]] const Table& getTable() const noexcept { return *right; }
 
@@ -220,7 +218,7 @@ namespace sql
                 Cs...>(std::forward<C>(c), std::forward<Cs>(cs)...);
         }
 
-        template<typename R,
+        template<typename Return,
                  typename Self,
                  is_valid_result_expression<table_list_t> C,
                  is_valid_result_expression<table_list_t>... Cs>
@@ -230,7 +228,7 @@ namespace sql
                 throw CppqlError(std::format("Cannot apply select to join because at least one of the columns contains "
                                              "a table not in the query."));
 
-            return SelectQuery<R,
+            return SelectQuery<Return,
                                std::remove_cvref_t<Self>,
                                std::nullopt_t,
                                std::nullopt_t,

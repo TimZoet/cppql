@@ -13,7 +13,7 @@ void StatementSelectOne::operator()()
         t0->createColumn("col3", sql::Column::Type::Text);
         t0->commit();
     });
-    sql::TypedTable<int64_t, float, std::string> table0(*t0);
+    const sql::TypedTable<int64_t, float, std::string> table0(*t0);
 
     // Insert several rows.
     expectNoThrow([&] {
@@ -32,8 +32,8 @@ void StatementSelectOne::operator()()
     compareEQ(40.5f, stmt.bind(sql::BindParameters::All)());
     // Select without result should throw.
     id = 30;
-    expectThrow([&] {static_cast<void>(stmt.bind(sql::BindParameters::All)()); });
+    expectThrow([&] { static_cast<void>(stmt.bind(sql::BindParameters::All)()); });
     // Select with more than one result should throw.
     id = 40;
-    expectThrow([&] {static_cast<void>(stmt.bind(sql::BindParameters::All)()); });
+    expectThrow([&] { static_cast<void>(stmt.bind(sql::BindParameters::All)()); });
 }

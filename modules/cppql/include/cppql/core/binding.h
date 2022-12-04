@@ -168,7 +168,7 @@ namespace sql
         auto* data = new char[value.size() + 1];
         std::memcpy(data, value.data(), value.size() + 1);
         return Text{
-          .data = data, .size = value.size(), .destructor = [](void* p) { delete[] static_cast<const char*>(p); }};
+          .data = data, .size = value.size(), .destructor = [](void* p) { delete[] static_cast<char*>(p); }};
     }
 
     /**
@@ -234,7 +234,7 @@ namespace sql
     {
         char* data = new char[N];
         std::memcpy(data, &value[0], N);
-        return Text{.data = data, .size = N - 1, .destructor = [](void* p) { delete[] static_cast<const char*>(p); }};
+        return Text{.data = data, .size = N - 1, .destructor = [](void* p) { delete[] static_cast<char*>(p); }};
     }
 
     ////////////////////////////////////////////////////////////////

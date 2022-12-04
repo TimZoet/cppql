@@ -10,7 +10,7 @@
 
 namespace sql
 {
-    class CppqlError : public std::exception
+    class CppqlError final : public std::exception
     {
     public:
         explicit CppqlError(const std::string& msg, std::source_location loc = std::source_location::current());

@@ -21,8 +21,8 @@ void DatabaseVacuum::operator()()
         t->createColumn("col3", sql::Column::Type::Text);
         t->commit();
     });
-    sql::TypedTable<int64_t, float, std::string> table(*t);
-    auto                                         insert = table.insert().compile();
+    const sql::TypedTable<int64_t, float, std::string> table(*t);
+    auto                                               insert = table.insert().compile();
     expectNoThrow([&insert] { insert(10, 20.0f, sql::toText("abc")); });
     expectNoThrow([&insert] { insert(20, 40.5f, sql::toText("def")); });
     expectNoThrow([&insert] { insert(30, 80.2f, sql::toText("ghij")); });

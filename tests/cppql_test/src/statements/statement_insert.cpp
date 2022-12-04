@@ -45,11 +45,11 @@ void StatementInsert::operator()()
         t4->createColumn("col4", sql::Column::Type::Int);
         t4->commit();
     });
-    sql::TypedTable<int64_t, float, std::string>                       table0(*t0);
-    sql::TypedTable<int64_t, std::vector<uint32_t>>                    table1(*t1);
-    sql::TypedTable<int64_t, Foo>                                      table2(*t1);
-    sql::TypedTable<int32_t, float, std::string, std::vector<uint8_t>> table3(*t3);
-    sql::TypedTable<int64_t, float, std::string, int32_t>              table4(*t4);
+    const sql::TypedTable<int64_t, float, std::string>                       table0(*t0);
+    const sql::TypedTable<int64_t, std::vector<uint32_t>>                    table1(*t1);
+    const sql::TypedTable<int64_t, Foo>                                      table2(*t1);
+    const sql::TypedTable<int32_t, float, std::string, std::vector<uint8_t>> table3(*t3);
+    const sql::TypedTable<int64_t, float, std::string, int32_t>              table4(*t4);
 
     // Insert basic data.
     {

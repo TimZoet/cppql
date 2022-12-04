@@ -32,8 +32,8 @@ void StatementSelect::operator()()
         t1->createColumn("col4", sql::Column::Type::Blob);
         t1->commit();
     });
-    sql::TypedTable<int64_t, float, std::string>                          table0(*t0);
-    sql::TypedTable<int64_t, std::vector<int32_t>, Foo, std::vector<Foo>> table1(*t1);
+    const sql::TypedTable<int64_t, float, std::string>                          table0(*t0);
+    const sql::TypedTable<int64_t, std::vector<int32_t>, Foo, std::vector<Foo>> table1(*t1);
 
     // Insert several rows.
     expectNoThrow([&] {

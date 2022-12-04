@@ -13,7 +13,7 @@ void StatementCount::operator()()
         t0->createColumn("col3", sql::Column::Type::Text);
         t0->commit();
     });
-    sql::TypedTable<int64_t, float, std::string> table0(*t0);
+    const sql::TypedTable<int64_t, float, std::string> table0(*t0);
 
     // Insert several rows.
     expectNoThrow([&] {

@@ -91,8 +91,9 @@ namespace sql
           std::unordered_map<std::string, std::vector<std::tuple<std::string, std::string, std::string>>>& foreignKeys);
 
         void resolveForeignKeys(
-          std::unordered_map<std::string, std::vector<std::tuple<std::string, std::string, std::string>>>& foreignKeys,
-          std::unordered_map<std::string, TablePtr>&                                                       tables);
+          const std::unordered_map<std::string, std::vector<std::tuple<std::string, std::string, std::string>>>&
+                                                     foreignKeys,
+          std::unordered_map<std::string, TablePtr>& tables);
 
         /**
          * \brief Database this table is in.

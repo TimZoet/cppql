@@ -29,7 +29,7 @@ void ExpressionAggregate::operator()()
         static_cast<void>(sql::count(table.col<1>()));
         static_cast<void>(sql::max(table.col<1>()));
         static_cast<void>(sql::min(table.col<1>()));
-        static_cast<void>(sql::sum(table.col<1>()));
+        static_cast<void>(sum(table.col<1>()));
         static_cast<void>(sql::total(table.col<1>()));
     });
 }

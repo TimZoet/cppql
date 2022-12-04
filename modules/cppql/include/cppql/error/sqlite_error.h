@@ -10,10 +10,12 @@
 
 namespace sql
 {
-    class SqliteError : public std::exception
+    class SqliteError final : public std::exception
     {
     public:
-        explicit SqliteError(const std::string& msg, int32_t code, std::source_location loc = std::source_location::current());
+        explicit SqliteError(const std::string&   msg,
+                             int32_t              code,
+                             std::source_location loc = std::source_location::current());
 
         [[nodiscard]] const char* what() const noexcept override;
 

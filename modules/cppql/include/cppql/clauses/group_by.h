@@ -69,7 +69,7 @@ namespace sql
 
         GroupBy(GroupBy&& other) noexcept = default;
 
-        GroupBy(C c, Cs... cs) : group(std::make_tuple(std::move(c), std::move(cs)...)) {}
+        explicit GroupBy(C c, Cs... cs) : group(std::make_tuple(std::move(c), std::move(cs)...)) {}
 
         ~GroupBy() noexcept = default;
 

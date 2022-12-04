@@ -20,7 +20,7 @@ void BindBlob::operator()()
     const void* data3 = new uint8_t[10];
 
     // Do some valid and invalid binds.
-    compareTrue(stmt.bindBlob(0, data1, 10, [](void* p){ delete[] static_cast<const uint8_t*>(p); }));
+    compareTrue(stmt.bindBlob(0, data1, 10, [](void* p){ delete[] static_cast<uint8_t*>(p); }));
     compareTrue(stmt.bindStaticBlob(1, data2, 10));
     compareTrue(stmt.bindTransientBlob(2, data3, 10));
     compareFalse(stmt.bindStaticBlob(3, data2, 10));

@@ -19,8 +19,8 @@ void QueryDelete::operator()()
         t1->createColumn("col3", sql::Column::Type::Text);
         t1->commit();
     });
-    sql::TypedTable<int64_t, float, std::string> table0(*t0);
-    sql::TypedTable<int64_t, float, std::string> table1(*t1);
+    const sql::TypedTable<int64_t, float, std::string> table0(*t0);
+    const sql::TypedTable<int64_t, float, std::string> table1(*t1);
 
     // Construct default query.
     auto q0 = table0.del();
@@ -44,7 +44,6 @@ void QueryDelete::operator()()
     expectNoThrow([&] { q2.generateIndices(); });
     compareEQ(q2.toString(), "DELETE FROM Table0  ORDER BY Table0.col2 ASC  ;");
     expectNoThrow([&] { static_cast<void>(q2.compile()); }).info("ORDER BY not supported.");
-    ;
 
     // Add order by clause with wrong table.
     expectThrow([&] { static_cast<void>(q0.orderBy(ascending(table1.col<1>()))); });
@@ -55,7 +54,6 @@ void QueryDelete::operator()()
     expectNoThrow([&] { q3.generateIndices(); });
     compareEQ(q3.toString(), "DELETE FROM Table0   LIMIT 10 OFFSET 20;");
     expectNoThrow([&] { static_cast<void>(q3.compile()); }).info("LIMIT OFFSET not supported.");
-    ;
 
     // Add all clauses.
     auto q4 = q0.where(table0.col<0>() > 0).orderBy(ascending(table0.col<1>())).limitOffset(10, 20);
