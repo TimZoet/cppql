@@ -47,7 +47,7 @@ class CppqlConan(ConanFile):
     ############################################################################
     ## Building.                                                              ##
     ############################################################################
-    
+
     def export_sources(self):
         self.copy("CMakeLists.txt")
         self.copy("cppqlVersionString.cmake")
@@ -58,8 +58,15 @@ class CppqlConan(ConanFile):
     
     def config_options(self):
         base = self.python_requires["pyreq"].module.BaseConan
+        base.config_options(self)
         if self.settings.os == "Windows":
             del self.options.fPIC
+    
+    def configure(self):
+        base = self.python_requires["pyreq"].module.BaseConan
+        base.configure2(self)
+        if self.options.build_manual:
+            self.options.manual_repository = "git@github.com:TimZoet/cppql-manual.git"
     
     def requirements(self):
         base = self.python_requires["pyreq"].module.BaseConan
@@ -80,6 +87,8 @@ class CppqlConan(ConanFile):
         
         tc = base.generate_toolchain(self)
         
+        if self.options.build_manual:
+            tc.variables["MANUAL_TAG"] = "master"  # self.version
         if self.options.zero_based_indices:
             tc.variables["CPPQL_BIND_ZERO_BASED_INDICES"] = True
         if self.options.shutdown_default_off:
@@ -94,6 +103,8 @@ class CppqlConan(ConanFile):
         base = self.python_requires["pyreq"].module.BaseConan
         cmake = base.configure_cmake(self)
         
+        if self.options.build_manual:
+            cmake.definitions["MANUAL_TAG"] = "master"  # self.version
         if self.options.zero_based_indices:
             cmake.definitions["CPPQL_BIND_ZERO_BASED_INDICES"] = True
         if self.options.shutdown_default_off:

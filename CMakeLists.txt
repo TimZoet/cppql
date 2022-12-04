@@ -19,6 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(InstallTarget)
 include(ISA)
+include(MakeManual)
 include(MakeTarget)
 
 ################################################################################
@@ -32,6 +33,10 @@ option(CPPQL_BIND_ZERO_BASED_INDICES "Use 0-based indices for all bind methods, 
 ################################################################################
 
 add_subdirectory(modules)
+
+if(BUILD_MANUAL)
+    make_manual()
+endif()
 if (BUILD_TESTS)
     add_subdirectory(tests)
 endif()
