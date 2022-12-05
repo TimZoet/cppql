@@ -15,6 +15,7 @@
 
 #include "cppql/core/statement.h"
 #include "cppql/core/table.h"
+#include "cppql/core/transaction.h"
 
 struct sqlite3;
 
@@ -152,6 +153,8 @@ namespace sql
         Table& registerTable(const std::string& name);
 
         void dropTable(const std::string& name);
+
+        [[nodiscard]] Transaction beginTransaction(Transaction::Type type);
 
         /**
          * \brief Execute the VACUUM command.

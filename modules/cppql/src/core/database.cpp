@@ -178,6 +178,8 @@ namespace sql
         tables.erase(name);
     }
 
+    Transaction Database::beginTransaction(const Transaction::Type type) { return Transaction(*this, type); }
+
     void Database::vacuum()
     {
         const auto stmt = createStatement("VACUUM", true);

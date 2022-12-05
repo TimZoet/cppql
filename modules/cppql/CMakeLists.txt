@@ -33,6 +33,7 @@ set(HEADERS
     ${INCLUDE_DIR}/core/database.h
     ${INCLUDE_DIR}/core/statement.h
     ${INCLUDE_DIR}/core/table.h
+    ${INCLUDE_DIR}/core/transaction.h
     ${INCLUDE_DIR}/error/cppql_error.h
     ${INCLUDE_DIR}/error/sqlite_error.h
     ${INCLUDE_DIR}/expressions/aggregate_expression.h
@@ -69,6 +70,7 @@ set(SOURCES
     ${SRC_DIR}/core/database.cpp
     ${SRC_DIR}/core/statement.cpp
     ${SRC_DIR}/core/table.cpp
+    ${SRC_DIR}/core/transaction.cpp
     ${SRC_DIR}/error/cppql_error.cpp
     ${SRC_DIR}/error/sqlite_error.cpp
 )

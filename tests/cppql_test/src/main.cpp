@@ -84,6 +84,7 @@
 #include "cppql_test/typed_table/create_typed_table_text.h"
 #include "cppql_test/statement_prepare.h"
 #include "cppql_test/statement_step.h"
+#include "cppql_test/transaction.h"
 
 #ifdef WIN32
 #include "Windows.h"
@@ -169,7 +170,8 @@ int main(const int argc, char** argv)
             StatementSelect,
             StatementSelectOne,
             StatementStep,
-            StatementUpdate>(argc, argv, "cppql");
+            StatementUpdate,
+            Transaction>(argc, argv, "cppql");
 
     return sqlite3_shutdown();
 }

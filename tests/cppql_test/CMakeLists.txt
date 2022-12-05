@@ -75,6 +75,7 @@ set(HEADERS
 
     ${INCLUDE_DIR}/statement_prepare.h
     ${INCLUDE_DIR}/statement_step.h
+    ${INCLUDE_DIR}/transaction.h
     ${INCLUDE_DIR}/utils.h
 )
 
@@ -150,6 +151,7 @@ set(SOURCES
     
     ${SRC_DIR}/statement_prepare.cpp
     ${SRC_DIR}/statement_step.cpp
+    ${SRC_DIR}/transaction.cpp
     ${SRC_DIR}/utils.cpp
 )
 
