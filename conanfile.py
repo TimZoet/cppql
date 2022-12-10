@@ -88,7 +88,7 @@ class CppqlConan(ConanFile):
         tc = base.generate_toolchain(self)
         
         if self.options.build_manual:
-            tc.variables["MANUAL_TAG"] = "master"  # self.version
+            tc.variables["MANUAL_TAG"] = self.version
         if self.options.zero_based_indices:
             tc.variables["CPPQL_BIND_ZERO_BASED_INDICES"] = True
         if self.options.shutdown_default_off:
@@ -104,7 +104,7 @@ class CppqlConan(ConanFile):
         cmake = base.configure_cmake(self)
         
         if self.options.build_manual:
-            cmake.definitions["MANUAL_TAG"] = "master"  # self.version
+            cmake.definitions["MANUAL_TAG"] = self.version
         if self.options.zero_based_indices:
             cmake.definitions["CPPQL_BIND_ZERO_BASED_INDICES"] = True
         if self.options.shutdown_default_off:
