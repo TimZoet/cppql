@@ -1,7 +1,78 @@
 #pragma once
 
+////////////////////////////////////////////////////////////////
+// Standard includes.
+////////////////////////////////////////////////////////////////
+
+#include <string>
+
 namespace sql
 {
+    enum class ConflictClause
+    {
+        Rollback,
+        Abort,
+        Fail,
+        Ignore,
+        Replace
+    };
+
+    [[nodiscard]] inline std::string toString(const ConflictClause value)
+    {
+        switch (value)
+        {
+        case ConflictClause::Rollback: return "ON CONFLICT ROLLBACK";
+        case ConflictClause::Abort: return "ON CONFLICT ABORT";
+        case ConflictClause::Fail: return "ON CONFLICT FAIL";
+        case ConflictClause::Ignore: return "ON CONFLICT IGNORE";
+        case ConflictClause::Replace: return "ON CONFLICT REPLACE";
+        }
+
+        return "";
+    }
+
+    enum class Deferrable
+    {
+        NotDeferrable,
+        InitiallyDeferred,
+        InitiallyImmediate
+    };
+
+    [[nodiscard]] inline std::string toString(const Deferrable value)
+    {
+        switch (value)
+        {
+        case Deferrable::NotDeferrable: return "";
+        case Deferrable::InitiallyDeferred: return "DEFERRABLE INITIALLY DEFERRED";
+        case Deferrable::InitiallyImmediate: return "";
+        }
+
+        return "";
+    }
+
+    enum class ForeignKeyAction
+    {
+        SetNull,
+        SetDefault,
+        Cascade,
+        Restrict,
+        NoAction
+    };
+
+    [[nodiscard]] inline std::string toString(const ForeignKeyAction value)
+    {
+        switch (value)
+        {
+        case ForeignKeyAction::SetNull: return "SET NULL";
+        case ForeignKeyAction::SetDefault: return "SET DEFAULT";
+        case ForeignKeyAction::Cascade: return "CASCADE";
+        case ForeignKeyAction::Restrict: return "RESTRICT";
+        case ForeignKeyAction::NoAction: return "NO ACTION";
+        }
+
+        return "";
+    }
+
     enum class BindParameters
     {
         // Don't bind any parameters.
@@ -113,6 +184,17 @@ namespace sql
     {
         inline static const std::string str = "DESC";
     };
+
+    [[nodiscard]] inline std::string toString(const Order value)
+    {
+        switch (value)
+        {
+        case Order::Asc: return "ASC";
+        case Order::Desc: return "DESC";
+        }
+
+        return "";
+    }
 
     template<Nulls>
     struct NullsString

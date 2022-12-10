@@ -27,19 +27,19 @@ void StatementInsert::operator()()
         t0->commit();
 
         t1 = &db->createTable("Table1");
-        t1->createColumn("col1", sql::Column::Type::Int).setPrimaryKey(true).setAutoIncrement(true);
+        t1->createColumn("col1", sql::Column::Type::Int).primaryKey(true);
         t1->createColumn("col2", sql::Column::Type::Blob);
         t1->commit();
 
         t3 = &db->createTable("Table3");
-        t3->createColumn("col1", sql::Column::Type::Int).setDefaultValue(10);
-        t3->createColumn("col2", sql::Column::Type::Real).setDefaultValue(4.5f);
-        t3->createColumn("col3", sql::Column::Type::Text).setDefaultValue("'abc'");
-        t3->createColumn("col4", sql::Column::Type::Blob).setDefaultValue("X'FFAA5500'");
+        t3->createColumn("col1", sql::Column::Type::Int).defaultValue(10);
+        t3->createColumn("col2", sql::Column::Type::Real).defaultValue(4.5f);
+        t3->createColumn("col3", sql::Column::Type::Text).defaultValue("'abc'");
+        t3->createColumn("col4", sql::Column::Type::Blob).defaultValue("X'FFAA5500'");
         t3->commit();
 
         t4 = &db->createTable("Table4");
-        t4->createColumn("col1", sql::Column::Type::Int).setAutoIncrement(true).setPrimaryKey(true).setNotNull(true);
+        t4->createColumn("col1", sql::Column::Type::Int).primaryKey(true).notNull();
         t4->createColumn("col2", sql::Column::Type::Real);
         t4->createColumn("col3", sql::Column::Type::Text);
         t4->createColumn("col4", sql::Column::Type::Int);

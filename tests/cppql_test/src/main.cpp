@@ -39,6 +39,8 @@
 #include "cppql_test/clauses/clause_using.h"
 #include "cppql_test/clauses/clause_where.h"
 #include "cppql_test/create_column/create_column_blob.h"
+#include "cppql_test/create_column/create_column_check.h"
+#include "cppql_test/create_column/create_column_collate.h"
 #include "cppql_test/create_column/create_column_default_value.h"
 #include "cppql_test/create_column/create_column_foreign_key.h"
 #include "cppql_test/create_column/create_column_int.h"
@@ -47,6 +49,7 @@
 #include "cppql_test/create_column/create_column_primary_key_multiple.h"
 #include "cppql_test/create_column/create_column_real.h"
 #include "cppql_test/create_column/create_column_text.h"
+#include "cppql_test/create_column/create_column_unique.h"
 #include "cppql_test/database/database_create.h"
 #include "cppql_test/database/database_vacuum.h"
 #include "cppql_test/expressions/expression_aggregate.h"
@@ -126,6 +129,8 @@ int main(const int argc, char** argv)
             ClauseUsing,
             ClauseWhere,
             CreateColumnBlob,
+            CreateColumnCheck,
+            CreateColumnCollate,
             CreateColumnDefaultValue,
             CreateColumnForeignKey,
             CreateColumnInt,
@@ -134,6 +139,7 @@ int main(const int argc, char** argv)
             CreateColumnPrimaryKeyMultiple,
             CreateColumnReal,
             CreateColumnText,
+            CreateColumnUnique,
             CreateTable,
             DatabaseCreate,
             DatabaseVacuum,

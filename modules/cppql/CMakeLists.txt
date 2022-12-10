@@ -31,6 +31,7 @@ set(HEADERS
     ${INCLUDE_DIR}/core/binding.h
     ${INCLUDE_DIR}/core/column.h
     ${INCLUDE_DIR}/core/database.h
+    ${INCLUDE_DIR}/core/enums.h
     ${INCLUDE_DIR}/core/statement.h
     ${INCLUDE_DIR}/core/table.h
     ${INCLUDE_DIR}/core/transaction.h
@@ -58,7 +59,6 @@ set(HEADERS
     ${INCLUDE_DIR}/statements/select_statement.h
     ${INCLUDE_DIR}/statements/select_one_statement.h
     ${INCLUDE_DIR}/statements/update_statement.h
-    ${INCLUDE_DIR}/typed/enums.h
     ${INCLUDE_DIR}/typed/fwd.h
     ${INCLUDE_DIR}/typed/join.h
     ${INCLUDE_DIR}/typed/join_type.h

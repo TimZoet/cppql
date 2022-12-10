@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <format>
+#include <ranges>
 
 ////////////////////////////////////////////////////////////////
 // External includes.
@@ -47,47 +48,58 @@ namespace sql
         const auto pkCount =
           std::ranges::count_if(columns.begin(), columns.end(), [](const auto& col) { return col->isPrimaryKey(); });
 
-        // Concatenate columnns and primary key.
+        // Concatenate columnns.
         std::string cols;
-        std::string pks;
-        std::string fks;
         auto        firstCol = true;
-        auto        firstPk  = true;
         for (const auto& col : columns)
         {
-            cols += std::format("{} {} {} {} {} {} {}",
-                                firstCol ? "" : ",",
-                                col->getName(),
-                                toString(col->getType()),
-                                col->isPrimaryKey() && pkCount == 1 ? "PRIMARY KEY" : "",
-                                col->isAutoIncrement() ? "AUTOINCREMENT" : "",
-                                col->isNotNull() ? "NOT NULL" : "",
-                                col->getDefaultValue().empty() ? "" : "DEFAULT " + col->getDefaultValue());
-
-            // If column is one of multiple primary keys, add to string.
-            if (pkCount > 1 && col->isPrimaryKey())
-            {
-                pks += (firstPk ? "" : ",") + col->getName();
-                firstPk = false;
-            }
-
-            // If column is foreign key, add to string.
+            cols += std::format("{}{} {}", firstCol ? "" : ",", col->getName(), toString(col->getType()));
+            if (col->isPrimaryKey() && pkCount == 1)
+                cols += std::format(" PRIMARY KEY {} {}",
+                                    toString(col->getPrimaryKeyConflictClause()),
+                                    col->isAutoIncrement() ? "AUTOINCREMENT" : "");
+            if (col->isNotNull()) cols += std::format(" NOT NULL {}", toString(col->getNotNullConflictClause()));
+            if (col->isUnique()) cols += std::format(" UNIQUE {}", toString(col->getUniqueConflictClause()));
+            if (col->hasCheck()) cols += std::format(" CHECK ({})", col->getCheck());
+            if (col->hasDefaultValue()) cols += std::format(" DEFAULT ({})", col->getDefaultValue());
+            if (col->hasCollate()) cols += std::format(" COLLATE {}", col->getCollate());
             if (col->isForeignKey())
             {
-                fks += std::format(", FOREIGN KEY({}) REFERENCES {}({})",
-                                   col->getName(),
-                                   col->getForeignKey()->getTable().getName(),
-                                   col->getForeignKey()->getName());
+                cols += std::format(" REFERENCES {}({}){}{} {}",
+                                    col->getForeignKey()->getTable().getName(),
+                                    col->getForeignKey()->getName(),
+                                    col->getForeignKeyDeleteAction() == ForeignKeyAction::NoAction ?
+                                      "" :
+                                      std::format(" ON DELETE {}", toString(col->getForeignKeyDeleteAction())),
+                                    col->getForeignKeyUpdateAction() == ForeignKeyAction::NoAction ?
+                                      "" :
+                                      std::format(" ON UPDATE {}", toString(col->getForeignKeyUpdateAction())),
+                                    toString(col->getForeignKeyDeferrable()));
             }
 
             firstCol = false;
         }
 
-        // Format primary key constraint.
-        const auto pk = pkCount > 1 ? std::format(", PRIMARY KEY ({})", pks) : "";
+        // Format compound primary key.
+        std::string pk;
+        if (pkCount > 1)
+        {
+            const auto& first =
+              (columns | std::views::filter([](const auto& c) { return c->isPrimaryKey(); }) | std::views::take(1))
+                .front();
+            pk = std::format(",PRIMARY KEY ({}) {}",
+                             columns | std::views::filter([](const auto& c) { return c->isPrimaryKey(); }) |
+                               std::views::transform([](const auto& c) { return c->getName(); }) |
+                               std::views::join_with(',') | std::ranges::to<std::string>(),
+                             toString(first->getPrimaryKeyConflictClause()));
+        }
+
+        std::string opts;
+        if (options.withoutRowid) opts += "WITHOUT ROWID";
+        if (options.strict) opts += options.withoutRowid ? ",STRICT" : "STRICT";
 
         // Format full statement.
-        auto sql = std::format("CREATE TABLE {} ({} {} {});", name, cols, pk, fks);
+        auto sql = std::format("CREATE TABLE {} ({} {}) {};", name, std::move(cols), std::move(pk), std::move(opts));
         return sql;
     }
 
@@ -109,6 +121,10 @@ namespace sql
 
     const std::string& Table::getName() const noexcept { return name; }
 
+    bool Table::getWithoutRowid() const noexcept { return options.withoutRowid; }
+
+    bool Table::getStrict() const noexcept { return options.strict; }
+
     bool Table::isCommitted() const noexcept { return committed; }
 
     size_t Table::getColumnCount() const noexcept { return columns.size(); }
@@ -116,6 +132,22 @@ namespace sql
     Column& Table::getColumn(const std::string& columnName) const { return *columns[columnMap.at(columnName)]; }
 
     Column& Table::getColumn(const size_t index) const { return *columns[index]; }
+
+    ////////////////////////////////////////////////////////////////
+    // Setters.
+    ////////////////////////////////////////////////////////////////
+
+    void Table::setWithoutRowid(const bool withoutRowid)
+    {
+        requireNotCommitted();
+        options.withoutRowid = withoutRowid;
+    }
+
+    void Table::setStrict(const bool strict)
+    {
+        requireNotCommitted();
+        options.strict = strict;
+    }
 
     ////////////////////////////////////////////////////////////////
     // Columns.
@@ -133,21 +165,6 @@ namespace sql
 
         // Create a new column.
         auto col = std::make_unique<Column>(this, static_cast<int32_t>(it->second), columnName, type);
-        return *columns.emplace_back(std::move(col));
-    }
-
-    Column& Table::createColumn(const std::string& columnName, Column& foreignKey)
-    {
-        requireNotCommitted();
-
-        // Check for duplicate name.
-        const auto [it, emplaced] = columnMap.try_emplace(columnName, columns.size());
-        if (!emplaced)
-            throw CppqlError(
-              std::format("Failed to create column {}. A column with this name already exists.", columnName));
-
-        // Create a new column.
-        auto col = std::make_unique<Column>(this, static_cast<int32_t>(it->second), columnName, foreignKey);
         return *columns.emplace_back(std::move(col));
     }
 
@@ -204,9 +221,8 @@ namespace sql
 
             // Create column.
             auto& col = createColumn(columnName, columnType);
-            col.setNotNull(notNull);
-            col.setPrimaryKey(primaryKey);
-            col.setAutoIncrement(autoInc);
+            if (notNull) col.notNull();
+            if (primaryKey) col.primaryKey(autoInc > 0, ConflictClause::Abort);
         }
 
         const auto fks = db->createStatement("PRAGMA foreign_key_list(" + getName() + ");", true);
@@ -247,7 +263,7 @@ namespace sql
             auto& fkColumn = *fkTable->columns[fkTable->columnMap[fkColumnName]];
 
             // Set foreign key.
-            columns[columnMap[columnName]]->setForeignKey(fkColumn);
+            columns[columnMap[columnName]]->foreignKey(fkColumn);
         }
 
         committed = true;

@@ -50,6 +50,10 @@ namespace sql
 
         [[nodiscard]] const std::string& getName() const noexcept;
 
+        [[nodiscard]] bool getWithoutRowid() const noexcept;
+
+        [[nodiscard]] bool getStrict() const noexcept;
+
         [[nodiscard]] bool isCommitted() const noexcept;
 
         [[nodiscard]] size_t getColumnCount() const noexcept;
@@ -57,6 +61,14 @@ namespace sql
         [[nodiscard]] Column& getColumn(const std::string& columnName) const;
 
         [[nodiscard]] Column& getColumn(size_t index) const;
+
+        ////////////////////////////////////////////////////////////////
+        // Setters.
+        ////////////////////////////////////////////////////////////////
+
+        void setWithoutRowid(bool withoutRowid);
+
+        void setStrict(bool strict);
 
         ////////////////////////////////////////////////////////////////
         // Columns.
@@ -69,14 +81,6 @@ namespace sql
          * \return Column.
          */
         Column& createColumn(const std::string& columnName, Column::Type type);
-
-        /**
-         * \brief Create a new foreign key column.
-         * \param columnName New column name.
-         * \param foreignKey Column from another table.
-         * \return Column.
-         */
-        Column& createColumn(const std::string& columnName, Column& foreignKey);
 
         template<typename T>
         Column& createColumn(const std::string& columnName)
@@ -107,7 +111,11 @@ namespace sql
 
         bool committed = false;
 
-
+        struct
+        {
+            bool withoutRowid = false;
+            bool strict       = false;
+        } options;
         std::vector<ColumnPtr>        columns;
         std::map<std::string, size_t> columnMap;
     };

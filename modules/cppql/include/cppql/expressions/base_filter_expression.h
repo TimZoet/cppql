@@ -10,8 +10,8 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql/core/enums.h"
 #include "cppql/core/statement.h"
-#include "cppql/typed/enums.h"
 
 namespace sql
 {

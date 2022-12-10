@@ -11,7 +11,7 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
-#include "cppql/typed/enums.h"
+#include "cppql/core/enums.h"
 
 namespace sql
 {

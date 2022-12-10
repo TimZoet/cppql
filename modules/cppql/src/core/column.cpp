@@ -25,12 +25,6 @@ namespace sql
     {
     }
 
-    Column::Column(Table* t, const int32_t columnIndex, std::string columnName, Column& fk) :
-        table(t), index(columnIndex), name(std::move(columnName)), type(Type::Int)
-    {
-        setForeignKey(fk);
-    }
-
     ////////////////////////////////////////////////////////////////
     // Getters.
     ////////////////////////////////////////////////////////////////
@@ -43,84 +37,133 @@ namespace sql
 
     Column::Type Column::getType() const noexcept { return type; }
 
-    bool Column::isPrimaryKey() const noexcept { return primaryKey; }
+    bool Column::isPrimaryKey() const noexcept { return primaryKeyConstraint.enabled; }
 
-    bool Column::isForeignKey() const noexcept { return foreignKey != nullptr; }
+    ConflictClause Column::getPrimaryKeyConflictClause() const noexcept { return primaryKeyConstraint.conflict; }
 
-    bool Column::isNotNull() const noexcept { return notNull; }
+    bool Column::isAutoIncrement() const noexcept { return primaryKeyConstraint.autoInc; }
 
-    bool Column::isAutoIncrement() const noexcept { return autoIncrement; }
+    bool Column::isNotNull() const noexcept { return notNullConstraint.enabled; }
+
+    ConflictClause Column::getNotNullConflictClause() const noexcept { return notNullConstraint.conflict; }
+
+    bool Column::isUnique() const noexcept { return uniqueConstraint.enabled; }
+
+    ConflictClause Column::getUniqueConflictClause() const noexcept { return uniqueConstraint.conflict; }
+
+    bool Column::hasCheck() const noexcept { return !checkConstraint.empty(); }
+
+    const std::string& Column::getCheck() const noexcept { return checkConstraint; }
+
+    bool Column::hasDefaultValue() const noexcept { return !defaultVal.empty(); }
+
+    const std::string& Column::getDefaultValue() const noexcept { return defaultVal; }
+
+    bool Column::hasCollate() const noexcept { return !collationName.empty(); }
+
+    const std::string& Column::getCollate() const noexcept { return collationName; }
+
+    bool Column::isForeignKey() const noexcept { return foreignKeyConstraint.foreignKey != nullptr; }
+
+    Column* Column::getForeignKey() const noexcept { return foreignKeyConstraint.foreignKey; }
+
+    ForeignKeyAction Column::getForeignKeyDeleteAction() const noexcept { return foreignKeyConstraint.deleteAction; }
+
+    ForeignKeyAction Column::getForeignKeyUpdateAction() const noexcept { return foreignKeyConstraint.updateAction; }
+
+    Deferrable Column::getForeignKeyDeferrable() const noexcept { return foreignKeyConstraint.deferrable; }
 
     ////////////////////////////////////////////////////////////////
     // Setters.
     ////////////////////////////////////////////////////////////////
 
-    Column& Column::setPrimaryKey(const bool value)
+    Column& Column::primaryKey(const bool autoInc, const ConflictClause conflict)
     {
         table->requireNotCommitted();
-        primaryKey = value;
+        primaryKeyConstraint.enabled  = true;
+        primaryKeyConstraint.conflict = conflict;
+        primaryKeyConstraint.autoInc  = autoInc;
         return *this;
     }
 
-    Column& Column::setNotNull(const bool value)
+    Column& Column::notNull(const ConflictClause conflict)
     {
         table->requireNotCommitted();
-        notNull = value;
+        notNullConstraint.enabled  = true;
+        notNullConstraint.conflict = conflict;
         return *this;
     }
 
-    Column& Column::setAutoIncrement(const bool value)
+    Column& Column::unique(const ConflictClause conflict)
     {
         table->requireNotCommitted();
-        autoIncrement = value;
+        uniqueConstraint.enabled  = true;
+        uniqueConstraint.conflict = conflict;
         return *this;
     }
 
-    Column* Column::getForeignKey() const noexcept { return foreignKey; }
+    Column& Column::check(std::string expression)
+    {
+        table->requireNotCommitted();
+        checkConstraint = std::move(expression);
+        return *this;
+    }
 
-    const std::string& Column::getDefaultValue() const noexcept { return defaultValue; }
+    Column& Column::defaultValue(std::string value)
+    {
+        table->requireNotCommitted();
+        defaultVal = std::move(value);
+        return *this;
+    }
 
-    Column& Column::setForeignKey(Column& column)
+    Column& Column::defaultValue(const int32_t value)
+    {
+        table->requireNotCommitted();
+        defaultVal = std::format("{0:d}", value);
+        return *this;
+    }
+
+    Column& Column::defaultValue(const int64_t value)
+    {
+        table->requireNotCommitted();
+        defaultVal = std::format("{0:d}", value);
+        return *this;
+    }
+
+    Column& Column::defaultValue(const float value)
+    {
+        table->requireNotCommitted();
+        defaultVal = std::format("{0:f}", value);
+        return *this;
+    }
+
+    Column& Column::defaultValue(const double value)
+    {
+        table->requireNotCommitted();
+        defaultVal = std::format("{0:f}", value);
+        return *this;
+    }
+
+    Column& Column::collate(std::string value)
+    {
+        table->requireNotCommitted();
+        collationName = std::move(value);
+        return *this;
+    }
+
+    Column& Column::foreignKey(Column&                column,
+                               const ForeignKeyAction deleteAction,
+                               const ForeignKeyAction updateAction,
+                               const Deferrable       deferrable)
     {
         table->requireNotCommitted();
         if (&column.getTable() == table) throw CppqlError("Cannot set foreign key pointing to the same table.");
-        if (column.getType() != Type::Int) throw CppqlError("Cannot set foreign key pointing to non-integer column type.");
-        this->foreignKey = &column;
-        return *this;
-    }
-
-    Column& Column::setDefaultValue(std::string value)
-    {
-        table->requireNotCommitted();
-        defaultValue = std::move(value);
-        return *this;
-    }
-
-    Column& Column::setDefaultValue(int32_t value)
-    {
-        table->requireNotCommitted();
-        defaultValue = std::format("{0:d}", value);
-        return *this;
-    }
-
-    Column& Column::setDefaultValue(int64_t value)
-    {
-        table->requireNotCommitted();
-        defaultValue = std::format("{0:d}", value);
-        return *this;
-    }
-
-    Column& Column::setDefaultValue(float value)
-    {
-        table->requireNotCommitted();
-        defaultValue = std::format("{0:f}", value);
-        return *this;
-    }
-
-    Column& Column::setDefaultValue(double value)
-    {
-        table->requireNotCommitted();
-        defaultValue = std::format("{0:f}", value);
+        if (column.getType() != Type::Int)
+            throw CppqlError("Cannot set foreign key pointing to non-integer column type.");
+        foreignKeyConstraint.foreignKey   = &column;
+        foreignKeyConstraint.deleteAction = deleteAction;
+        foreignKeyConstraint.updateAction = updateAction;
+        foreignKeyConstraint.deferrable   = deferrable;
         return *this;
     }
 

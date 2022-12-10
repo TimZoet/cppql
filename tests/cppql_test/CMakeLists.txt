@@ -29,6 +29,8 @@ set(HEADERS
     ${INCLUDE_DIR}/clauses/clause_using.h
     ${INCLUDE_DIR}/clauses/clause_where.h
     ${INCLUDE_DIR}/create_column/create_column_blob.h
+    ${INCLUDE_DIR}/create_column/create_column_check.h
+    ${INCLUDE_DIR}/create_column/create_column_collate.h
     ${INCLUDE_DIR}/create_column/create_column_default_value.h
     ${INCLUDE_DIR}/create_column/create_column_foreign_key.h
     ${INCLUDE_DIR}/create_column/create_column_int.h
@@ -37,6 +39,7 @@ set(HEADERS
     ${INCLUDE_DIR}/create_column/create_column_primary_key_multiple.h
     ${INCLUDE_DIR}/create_column/create_column_real.h
     ${INCLUDE_DIR}/create_column/create_column_text.h
+    ${INCLUDE_DIR}/create_column/create_column_unique.h
     ${INCLUDE_DIR}/database/database_create.h
     ${INCLUDE_DIR}/database/database_vacuum.h
     ${INCLUDE_DIR}/expressions/expression_aggregate.h
@@ -103,6 +106,8 @@ set(SOURCES
     ${SRC_DIR}/clauses/clause_using.cpp
     ${SRC_DIR}/clauses/clause_where.cpp
     ${SRC_DIR}/create_column/create_column_blob.cpp
+    ${SRC_DIR}/create_column/create_column_check.cpp
+    ${SRC_DIR}/create_column/create_column_collate.cpp
     ${SRC_DIR}/create_column/create_column_default_value.cpp
     ${SRC_DIR}/create_column/create_column_foreign_key.cpp
     ${SRC_DIR}/create_column/create_column_int.cpp
@@ -111,6 +116,7 @@ set(SOURCES
     ${SRC_DIR}/create_column/create_column_primary_key_multiple.cpp
     ${SRC_DIR}/create_column/create_column_real.cpp
     ${SRC_DIR}/create_column/create_column_text.cpp
+    ${SRC_DIR}/create_column/create_column_unique.cpp
     ${SRC_DIR}/database/database_create.cpp
     ${SRC_DIR}/database/database_vacuum.cpp
     ${SRC_DIR}/expressions/expression_aggregate.cpp

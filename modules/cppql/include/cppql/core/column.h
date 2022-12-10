@@ -16,6 +16,12 @@
 //#include "common/static_assert.h"
 //#include "common/type_traits.h"
 
+////////////////////////////////////////////////////////////////
+// Current target includes.
+////////////////////////////////////////////////////////////////
+
+#include "cppql/core/enums.h"
+
 namespace sql
 {
     class Column;
@@ -45,8 +51,6 @@ namespace sql
         Column() = delete;
 
         Column(Table* t, int32_t columnIndex, std::string columnName, Type columnType);
-
-        Column(Table* t, int32_t columnIndex, std::string columnName, Column& fk);
 
         Column(const Column&) = delete;
 
@@ -86,84 +90,169 @@ namespace sql
          */
         [[nodiscard]] Type getType() const noexcept;
 
-        /**
-         * \brief Returns whether column is (part of) the primary key.
-         * \return True if part of the primary key.
-         */
         [[nodiscard]] bool isPrimaryKey() const noexcept;
 
-        /**
-         * \brief Returns whether column is a foreign key.
-         * \return True if column is a foreign key.
-         */
-        [[nodiscard]] bool isForeignKey() const noexcept;
+        [[nodiscard]] ConflictClause getPrimaryKeyConflictClause() const noexcept;
 
-        /**
-         * \brief Returns whether column has a NOT NULL constraint.
-         * \return True if it has a constraint.
-         */
-        [[nodiscard]] bool isNotNull() const noexcept;
-
-        /**
-         * \brief Returns whether column has AUTOINCREMENT enabled.
-         * \return True if enabled.
-         */
         [[nodiscard]] bool isAutoIncrement() const noexcept;
 
-        /**
-         * \brief Get other column referenced by this column.
-         * \return Pointer to referenced column, or null if this column is not a foreign key.
-         */
+        [[nodiscard]] bool isNotNull() const noexcept;
+
+        [[nodiscard]] ConflictClause getNotNullConflictClause() const noexcept;
+
+        [[nodiscard]] bool isUnique() const noexcept;
+
+        [[nodiscard]] ConflictClause getUniqueConflictClause() const noexcept;
+
+        [[nodiscard]] bool hasCheck() const noexcept;
+
+        [[nodiscard]] const std::string& getCheck() const noexcept;
+
+        [[nodiscard]] bool hasDefaultValue() const noexcept;
+
+        [[nodiscard]] const std::string& getDefaultValue() const noexcept;
+
+        [[nodiscard]] bool hasCollate() const noexcept;
+
+        [[nodiscard]] const std::string& getCollate() const noexcept;
+
+        [[nodiscard]] bool isForeignKey() const noexcept;
+
         [[nodiscard]] Column* getForeignKey() const noexcept;
 
-        /**
-         * \brief Get default value.
-         * \return Default value.
-         */
-        [[nodiscard]] const std::string& getDefaultValue() const noexcept;
+        [[nodiscard]] ForeignKeyAction getForeignKeyDeleteAction() const noexcept;
+
+        [[nodiscard]] ForeignKeyAction getForeignKeyUpdateAction() const noexcept;
+
+        [[nodiscard]] Deferrable getForeignKeyDeferrable() const noexcept;
 
         ////////////////////////////////////////////////////////////////
         // Setters.
         ////////////////////////////////////////////////////////////////
 
         /**
-         * \brief Make the column (part of) the primary key.
-         * \param value If true, makes column primary key. If false, disables primary key.
+         * \brief Add a primary key constraint. To create a multi-column primary key, add a constraint to each column.
+         * \param autoInc Auto-increment.
+         * \param conflict Conflict clause.
          * \return *this.
          */
-        Column& setPrimaryKey(bool value);
-
-        Column& setNotNull(bool value);
-
-        Column& setAutoIncrement(bool value);
-
-        Column& setForeignKey(Column& column);
+        Column&
+          primaryKey(bool autoInc = false, ConflictClause conflict = ConflictClause::Abort);
 
         /**
-         * \brief Set default value for this column. Note that to properly set default string and blob values you must include single quotes, e.g. column.setDefaultValue("'abc'").
+         * \brief Add a not null constraint.
+         * \param conflict Conflict clause.
+         * \return *this.
+         */
+        Column& notNull(ConflictClause conflict = ConflictClause::Abort);
+
+        /**
+         * \brief Add a unique constraint.
+         * \param conflict Conflict clause.
+         * \return *this.
+         */
+        Column& unique(ConflictClause conflict = ConflictClause::Abort);
+
+        /**
+         * \brief Add a check constraint.
+         * \param expression Expression.
+         * \return *this.
+         */
+        Column& check(std::string expression);
+
+        /**
+         * \brief Set default value. Note that to properly set default string and blob values you must include single quotes, e.g. column.setDefaultValue("'abc'").
          * \param value Default value.
          * \return *this.
          */
-        Column& setDefaultValue(std::string value);
+        Column& defaultValue(std::string value);
 
-        Column& setDefaultValue(int32_t value);
+        /**
+         * \brief Set default integer value.
+         * \param value Integer value.
+         * \return *this.
+         */
+        Column& defaultValue(int32_t value);
 
-        Column& setDefaultValue(int64_t value);
+        /**
+         * \brief Set default integer value.
+         * \param value Integer value.
+         * \return *this.
+         */
+        Column& defaultValue(int64_t value);
 
-        Column& setDefaultValue(float value);
+        /**
+         * \brief Set default float value.
+         * \param value Float value.
+         * \return *this.
+         */
+        Column& defaultValue(float value);
 
-        Column& setDefaultValue(double value);
+        /**
+         * \brief Set default float value.
+         * \param value Float value.
+         * \return *this.
+         */
+        Column& defaultValue(double value);
+
+        /**
+         * \brief Add collation sequence.
+         * \param name Name.
+         * \return *this.
+         */
+        Column& collate(std::string name);
+
+        /**
+         * \brief Add a foreign key constraint.
+         * \param column Column.
+         * \param deleteAction Delete action.
+         * \param updateAction Update action.
+         * \param deferrable Deferrable.
+         * \return *this.
+         */
+        Column& foreignKey(Column&          column,
+                           ForeignKeyAction deleteAction = ForeignKeyAction::NoAction,
+                           ForeignKeyAction updateAction = ForeignKeyAction::NoAction,
+                           Deferrable       deferrable   = Deferrable::InitiallyImmediate);
 
     private:
         Table*      table;
         int32_t     index;
         std::string name;
         Type        type;
-        Column*     foreignKey    = nullptr;
-        bool        primaryKey    = false;
-        bool        notNull       = false;
-        bool        autoIncrement = false;
-        std::string defaultValue;
+
+        struct
+        {
+            bool           enabled  = false;
+            ConflictClause conflict = ConflictClause::Abort;
+            bool           autoInc  = false;
+        } primaryKeyConstraint;
+
+        struct
+        {
+            bool           enabled  = false;
+            ConflictClause conflict = ConflictClause::Abort;
+        } notNullConstraint;
+
+        struct
+        {
+            bool           enabled  = false;
+            ConflictClause conflict = ConflictClause::Abort;
+        } uniqueConstraint;
+
+        std::string checkConstraint;
+
+        std::string defaultVal;
+
+        std::string collationName;
+
+        struct
+        {
+            Column*          foreignKey   = nullptr;
+            ForeignKeyAction deleteAction = ForeignKeyAction::NoAction;
+            ForeignKeyAction updateAction = ForeignKeyAction::NoAction;
+            Deferrable       deferrable   = Deferrable::InitiallyImmediate;
+        } foreignKeyConstraint;
     };
 
     ////////////////////////////////////////////////////////////////

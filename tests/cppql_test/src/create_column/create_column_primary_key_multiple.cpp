@@ -18,9 +18,9 @@ void CreateColumnPrimaryKeyMultiple::create()
     // Create columns.
     sql::Column *idCol1, *idCol2;
     expectNoThrow([&table, &idCol1] { idCol1 = &table->createColumn("id1", sql::Column::Type::Int); });
-    expectNoThrow([&idCol1] { idCol1->setPrimaryKey(true).setNotNull(true); });
+    expectNoThrow([&idCol1] { idCol1->primaryKey(true).notNull(); });
     expectNoThrow([&table, &idCol2] { idCol2 = &table->createColumn("id2", sql::Column::Type::Int); });
-    expectNoThrow([&idCol2] { idCol2->setPrimaryKey(true).setNotNull(true); });
+    expectNoThrow([&idCol2] { idCol2->primaryKey(true).notNull(); });
 
     // Check column types.
     compareEQ(idCol1->getType(), sql::Column::Type::Int);
@@ -31,15 +31,11 @@ void CreateColumnPrimaryKeyMultiple::create()
     compareTrue(idCol2->isNotNull());
 
     // Having two auto increment primary keys is not allowed. Make sure that committing throws and then reset autoinc to false.
-    expectNoThrow([&] {
-        idCol1->setAutoIncrement(true);
-        idCol2->setAutoIncrement(true);
-    });
     expectThrow([&table] { table->commit(); });
     compareFalse(table->isCommitted());
     expectNoThrow([&] {
-        idCol1->setAutoIncrement(false);
-        idCol2->setAutoIncrement(false);
+        idCol1->primaryKey(false);
+        idCol2->primaryKey(false);
     });
 
     // Commit table.

@@ -11,9 +11,9 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql/core/enums.h"
 #include "cppql/core/statement.h"
 #include "cppql/error/sqlite_error.h"
-#include "cppql/typed/enums.h"
 #include "cppql/typed/fwd.h"
 #include "cppql/typed/typed_table.h"
 

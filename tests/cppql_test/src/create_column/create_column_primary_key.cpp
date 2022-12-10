@@ -18,7 +18,7 @@ void CreateColumnPrimaryKey::create()
     // Create column.
     sql::Column* idCol;
     expectNoThrow([&table, &idCol] { idCol = &table->createColumn("id", sql::Column::Type::Int); });
-    expectNoThrow([&idCol] { idCol->setAutoIncrement(true).setPrimaryKey(true).setNotNull(true); });
+    expectNoThrow([&idCol] { idCol->primaryKey(true).notNull(); });
 
     // Check column types.
     compareEQ(idCol->getType(), sql::Column::Type::Int);

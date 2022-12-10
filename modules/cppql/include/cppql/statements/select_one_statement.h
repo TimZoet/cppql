@@ -4,8 +4,8 @@
 // Current target includes.
 ////////////////////////////////////////////////////////////////
 
+#include "cppql/core/enums.h"
 #include "cppql/error/cppql_error.h"
-#include "cppql/typed/enums.h"
 #include "cppql/typed/fwd.h"
 #include "cppql/statements/select_statement.h"
 

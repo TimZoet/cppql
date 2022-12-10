@@ -14,20 +14,23 @@ void CreateColumnForeignKey::create()
     // Create 1st table.
     sql::Table* table1;
     expectNoThrow([&table1, this] { table1 = &db->createTable("table1"); });
-    sql::Column* idCol, *floatCol;
+    sql::Column *idCol, *floatCol;
     expectNoThrow([&table1, &idCol] { idCol = &table1->createColumn("id", sql::Column::Type::Int); });
-    expectNoThrow([&idCol] { idCol->setAutoIncrement(true).setPrimaryKey(true).setNotNull(true); });
+    expectNoThrow([&idCol] { idCol->primaryKey(true).notNull(); });
     expectNoThrow([&table1, &floatCol] { floatCol = &table1->createColumn("f", sql::Column::Type::Real); });
 
     // Create 2nd table with reference to 1st.
     sql::Table* table2;
     expectNoThrow([&table2, this] { table2 = &db->createTable("table2"); });
     sql::Column* refCol;
-    expectNoThrow([&idCol, &table2, &refCol] { refCol = &table2->createColumn("ref", *idCol); });
+    expectNoThrow([&idCol, &table2, &refCol] {
+        refCol = &table2->createColumn("ref", sql::Column::Type::Int);
+        refCol->foreignKey(*idCol);
+    });
 
     // Creating a reference to non-integer or to own table should throw.
-    expectThrow([&floatCol, &table2] { table2->createColumn("ref2", *floatCol); });
-    expectThrow([&refCol, &table2] { table2->createColumn("ref3", *refCol); });
+    expectThrow([&floatCol, &table2] { table2->createColumn("ref2", sql::Column::Type::Int).foreignKey(*floatCol); });
+    expectThrow([&refCol, &table2] { table2->createColumn("ref3", sql::Column::Type::Int).foreignKey(*refCol); });
 
     // Check column types.
     compareEQ(idCol->getType(), sql::Column::Type::Int);
