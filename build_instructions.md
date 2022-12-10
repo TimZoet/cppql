@@ -35,6 +35,7 @@ There are several CMake configuration variables and matching Conan options. Belo
 
 | CMake | Conan | Type (Default) | Description |
 |---|---|---|---|
+| BUILD_MANUAL | build_manual | bool (false) | When enabled, a target to build the manual is created. |
 | BUILD_TESTS | build_tests | bool (false) | When enabled, an application containing tests is created. |
 | CPPQL_BIND_ZERO_BASED_INDICES | zero_based_indices | bool (true) | When enabled, the indices passed to the various `bind` methods this library provides as wrappers around the C functions become 0-based. Note that this of course does not apply to any of the C functions, should you still use those. |
 | CPPQL_SHUTDOWN_DEFAULT_OFF | shutdown_default_off | bool (false) | When enabled, the database connection wrapper will no longer call `sqlite3_shutdown` on destruction. This can be useful when opening multiple databases, both for performance reasons and because `sqlite3_shutdown` is not thread safe. |
