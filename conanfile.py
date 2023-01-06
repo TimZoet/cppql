@@ -79,8 +79,8 @@ class CppqlConan(ConanFile):
             self.requires("bettertest/1.0.0@timzoet/stable")
     
     def package_info(self):
-        self.cpp_info.components["cppql"].libs = ["cppql"]
-        self.cpp_info.components["cppql"].requires = ["common::common", "sqlite3::sqlite3"]
+        self.cpp_info.components["core"].libs = ["cppql"]
+        self.cpp_info.components["core"].requires = ["common::common", "sqlite3::sqlite3"]
     
     def generate(self):
         base = self.python_requires["pyreq"].module.BaseConan
