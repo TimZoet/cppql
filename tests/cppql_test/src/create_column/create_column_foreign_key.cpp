@@ -28,8 +28,7 @@ void CreateColumnForeignKey::create()
         refCol->foreignKey(*idCol);
     });
 
-    // Creating a reference to non-integer or to own table should throw.
-    expectThrow([&floatCol, &table2] { table2->createColumn("ref2", sql::Column::Type::Int).foreignKey(*floatCol); });
+    // Creating a reference to own table should throw.
     expectThrow([&refCol, &table2] { table2->createColumn("ref3", sql::Column::Type::Int).foreignKey(*refCol); });
 
     // Check column types.

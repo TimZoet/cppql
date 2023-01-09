@@ -158,8 +158,6 @@ namespace sql
     {
         table->requireNotCommitted();
         if (&column.getTable() == table) throw CppqlError("Cannot set foreign key pointing to the same table.");
-        if (column.getType() != Type::Int)
-            throw CppqlError("Cannot set foreign key pointing to non-integer column type.");
         foreignKeyConstraint.foreignKey   = &column;
         foreignKeyConstraint.deleteAction = deleteAction;
         foreignKeyConstraint.updateAction = updateAction;
