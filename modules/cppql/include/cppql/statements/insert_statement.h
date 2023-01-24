@@ -65,17 +65,18 @@ namespace sql
             if constexpr (column_count > 0)
             {
                 if (const auto res = stmt->bind(Statement::getFirstBindIndex(), std::forward<Cs>(values)...); !res)
-                    throw SqliteError(std::format("Failed to bind parameters to insert statement."), res.code);
+                    throw SqliteError(
+                      std::format("Failed to bind parameters to insert statement."), res.code, res.extendedCode);
             }
 
             if (const auto res = stmt->step(); !res)
             {
                 static_cast<void>(stmt->reset());
-                throw SqliteError(std::format("Failed to step through insert statement."), res.code);
+                throw SqliteError(std::format("Failed to step through insert statement."), res.code, res.extendedCode);
             }
 
             if (const auto res = stmt->reset(); !res)
-                throw SqliteError(std::format("Failed to reset insert statement."), res.code);
+                throw SqliteError(std::format("Failed to reset insert statement."), res.code, res.extendedCode);
         }
 
         /**
@@ -93,6 +94,13 @@ namespace sql
             };
 
             return unpack(std::index_sequence_for<Cs...>{}, std::move(values));
+        }
+
+        void clearBindings() const
+        {
+            if (const auto res = stmt->clearBindings(); !res)
+                throw SqliteError(
+                  std::format("Failed to clear bindings on insert statement."), res.code, res.extendedCode);
         }
 
     private:

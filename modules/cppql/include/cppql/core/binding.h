@@ -111,6 +111,34 @@ namespace sql
     }
 
     /**
+     * \brief Create wrapper around vector of values. A copy is made. Wrapper takes ownership of copied data and will automatically deallocate.
+     * \param value Vector of values.
+     * \return Blob.
+     */
+    template<typename T>
+    Blob toBlob(const std::vector<T>& value)
+    {
+        auto* data = new T[value.size()];
+        std::memcpy(data, value.data(), value.size());
+        return Blob{.data = data, .size = value.size(), .destructor = [](void* p) { delete[] static_cast<T*>(p); }};
+    }
+
+    /**
+     * \brief Create wrapper around array of values. A copy is made. Wrapper takes ownership of copied data and will automatically deallocate.
+     * \tparam T Value type.
+     * \tparam I Array size.
+     * \param value Array of values.
+     * \return Blob.
+     */
+    template<typename T, size_t I>
+    Blob toBlob(const std::array<T, I>& value)
+    {
+        auto* data = new T[value.size()];
+        std::memcpy(data, value.data(), value.size());
+        return Blob{.data = data, .size = value.size(), .destructor = [](void* p) { delete[] static_cast<T*>(p); }};
+    }
+
+    /**
      * \brief Create wrapper around single value. Wrapper does not take ownership.
      * \tparam T Value type.
      * \param value Value.
@@ -130,6 +158,19 @@ namespace sql
      */
     template<typename T>
     StaticBlob toStaticBlob(const std::vector<T>& value)
+    {
+        return StaticBlob{.data = value.data(), .size = sizeof(T) * value.size()};
+    }
+
+    /**
+     * \brief Create wrapper around array of values. Wrapper does not take ownership.
+     * \tparam T Value type.
+     * \tparam I Array size.
+     * \param value Array of values.
+     * \return StaticBlob.
+     */
+    template<typename T, size_t I>
+    StaticBlob toStaticBlob(const std::array<T, I>& value)
     {
         return StaticBlob{.data = value.data(), .size = sizeof(T) * value.size()};
     }
@@ -165,10 +206,11 @@ namespace sql
      */
     inline Text toText(const std::string& value)
     {
+        if (value.empty()) return Text{.data = nullptr, .size = 0, .destructor = nullptr};
+
         auto* data = new char[value.size() + 1];
         std::memcpy(data, value.data(), value.size() + 1);
-        return Text{
-          .data = data, .size = value.size(), .destructor = [](void* p) { delete[] static_cast<char*>(p); }};
+        return Text{.data = data, .size = value.size(), .destructor = [](void* p) { delete[] static_cast<char*>(p); }};
     }
 
     /**
@@ -279,8 +321,9 @@ namespace sql
 
     // Wrappers must be returned by const ref.
     template<typename T>
-    requires(std::same_as<Blob, T> || std::same_as<StaticBlob, T> || std::same_as<TransientBlob, T> ||
-             std::same_as<Text, T> || std::same_as<StaticText, T> || std::same_as<TransientText, T>) struct bind_t<T>
+        requires(std::same_as<Blob, T> || std::same_as<StaticBlob, T> || std::same_as<TransientBlob, T> ||
+                 std::same_as<Text, T> || std::same_as<StaticText, T> || std::same_as<TransientText, T>)
+    struct bind_t<T>
     {
         using value_t  = T;
         using return_t = const T&;
@@ -288,17 +331,15 @@ namespace sql
 
     // Unwrap optional.
     template<typename T>
-    requires(is_optional_v<T>&& requires(T) { typename bind_t<typename T::value_type>::return_t; }) struct bind_t<T>
+        requires(is_optional_v<T> && requires(T) { typename bind_t<typename T::value_type>::return_t; })
+    struct bind_t<T>
     {
         using value_t  = typename bind_t<typename T::value_type>::value_t;
         using return_t = typename bind_t<typename T::value_type>::return_t;
     };
 
     template<typename T>
-    concept bindable = requires
-    {
-        typename bind_t<std::decay_t<T>>::return_t;
-    };
+    concept bindable = requires { typename bind_t<std::decay_t<T>>::return_t; };
 
     ////////////////////////////////////////////////////////////////
     // Binding class.

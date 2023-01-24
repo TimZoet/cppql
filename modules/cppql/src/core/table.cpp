@@ -36,7 +36,8 @@ namespace sql
         // Create and run CREATE TABLE statement.
         const auto sql  = generateSql();
         const auto stmt = Statement(*db, sql, true);
-        if (const auto res = stmt.step(); !res) throw SqliteError(std::format("Failed to commit table."), res.code);
+        if (const auto res = stmt.step(); !res)
+            throw SqliteError(std::format("Failed to commit table."), res.code, res.extendedCode);
 
         committed = true;
     }
@@ -213,7 +214,7 @@ namespace sql
                                                                &primaryKey,
                                                                &autoInc);
                 res != SQLITE_OK)
-                throw SqliteError(std::format("Could not retrieve column metadata."), res);
+                throw SqliteError(std::format("Could not retrieve column metadata."), res, SQLITE_OK);
 
             // Determine column type. If returned data type string is null, column has a null type.
             auto columnType = Column::Type::Null;

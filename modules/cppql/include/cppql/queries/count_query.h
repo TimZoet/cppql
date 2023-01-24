@@ -116,7 +116,8 @@ namespace sql
             auto stmt = std::make_unique<Statement>(self.table->getDatabase(), self.toString(), true);
             if (!stmt->isPrepared())
                 throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
-                                  stmt->getResult()->code);
+                                  stmt->getResult()->code,
+                                  stmt->getResult()->extendedCode);
 
             // Optionally create filter expression.
             BaseFilterExpressionPtr f;

@@ -21,7 +21,7 @@ namespace sql
     int32_t Result::sqlite_row  = SQLITE_ROW;
     int32_t Result::sqlite_done = SQLITE_DONE;
 
-    Result::Result(const int32_t c, const bool s) : code(c), success(s) {}
+    Result::Result(const int32_t c, const int32_t ext, const bool s) : code(c), extendedCode(ext), success(s) {}
 
     Result::operator bool() const noexcept { return success; }
 
@@ -36,6 +36,16 @@ namespace sql
     }
 
     Result& Result::operator|=(const Result& rhs) noexcept { return *this = *this | rhs; }
+
+    Result Result::fromCode(const Database& db, const int32_t code, const bool success) noexcept
+    {
+        if (!success)
+        {
+            const int32_t extCode = sqlite3_extended_errcode(db.get());
+            return {code, extCode, success};
+        }
+        return {code, SQLITE_OK, success};
+    }
 
     ////////////////////////////////////////////////////////////////
     // Statement.
@@ -79,25 +89,25 @@ namespace sql
     Result Statement::prepare() noexcept
     {
         // If statement was already prepared, return generic error.
-        if (statement) return {SQLITE_ERROR, false};
+        if (statement) return Result::fromCode(*db, SQLITE_ERROR, false);
 
         // Try to prepare statement.
         const auto code =
           sqlite3_prepare_v2(db->db, getSql().c_str(), static_cast<int32_t>(getSql().size()), &statement, nullptr);
-        prepareResult = {code, code == SQLITE_OK};
+        prepareResult = Result::fromCode(*db, code, code == SQLITE_OK);
         return *prepareResult;
     }
 
     Result Statement::step() const noexcept
     {
         const auto code = sqlite3_step(statement);
-        return {code, code == SQLITE_ROW || code == SQLITE_DONE};
+        return Result::fromCode(*db, code, code == SQLITE_ROW || code == SQLITE_DONE);
     }
 
     Result Statement::reset() const noexcept
     {
         const auto code = sqlite3_reset(statement);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     ////////////////////////////////////////////////////////////////
@@ -113,7 +123,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_int(statement, i, value);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindInt64(const int32_t index, const int64_t value) const noexcept
@@ -125,7 +135,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_int64(statement, i, value);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindFloat(const int32_t index, const float value) const noexcept
@@ -137,7 +147,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_double(statement, i, static_cast<double>(value));
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindDouble(const int32_t index, const double value) const noexcept
@@ -149,7 +159,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_double(statement, i, value);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindNull(const int32_t index) const noexcept
@@ -161,7 +171,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_null(statement, i);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindBlob(const int32_t index,
@@ -176,7 +186,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_blob64(statement, i, data, size, destructor);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindStaticBlob(const int32_t index, const void* data, const size_t size) const noexcept
@@ -188,7 +198,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_blob64(statement, i, data, size, SQLITE_STATIC);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindTransientBlob(const int32_t index, const void* data, const size_t size) const noexcept
@@ -200,7 +210,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_blob64(statement, i, data, size, SQLITE_TRANSIENT);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindText(const int32_t index,
@@ -215,7 +225,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_text(statement, i, data, static_cast<int32_t>(size), destructor);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindStaticText(const int32_t index, const char* data, const size_t size) const noexcept
@@ -227,7 +237,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_text(statement, i, data, static_cast<int32_t>(size), SQLITE_STATIC);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindStaticText(const int32_t index, const std::string& data) const noexcept
@@ -244,7 +254,7 @@ namespace sql
 #endif
 
         const auto code = sqlite3_bind_text(statement, i, data, static_cast<int32_t>(size), SQLITE_TRANSIENT);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     Result Statement::bindTransientText(const int32_t index, const std::string& data) const noexcept
@@ -255,7 +265,7 @@ namespace sql
     Result Statement::clearBindings() const noexcept
     {
         const auto code = sqlite3_clear_bindings(statement);
-        return {code, code == SQLITE_OK};
+        return Result::fromCode(*db, code, code == SQLITE_OK);
     }
 
     ////////////////////////////////////////////////////////////////

@@ -124,6 +124,22 @@ namespace sql
 
         [[nodiscard]] int64_t getLastInsertRowId() const noexcept;
 
+        /**
+         * \brief Get number of rows that were affected by the last statement. Internally calls sqlite3_changes64.
+         * \return Number of rows.
+         */
+        [[nodiscard]] int64_t getChanges() const noexcept;
+
+        /**
+         * \brief Get number of rows that were affected since opening the connection. Internally calls sqlite3_total_changes64.
+         * \return Number of rows.
+         */
+        [[nodiscard]] int64_t getTotalChanges() const noexcept;
+
+        /**
+         * \brief Get last error message. Internally calls sqlite3_errmsg.
+         * \return Error message.
+         */
         [[nodiscard]] std::string getErrorMessage() const;
 
         ////////////////////////////////////////////////////////////////

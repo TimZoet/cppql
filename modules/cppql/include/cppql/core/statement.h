@@ -39,13 +39,16 @@ namespace sql
         static int32_t sqlite_row;
         static int32_t sqlite_done;
 
-        int32_t code    = 0;
-        bool    success = true;
+        int32_t code         = 0;
+        int32_t extendedCode = 0;
+        bool    success      = true;
 
         Result() = default;
 
-        Result(int32_t c, bool s);
+    private:
+        Result(int32_t c, int32_t ext, bool s);
 
+    public:
         Result(const Result&) = default;
 
         ~Result() = default;
@@ -61,6 +64,8 @@ namespace sql
         [[nodiscard]] Result operator|(const Result& rhs) const noexcept;
 
         Result& operator|=(const Result& rhs) noexcept;
+
+        static Result fromCode(const Database& db, int32_t code, bool success) noexcept;
     };
 
     class Statement

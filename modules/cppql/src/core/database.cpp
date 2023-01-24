@@ -64,7 +64,8 @@ namespace sql
         if (const auto res =
               sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | flags, nullptr);
             res != SQLITE_OK)
-            throw SqliteError(std::format("Failed to create database at {}.", file.string()), res);
+            throw SqliteError(std::format("Failed to create database at {}.", file.string()), res, SQLITE_OK);
+
 
         return std::make_unique<Database>(db);
     }
@@ -78,7 +79,7 @@ namespace sql
         sqlite3* db = nullptr;
         if (const auto res = sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | flags, nullptr);
             res != SQLITE_OK)
-            throw SqliteError(std::format("Failed to open database at {}.", file.string()), res);
+            throw SqliteError(std::format("Failed to open database at {}.", file.string()), res, SQLITE_OK);
 
         return std::make_unique<Database>(db);
     }
@@ -92,7 +93,7 @@ namespace sql
         if (const auto res =
               sqlite3_open_v2(file.string().c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | flags, nullptr);
             res != SQLITE_OK)
-            throw SqliteError(std::format("Failed to open database at {}.", file.string()), res);
+            throw SqliteError(std::format("Failed to open database at {}.", file.string()), res, SQLITE_OK);
 
         return std::make_pair(std::make_unique<Database>(db), created);
     }
@@ -115,6 +116,10 @@ namespace sql
     }
 
     int64_t Database::getLastInsertRowId() const noexcept { return sqlite3_last_insert_rowid(db); }
+
+    int64_t Database::getChanges() const noexcept { return sqlite3_changes64(db); }
+
+    int64_t Database::getTotalChanges() const noexcept { return sqlite3_total_changes64(db); }
 
     std::string Database::getErrorMessage() const { return {sqlite3_errmsg(db)}; }
 
@@ -172,7 +177,8 @@ namespace sql
 
         // Execute drop table statement.
         const auto stmt = createStatement(std::format("DROP TABLE {};", name), true);
-        if (const auto res = stmt.step(); !res) throw SqliteError(std::format("Failed to drop table."), res.code);
+        if (const auto res = stmt.step(); !res)
+            throw SqliteError(std::format("Failed to drop table."), res.code, res.extendedCode);
 
         // Erase table object from map.
         tables.erase(name);
@@ -183,7 +189,8 @@ namespace sql
     void Database::vacuum()
     {
         const auto stmt = createStatement("VACUUM", true);
-        if (const auto res = stmt.step(); !res) throw SqliteError(std::format("Failed to VACUUM database."), res.code);
+        if (const auto res = stmt.step(); !res)
+            throw SqliteError(std::format("Failed to VACUUM database."), res.code, res.extendedCode);
     }
 
     void Database::initializeTables()

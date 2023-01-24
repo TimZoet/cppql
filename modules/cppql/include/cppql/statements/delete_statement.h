@@ -66,12 +66,19 @@ namespace sql
             if (const auto res = stmt->step(); !res)
             {
                 static_cast<void>(stmt->reset());
-                throw SqliteError(std::format("Failed to step through delete statement."), res.code);
+                throw SqliteError(std::format("Failed to step through delete statement."), res.code, res.extendedCode);
             }
 
             // Reset statement.
             if (const auto res = stmt->reset(); !res)
-                throw SqliteError(std::format("Failed to reset delete statement."), res.code);
+                throw SqliteError(std::format("Failed to reset delete statement."), res.code, res.extendedCode);
+        }
+
+        void clearBindings() const
+        {
+            if (const auto res = stmt->clearBindings(); !res)
+                throw SqliteError(
+                  std::format("Failed to clear bindings on delete statement."), res.code, res.extendedCode);
         }
 
     private:

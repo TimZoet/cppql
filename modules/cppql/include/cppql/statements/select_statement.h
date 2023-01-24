@@ -63,14 +63,16 @@ namespace sql
                 if (code != Result::sqlite_row && code != Result::sqlite_done)
                 {
                     static_cast<void>(stmt->reset());
-                    throw SqliteError(std::format("Failed to step through select statement."), res.code);
+                    throw SqliteError(
+                      std::format("Failed to step through select statement."), res.code, res.extendedCode);
                 }
 
                 // Reached last row. Reset statement for next invocation.
                 if (code == Result::sqlite_done)
                 {
                     res = stmt->reset();
-                    if (!res) throw SqliteError(std::format("Failed to reset select statement."), res.code);
+                    if (!res)
+                        throw SqliteError(std::format("Failed to reset select statement."), res.code, res.extendedCode);
                 }
 
                 return *this;
@@ -128,10 +130,7 @@ namespace sql
         // Run.
         ////////////////////////////////////////////////////////////////
 
-        iterator begin()
-        {
-            return iterator(*stmt);
-        }
+        iterator begin() { return iterator(*stmt); }
 
         iterator end() { return iterator(); }
 
@@ -157,8 +156,15 @@ namespace sql
         auto&& reset(this Self&& self)
         {
             if (const auto res = self.stmt->reset(); !res)
-                throw SqliteError(std::format("Failed to reset select statement."), res.code);
+                throw SqliteError(std::format("Failed to reset select statement."), res.code, res.extendedCode);
             return std::forward<Self>(self);
+        }
+
+        void clearBindings() const
+        {
+            if (const auto res = stmt->clearBindings(); !res)
+                throw SqliteError(
+                  std::format("Failed to clear bindings on select statement."), res.code, res.extendedCode);
         }
 
     private:

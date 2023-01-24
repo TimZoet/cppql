@@ -386,7 +386,8 @@ namespace sql
                   self.join.getTable().getDatabase(), std::format("{0};", self.toString()), true);
                 if (!stmt->isPrepared())
                     throw SqliteError(std::format("Failed to prepare statement \"{}\"", stmt->getSql()),
-                                      stmt->getResult()->code);
+                                      stmt->getResult()->code,
+                                      stmt->getResult()->extendedCode);
 
                 // Concatenate the filter expressions of any joints and where.
                 BaseFilterExpressionPtr f;

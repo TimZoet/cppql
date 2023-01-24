@@ -66,7 +66,7 @@ namespace sql
             if (const auto res = stmt->step(); !res)
             {
                 static_cast<void>(stmt->reset());
-                throw SqliteError(std::format("Failed to step through count statement."), res.code);
+                throw SqliteError(std::format("Failed to step through count statement."), res.code, res.extendedCode);
             }
 
             // Retrieve number of rows.
@@ -74,9 +74,16 @@ namespace sql
 
             // Reset statement.
             if (const auto res = stmt->reset(); !res)
-                throw SqliteError(std::format("Failed to reset count statement."), res.code);
+                throw SqliteError(std::format("Failed to reset count statement."), res.code, res.extendedCode);
 
             return rows;
+        }
+
+        void clearBindings() const
+        {
+            if (const auto res = stmt->clearBindings(); !res)
+                throw SqliteError(
+                  std::format("Failed to clear bindings on count statement."), res.code, res.extendedCode);
         }
 
     private:

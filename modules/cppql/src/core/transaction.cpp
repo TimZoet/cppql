@@ -28,7 +28,8 @@ namespace sql
         }
 
         const auto stmt = database->createStatement(std::format("BEGIN {} TRANSACTION;", std::move(t)), true);
-        if (const auto res = stmt.step(); !res) throw SqliteError("Failed to begin transaction.", res.code);
+        if (const auto res = stmt.step(); !res)
+            throw SqliteError("Failed to begin transaction.", res.code, res.extendedCode);
     }
 
     Transaction::~Transaction() noexcept
@@ -42,7 +43,8 @@ namespace sql
 
         committed       = true;
         const auto stmt = database->createStatement("COMMIT TRANSACTION;", true);
-        if (const auto res = stmt.step(); !res) throw SqliteError("Failed to commit transaction.", res.code);
+        if (const auto res = stmt.step(); !res)
+            throw SqliteError("Failed to commit transaction.", res.code, res.extendedCode);
     }
 
     void Transaction::rollback()
@@ -51,7 +53,8 @@ namespace sql
 
         committed       = true;
         const auto stmt = database->createStatement("ROLLBACK TRANSACTION;", true);
-        if (const auto res = stmt.step(); !res) throw SqliteError("Failed to rollback transaction.", res.code);
+        if (const auto res = stmt.step(); !res)
+            throw SqliteError("Failed to rollback transaction.", res.code, res.extendedCode);
     }
 
 }  // namespace sql

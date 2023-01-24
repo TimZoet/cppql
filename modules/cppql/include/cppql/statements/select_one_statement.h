@@ -97,6 +97,11 @@ namespace sql
             return r;
         }
 
+        void clearBindings() const
+        {
+            stmt.clearBindings();
+        }
+
     private:
         ////////////////////////////////////////////////////////////////
         // Member variables.
