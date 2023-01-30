@@ -393,14 +393,26 @@ namespace sql
                 BaseFilterExpressionPtr f;
                 if constexpr (is_table)
                 {
-                    if constexpr (filter_t::valid)
+                    if constexpr (filter_t::valid && having_t::valid)
+                        f =
+                          std::make_unique<FilterExpression<typename filter_t::filter_t, typename having_t::filter_t>>(
+                            std::forward<Self>(self).filter.filter, std::forward<Self>(self).havings.filter);
+                    else if constexpr (filter_t::valid)
                         f = std::make_unique<FilterExpression<typename filter_t::filter_t>>(
                           std::forward<Self>(self).filter.filter);
+                    else if constexpr (having_t::valid)
+                        f = std::make_unique<FilterExpression<typename having_t::filter_t>>(
+                          std::forward<Self>(self).havings.filter);
                 }
                 else
                 {
-                    if constexpr (filter_t::valid)
+                    if constexpr (filter_t::valid && having_t::valid)
+                        f = std::forward<Self>(self).join.getFilters(std::forward<Self>(self).filter.filter,
+                                                                     std::forward<Self>(self).havings.filter);
+                    else if constexpr (filter_t::valid)
                         f = std::forward<Self>(self).join.getFilters(std::forward<Self>(self).filter.filter);
+                    else if constexpr (having_t::valid)
+                        f = std::forward<Self>(self).join.getFilters(std::forward<Self>(self).havings.filter);
                     else
                         f = std::forward<Self>(self).join.getFilters();
                 }
