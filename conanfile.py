@@ -1,4 +1,5 @@
-from conans import ConanFile
+from conan import ConanFile
+from conan.tools.files import copy
 
 class CppqlConan(ConanFile):
     ############################################################################
@@ -49,12 +50,11 @@ class CppqlConan(ConanFile):
     ############################################################################
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        self.copy("cppqlVersionString.cmake")
-        self.copy("license")
-        self.copy("readme.md")
-        self.copy("cmake/*")
-        self.copy("modules/*")
+        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "cppqlVersionString.cmake", self.recipe_folder, self.export_sources_folder)
+        copy(self, "license", self.recipe_folder, self.export_sources_folder)
+        copy(self, "readme.md", self.recipe_folder, self.export_sources_folder)
+        copy(self, "modules/*", self.recipe_folder, self.export_sources_folder)
     
     def config_options(self):
         base = self.python_requires["pyreq"].module.BaseConan
@@ -93,7 +93,7 @@ class CppqlConan(ConanFile):
             tc.variables["CPPQL_BIND_ZERO_BASED_INDICES"] = True
         if self.options.shutdown_default_off:
             tc.variables["CPPQL_SHUTDOWN_DEFAULT_OFF"] = True
-        
+
         tc.generate()
         
         deps = base.generate_deps(self)
@@ -102,14 +102,6 @@ class CppqlConan(ConanFile):
     def configure_cmake(self):
         base = self.python_requires["pyreq"].module.BaseConan
         cmake = base.configure_cmake(self)
-        
-        if self.options.build_manual:
-            cmake.definitions["MANUAL_TAG"] = self.version
-        if self.options.zero_based_indices:
-            cmake.definitions["CPPQL_BIND_ZERO_BASED_INDICES"] = True
-        if self.options.shutdown_default_off:
-            cmake.definitions["CPPQL_SHUTDOWN_DEFAULT_OFF"] = True
-        
         return cmake
 
     def build(self):

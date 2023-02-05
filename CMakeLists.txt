@@ -16,7 +16,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # CMake modules.
 ################################################################################
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_TEMPLATE_DIR "" CACHE PATH "Path to the cmake-template package directory")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_BINARY_DIR};${CMAKE_TEMPLATE_DIR}")
 include(InstallTarget)
 include(ISA)
 include(MakeManual)
