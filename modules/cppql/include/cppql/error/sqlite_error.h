@@ -20,7 +20,13 @@ namespace sql
 
         [[nodiscard]] const char* what() const noexcept override;
 
+        [[nodiscard]] int32_t getErrorCode() const noexcept;
+
+        [[nodiscard]] int32_t getExtendedErrorCode() const noexcept;
+
     private:
         std::string message;
+        int32_t     errorCode;
+        int32_t     extendedErrorCode;
     };
 }  // namespace sql
