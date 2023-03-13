@@ -131,4 +131,35 @@ void ExpressionComparison::operator()()
     compareEQ(ge1.toString(), "?2 >= peepee.col2");
     compareEQ(ge2.toString(), "peepee.col2 >= ?3");
     compareEQ(ge3.toString(), "?4 >= peepee.col2");
+
+    // Repeat above checks with lvalues to test forwarding.
+    const auto col = table0.col<1>();
+    static_cast<void>(col == 0.0f);
+    static_cast<void>(col == &val);
+    static_cast<void>(col != 0.0f);
+    static_cast<void>(col != &val);
+    static_cast<void>(col < 0.0f);
+    static_cast<void>(col < &val);
+    static_cast<void>(col > 0.0f);
+    static_cast<void>(col > &val);
+    static_cast<void>(col <= 0.0f);
+    static_cast<void>(col <= &val);
+    static_cast<void>(col >= 0.0f);
+    static_cast<void>(col >= &val);
+    static_cast<void>(col == nullptr);
+    static_cast<void>(col != nullptr);
+    static_cast<void>(0.0f == col);
+    static_cast<void>(&val == col);
+    static_cast<void>(0.0f != col);
+    static_cast<void>(&val != col);
+    static_cast<void>(0.0f < col);
+    static_cast<void>(&val < col);
+    static_cast<void>(0.0f > col);
+    static_cast<void>(&val > col);
+    static_cast<void>(0.0f <= col);
+    static_cast<void>(&val <= col);
+    static_cast<void>(0.0f >= col);
+    static_cast<void>(&val >= col);
+    static_cast<void>(nullptr == col);
+    static_cast<void>(nullptr != col);
 }

@@ -144,7 +144,7 @@ namespace sql
     template<is_column_expression C>
     [[nodiscard]] auto like(C&& col, std::string val)
     {
-        return LikeExpression<C, false>(std::forward<C>(col), std::move(val));
+        return LikeExpression<std::remove_cvref_t<C>, false>(std::forward<C>(col), std::move(val));
     }
 
     /**
@@ -157,6 +157,6 @@ namespace sql
     template<is_column_expression C>
     [[nodiscard]] auto like(C&& col, std::string* val)
     {
-        return LikeExpression<C, true>(std::forward<C>(col), val);
+        return LikeExpression<std::remove_cvref_t<C>, true>(std::forward<C>(col), val);
     }
 }  // namespace sql

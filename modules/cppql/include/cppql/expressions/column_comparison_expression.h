@@ -111,11 +111,14 @@ namespace sql
     template<is_result_expression L, is_result_expression R>
     auto operator==(L&& lhs, R&& rhs)
     {
-        if constexpr (std::same_as<std::remove_cvref_t<L>, std::remove_cvref_t<R>>)
+        using l = std::remove_cvref_t<L>;
+        using r = std::remove_cvref_t<R>;
+
+        if constexpr (std::same_as<l, r>)
         {
             if (&lhs.getTable() == &rhs.getTable()) throw CppqlError("Cannot compare column to itself.");
         }
-        return ColumnComparisonExpression<L, R, ComparisonOperator::Eq>(std::forward<L>(lhs), std::forward<R>(rhs));
+        return ColumnComparisonExpression<l, r, ComparisonOperator::Eq>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     /**
@@ -129,11 +132,14 @@ namespace sql
     template<is_result_expression L, is_result_expression R>
     auto operator!=(L&& lhs, R&& rhs)
     {
-        if constexpr (std::same_as<std::remove_cvref_t<L>, std::remove_cvref_t<R>>)
+        using l = std::remove_cvref_t<L>;
+        using r = std::remove_cvref_t<R>;
+
+        if constexpr (std::same_as<l, r>)
         {
             if (&lhs.getTable() == &rhs.getTable()) throw CppqlError("Cannot compare column to itself.");
         }
-        return ColumnComparisonExpression<L, R, ComparisonOperator::Ne>(std::forward<L>(lhs), std::forward<R>(rhs));
+        return ColumnComparisonExpression<l, r, ComparisonOperator::Ne>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     /**
@@ -147,11 +153,14 @@ namespace sql
     template<is_result_expression L, is_result_expression R>
     auto operator<(L&& lhs, R&& rhs)
     {
-        if constexpr (std::same_as<std::remove_cvref_t<L>, std::remove_cvref_t<R>>)
+        using l = std::remove_cvref_t<L>;
+        using r = std::remove_cvref_t<R>;
+
+        if constexpr (std::same_as<l, r>)
         {
             if (&lhs.getTable() == &rhs.getTable()) throw CppqlError("Cannot compare column to itself.");
         }
-        return ColumnComparisonExpression<L, R, ComparisonOperator::Lt>(std::forward<L>(lhs), std::forward<R>(rhs));
+        return ColumnComparisonExpression<l, r, ComparisonOperator::Lt>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     /**
@@ -165,11 +174,14 @@ namespace sql
     template<is_result_expression L, is_result_expression R>
     auto operator>(L&& lhs, R&& rhs)
     {
-        if constexpr (std::same_as<std::remove_cvref_t<L>, std::remove_cvref_t<R>>)
+        using l = std::remove_cvref_t<L>;
+        using r = std::remove_cvref_t<R>;
+
+        if constexpr (std::same_as<l, r>)
         {
             if (&lhs.getTable() == &rhs.getTable()) throw CppqlError("Cannot compare column to itself.");
         }
-        return ColumnComparisonExpression<L, R, ComparisonOperator::Gt>(std::forward<L>(lhs), std::forward<R>(rhs));
+        return ColumnComparisonExpression<l, r, ComparisonOperator::Gt>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     /**
@@ -183,11 +195,14 @@ namespace sql
     template<is_result_expression L, is_result_expression R>
     auto operator<=(L&& lhs, R&& rhs)
     {
-        if constexpr (std::same_as<std::remove_cvref_t<L>, std::remove_cvref_t<R>>)
+        using l = std::remove_cvref_t<L>;
+        using r = std::remove_cvref_t<R>;
+
+        if constexpr (std::same_as<l, r>)
         {
             if (&lhs.getTable() == &rhs.getTable()) throw CppqlError("Cannot compare column to itself.");
         }
-        return ColumnComparisonExpression<L, R, ComparisonOperator::Le>(std::forward<L>(lhs), std::forward<R>(rhs));
+        return ColumnComparisonExpression<l, r, ComparisonOperator::Le>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 
     /**
@@ -201,10 +216,13 @@ namespace sql
     template<is_result_expression L, is_result_expression R>
     auto operator>=(L&& lhs, R&& rhs)
     {
-        if constexpr (std::same_as<std::remove_cvref_t<L>, std::remove_cvref_t<R>>)
+        using l = std::remove_cvref_t<L>;
+        using r = std::remove_cvref_t<R>;
+
+        if constexpr (std::same_as<l, r>)
         {
             if (&lhs.getTable() == &rhs.getTable()) throw CppqlError("Cannot compare column to itself.");
         }
-        return ColumnComparisonExpression<L, R, ComparisonOperator::Ge>(std::forward<L>(lhs), std::forward<R>(rhs));
+        return ColumnComparisonExpression<l, r, ComparisonOperator::Ge>(std::forward<L>(lhs), std::forward<R>(rhs));
     }
 }  // namespace sql

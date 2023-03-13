@@ -31,6 +31,16 @@ void ExpressionColumnComparison::operator()()
     const auto le = table0.col<0>() <= max(table0.col<1>());
     const auto ge = table0.col<1>() >= avg<float, true>(table0.col<0>());
 
+    // Repeat above checks with lvalues to test forwarding.
+    const auto col0 = table0.col<0>();
+    const auto col1 = table1.col<1>();
+    static_cast<void>(col0 == col1);
+    static_cast<void>(col0 != col1);
+    static_cast<void>(col0 < col1);
+    static_cast<void>(col0 > col1);
+    static_cast<void>(col0 <= col1);
+    static_cast<void>(col0 >= col1);
+
     compareEQ(eq.toString(), "peepee.col1 = poopoo.col1");
     compareEQ(ne.toString(), "peepee.col2 != poopoo.col2");
     compareEQ(lt.toString(), "peepee.col1 < poopoo.col2");

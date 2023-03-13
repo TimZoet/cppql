@@ -168,7 +168,8 @@ namespace sql
      * \tparam C ColumnExpression type.
      */
     template<typename T, typename C>
-    concept is_convertible_to = is_result_expression<C> && std::convertible_to<T, typename C::value_t>;
+    concept is_convertible_to =
+      is_result_expression<C> && std::convertible_to<T, typename std::remove_cvref_t<C>::value_t>;
 
     ////////////////////////////////////////////////////////////////
     // Join.
