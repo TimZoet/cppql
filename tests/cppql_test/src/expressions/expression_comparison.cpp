@@ -10,6 +10,7 @@ void ExpressionComparison::operator()()
         t0 = &db->createTable("peepee");
         t0->createColumn("col1", sql::Column::Type::Int);
         t0->createColumn("col2", sql::Column::Type::Real);
+        t0->createColumn("col3", sql::Column::Type::Text);
         t0->commit();
 
         t1 = &db->createTable("poopoo");
@@ -17,7 +18,7 @@ void ExpressionComparison::operator()()
         t1->createColumn("col2", sql::Column::Type::Real);
         t1->commit();
     });
-    const sql::TypedTable<int64_t, float> table0(*t0);
+    const sql::TypedTable<int64_t, float, std::string> table0(*t0);
 
     float val = 0.0f;
 
@@ -27,6 +28,8 @@ void ExpressionComparison::operator()()
     auto eq3 = &val == table0.col<1>();
     auto eq4 = table0.col<1>() == nullptr;
     auto eq5 = nullptr == table0.col<1>();
+    auto eq6 = table0.col<2>() == nullptr;
+    auto eq7 = nullptr == table0.col<2>();
     expectNoThrow([&] {
         int32_t idx = 0;
         eq0.generateIndices(idx);
@@ -35,13 +38,17 @@ void ExpressionComparison::operator()()
         eq3.generateIndices(idx);
         eq4.generateIndices(idx);
         eq5.generateIndices(idx);
+        eq6.generateIndices(idx);
+        eq7.generateIndices(idx);
     });
     compareEQ(eq0.toString(), "peepee.col2 = ?1");
     compareEQ(eq1.toString(), "?2 = peepee.col2");
     compareEQ(eq2.toString(), "peepee.col2 = ?3");
     compareEQ(eq3.toString(), "?4 = peepee.col2");
-    compareEQ(eq4.toString(), "peepee.col2 = ?5");
-    compareEQ(eq5.toString(), "?6 = peepee.col2");
+    compareEQ(eq4.toString(), "peepee.col2 IS NULL");
+    compareEQ(eq5.toString(), "peepee.col2 IS NULL");
+    compareEQ(eq6.toString(), "peepee.col3 IS NULL");
+    compareEQ(eq7.toString(), "peepee.col3 IS NULL");
     compareTrue(eq0.containsTables(*t0));
     compareTrue(eq0.containsTables(*t0, *t1));
     compareFalse(eq0.containsTables(*t1));
@@ -52,6 +59,8 @@ void ExpressionComparison::operator()()
     auto ne3 = &val != table0.col<1>();
     auto ne4 = table0.col<1>() != nullptr;
     auto ne5 = nullptr != table0.col<1>();
+    auto ne6 = table0.col<2>() != nullptr;
+    auto ne7 = nullptr != table0.col<2>();
     expectNoThrow([&] {
         int32_t idx = 0;
         ne0.generateIndices(idx);
@@ -60,13 +69,17 @@ void ExpressionComparison::operator()()
         ne3.generateIndices(idx);
         ne4.generateIndices(idx);
         ne5.generateIndices(idx);
+        ne6.generateIndices(idx);
+        ne7.generateIndices(idx);
     });
     compareEQ(ne0.toString(), "peepee.col2 != ?1");
     compareEQ(ne1.toString(), "?2 != peepee.col2");
     compareEQ(ne2.toString(), "peepee.col2 != ?3");
     compareEQ(ne3.toString(), "?4 != peepee.col2");
-    compareEQ(ne4.toString(), "peepee.col2 != ?5");
-    compareEQ(ne5.toString(), "?6 != peepee.col2");
+    compareEQ(ne4.toString(), "peepee.col2 IS NOT NULL");
+    compareEQ(ne5.toString(), "peepee.col2 IS NOT NULL");
+    compareEQ(ne6.toString(), "peepee.col3 IS NOT NULL");
+    compareEQ(ne7.toString(), "peepee.col3 IS NOT NULL");
 
     auto lt0 = table0.col<1>() < 0.0f;
     auto lt1 = 0.0f < table0.col<1>();
