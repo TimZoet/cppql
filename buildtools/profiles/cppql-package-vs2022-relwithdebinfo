@@ -1,0 +1,4 @@
+include(vs2022-relwithdebinfo)
+
+[options]
+build_tests=False

@@ -1,0 +1,1 @@
+install(DIRECTORY profiles/ DESTINATION buildtools/profiles)

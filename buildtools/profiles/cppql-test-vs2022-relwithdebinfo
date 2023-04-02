@@ -1,0 +1,5 @@
+include(vs2022-relwithdebinfo)
+
+[options]
+build_tests=True
+zero_based_indices=True

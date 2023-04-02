@@ -1,0 +1,4 @@
+include(vs2022-release)
+
+[options]
+build_tests=False

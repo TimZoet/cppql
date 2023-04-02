@@ -1,0 +1,4 @@
+include(vs2022-debug)
+
+[options]
+build_tests=False

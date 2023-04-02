@@ -1,6 +1,0 @@
-[submodule "modules/cppql"]
-	path = modules/cppql
-	url = https://github.com/TimZoet/cppql-module.git
-[submodule "cmake"]
-	path = cmake
-	url = http://github.com/TimZoet/cmake-module.git

@@ -1,23 +1,11 @@
 # Build Instructions
 
-## Dependencies
-
-The following Conan packages are always required:
-
-1. [pyreq](https://github.com/TimZoet/pyreq)
-2. [common](https://github.com/TimZoet/common)
-3. [sqlite3](https://www.sqlite.org/index.html)
-
-Depending on enabled options, you may also need:
-
-1. [bettertest](https://github.com/TimZoet/BetterTest)
-
 ## Getting The Code
 
-This project uses git submodules. Cloning therefore requires an additional flag:
+To retrieve the code from GitHub:
 
 ```cmd
-git clone https://github.com/TimZoet/cppql.git source --recurse-submodules
+git clone https://github.com/TimZoet/cppql.git source
 ```
 
 ## Exporting to Conan
@@ -25,9 +13,10 @@ git clone https://github.com/TimZoet/cppql.git source --recurse-submodules
 To export the `cppql` package to your local Conan cache:
 
 ```cmd
-cd source
-conan export . user/channel
+conan export --user timzoet --channel v1.0.0 source
 ```
+
+Make sure to update the channel when the version is different.
 
 ## Configuration
 
@@ -49,8 +38,24 @@ conan install -pr:h=vs2022-release -pr:b=vs2022-release -o build_tests=True --bu
 cmake -G "Visual Studio 17 2022" -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake ..\source
 ```
 
-## Running Tests
+## Building Tests
 
-When `BUILD_TESTS` is enabled, an application called `cppql_test` is created. Building this application requires `CPPQL_BIND_ZERO_BASED_INDICES` to be enabled as well. In order to run all tests, just run the application without any
-parameters. If `cppql` was built successfully, they should all run without issue. The tests are written using the
-[BetterTest](https://github.com/TimZoet/BetterTest) library.
+Invoke `conan install`:
+
+```cmd
+conan install -pr:h=source/buildtools/profiles/cppql-test-vs2022-release -pr:b=source/buildtools/profiles/cppql-test-vs2022-release -s build_type=Release --build=missing -of=build source
+```
+
+Then generate and build with CMake:
+
+```cmd
+cmake -S source -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:FILEPATH=conan_toolchain.cmake
+cmake --build build --config Release
+```
+
+Finally, run the test application:
+
+```cmd
+cd build/bin/tests
+.\cppql_test
+```
