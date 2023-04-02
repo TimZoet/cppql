@@ -52,6 +52,7 @@ class CppqlConan(ConanFile):
         copy(self, "cppqlVersionString.cmake", self.recipe_folder, self.export_sources_folder)
         copy(self, "license", self.recipe_folder, self.export_sources_folder)
         copy(self, "readme.md", self.recipe_folder, self.export_sources_folder)
+        copy(self, "buildtools/*", self.recipe_folder, self.export_sources_folder)
         copy(self, "modules/*", self.recipe_folder, self.export_sources_folder)
     
     def config_options(self):
@@ -78,7 +79,7 @@ class CppqlConan(ConanFile):
     
     def package_info(self):
         self.cpp_info.components["core"].libs = ["cppql"]
-        self.cpp_info.components["core"].requires = ["common::common", "sqlite3::sqlite3"]
+        self.cpp_info.components["core"].requires = ["cmake-modules::cmake-modules", "common::common", "sqlite3::sqlite3"]
     
     def generate(self):
         base = self.python_requires["pyreq"].module.BaseConan
