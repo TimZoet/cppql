@@ -6,6 +6,7 @@
 
 #include <format>
 #include <string>
+#include <tuple>
 #include <type_traits>
 
 ////////////////////////////////////////////////////////////////
@@ -49,6 +50,8 @@ namespace sql
         static void generateIndices(int32_t&) {}
 
         [[nodiscard]] static std::string toString() { return {}; }
+
+        [[nodiscard]] static std::tuple<> getFilters() noexcept { return {}; }
     };
 
     template<is_filter_expression F>
@@ -91,6 +94,9 @@ namespace sql
          * \return String with format "WHERE <expr>".
          */
         [[nodiscard]] std::string toString() { return std::format("WHERE {}", filter.toString()); }
+
+        template<typename Self>
+        [[nodiscard]] std::tuple<filter_t> getFilters(this Self&& self) noexcept { return std::make_tuple(std::forward<Self>(self).filter); }
 
         ////////////////////////////////////////////////////////////////
         // Member variables.

@@ -1,5 +1,9 @@
 # Version History
 
+## 0.2.1 - April 2023
+
+* Fixed filter expressions of union queries not being passed to statements.
+
 ## 0.2.0 - April 2023
 
 * Upgraded to Conan 2.0.

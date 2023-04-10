@@ -366,6 +366,19 @@ namespace sql
             unionClause.generateIndices(idx);
         }
 
+        [[nodiscard]] auto getFilters()
+        {
+            if constexpr (is_table)
+            {
+                return std::tuple_cat(filter.getFilters(), havings.getFilters(), unionClause.getFilters());
+            }
+            else
+            {
+                return std::tuple_cat(
+                  join.getFilters(), filter.getFilters(), havings.getFilters(), unionClause.getFilters());
+            }
+        }
+
         /**
          * \brief Generate SelectStatement object. Generates and compiles SQL code and binds requested parameters.
          * \tparam Self Self type.
@@ -389,32 +402,18 @@ namespace sql
                                       stmt->getResult()->code,
                                       stmt->getResult()->extendedCode);
 
-                // Concatenate the filter expressions of any joints and where.
+                // Concatenate the filter expressions of any joins, unions and other clauses.
                 BaseFilterExpressionPtr f;
-                if constexpr (is_table)
+
+                auto filters = self.getFilters();
+                if constexpr (std::tuple_size_v<decltype(filters)> != 0)
                 {
-                    if constexpr (filter_t::valid && having_t::valid)
-                        f =
-                          std::make_unique<FilterExpression<typename filter_t::filter_t, typename having_t::filter_t>>(
-                            std::forward<Self>(self).filter.filter, std::forward<Self>(self).havings.filter);
-                    else if constexpr (filter_t::valid)
-                        f = std::make_unique<FilterExpression<typename filter_t::filter_t>>(
-                          std::forward<Self>(self).filter.filter);
-                    else if constexpr (having_t::valid)
-                        f = std::make_unique<FilterExpression<typename having_t::filter_t>>(
-                          std::forward<Self>(self).havings.filter);
-                }
-                else
-                {
-                    if constexpr (filter_t::valid && having_t::valid)
-                        f = std::forward<Self>(self).join.getFilters(std::forward<Self>(self).filter.filter,
-                                                                     std::forward<Self>(self).havings.filter);
-                    else if constexpr (filter_t::valid)
-                        f = std::forward<Self>(self).join.getFilters(std::forward<Self>(self).filter.filter);
-                    else if constexpr (having_t::valid)
-                        f = std::forward<Self>(self).join.getFilters(std::forward<Self>(self).havings.filter);
-                    else
-                        f = std::forward<Self>(self).join.getFilters();
+                    f = []<size_t... Js, typename T>(std::index_sequence<Js...>, T && fs)
+                    {
+                        return std::make_unique<FilterExpression<std::tuple_element_t<Js, T>...>>(
+                          std::get<Js>(std::forward<T>(fs))...);
+                    }
+                    (std::make_index_sequence<std::tuple_size_v<decltype(filters)>>{}, std::move(filters));
                 }
 
                 // Construct typed statement.

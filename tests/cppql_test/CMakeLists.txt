@@ -60,6 +60,7 @@ set(HEADERS
     ${INCLUDE_DIR}/queries/query_insert.h
     ${INCLUDE_DIR}/queries/query_join.h
     ${INCLUDE_DIR}/queries/query_select.h
+    ${INCLUDE_DIR}/queries/query_union.h
     ${INCLUDE_DIR}/queries/query_update.h
     ${INCLUDE_DIR}/statements/statement_count.h
     ${INCLUDE_DIR}/statements/statement_delete.h
@@ -137,6 +138,7 @@ set(SOURCES
     ${SRC_DIR}/queries/query_insert.cpp
     ${SRC_DIR}/queries/query_join.cpp
     ${SRC_DIR}/queries/query_select.cpp
+    ${SRC_DIR}/queries/query_union.cpp
     ${SRC_DIR}/queries/query_update.cpp
     ${SRC_DIR}/statements/statement_count.cpp
     ${SRC_DIR}/statements/statement_delete.cpp
