@@ -246,7 +246,7 @@ namespace sql
         // Generate.
         ////////////////////////////////////////////////////////////////
 
-        template<typename Self, typename... Ts>
+        /*template<typename Self, typename... Ts>
         [[nodiscard]] auto getFilters(this Self&& self, Ts&&... filters)
         {
             if constexpr (recursive)
@@ -266,6 +266,27 @@ namespace sql
                     return std::make_unique<FilterExpression<std::remove_cvref_t<Ts>...>>(std::forward<Ts>(filters)...);
                 else
                     return nullptr;
+            }
+        }*/
+        template<typename Self, typename... Ts>
+        [[nodiscard]] auto getFilters(this Self&& self, Ts&&... filters)
+        {
+            if constexpr (recursive)
+            {
+                if constexpr (filter_t::valid)
+                    return std::forward<Self>(self).left.getFilters(std::forward<Self>(self).filter.filter,
+                                                                    std::forward<Ts>(filters)...);
+                else
+                    return std::forward<Self>(self).left.getFilters(std::forward<Ts>(filters)...);
+            }
+            else
+            {
+                if constexpr (filter_t::valid)
+                    return std::make_tuple(std::forward<Self>(self).filter.filter, std::forward<Ts>(filters)...);
+                else if constexpr (sizeof...(filters) > 0)
+                    return std::make_tuple(std::forward<Ts>(filters)...);
+                else
+                    return std::tuple<>{};
             }
         }
 

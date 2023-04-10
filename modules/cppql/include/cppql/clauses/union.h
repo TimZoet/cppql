@@ -58,6 +58,8 @@ namespace sql
         static void generateIndices(int32_t&) {}
 
         [[nodiscard]] static std::string toString() { return {}; }
+
+        [[nodiscard]] static std::tuple<> getFilters() noexcept { return {}; }
     };
 
     template<is_select_query... Qs>
@@ -138,6 +140,15 @@ namespace sql
             f(std::index_sequence_for<Qs...>{});
 
             return s;
+        }
+
+        [[nodiscard]] auto getFilters() noexcept
+        {
+            return [this]<size_t... Is>(std::index_sequence<Is...>)
+            {
+                return std::tuple_cat((std::get<Is>(query).getFilters(), ...));
+            }
+            (std::make_index_sequence<std::tuple_size_v<query_t>>{});
         }
 
         ////////////////////////////////////////////////////////////////

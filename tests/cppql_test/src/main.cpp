@@ -70,6 +70,7 @@
 #include "cppql_test/queries/query_insert.h"
 #include "cppql_test/queries/query_join.h"
 #include "cppql_test/queries/query_select.h"
+#include "cppql_test/queries/query_union.h"
 #include "cppql_test/queries/query_update.h"
 #include "cppql_test/statements/statement_count.h"
 #include "cppql_test/statements/statement_delete.h"
@@ -168,6 +169,7 @@ int main(const int argc, char** argv)
             QueryInsert,
             QueryJoin,
             QuerySelect,
+            QueryUnion,
             QueryUpdate,
             StatementCount,
             StatementDelete,
