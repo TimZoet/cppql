@@ -32,7 +32,7 @@ class CppqlConan(ConanFile):
     ## Settings.                                                              ##
     ############################################################################
 
-    python_requires = "pyreq/1.0.0@timzoet/v1.0.0"
+    python_requires = "pyreq/1.0.1@timzoet/v1.0.1"
     
     python_requires_extend = "pyreq.BaseConan"
     
@@ -87,11 +87,11 @@ class CppqlConan(ConanFile):
         base = self.python_requires["pyreq"].module.BaseConan
         base.requirements(self)
         
-        self.requires("common/1.0.0@timzoet/v1.0.0")
+        self.requires("common/1.1.0@timzoet/v1.1.0")
         self.requires("sqlite3/3.40.0")
         
         if self.options.build_tests:
-            self.requires("bettertest/1.0.0@timzoet/v1.0.0")
+            self.requires("bettertest/1.0.1@timzoet/v1.0.1")
     
     def package_info(self):
         self.cpp_info.components["core"].libs = ["cppql"]

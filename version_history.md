@@ -1,5 +1,10 @@
 # Version History
 
+## 0.2.2 - TBD
+
+* Added default user and channel to conanfile.
+* Properly enable testing and return exit code.
+
 ## 0.2.1 - April 2023
 
 * Fixed filter expressions of union queries not being passed to statements.
