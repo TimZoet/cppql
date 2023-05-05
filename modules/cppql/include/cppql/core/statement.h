@@ -186,7 +186,11 @@ namespace sql
                     const TransientBlob& blob = b.get();
                     res |= bindTransientBlob(index, blob.data, blob.size);
                 }
+#ifdef WIN32
+                else { constexpr_static_assert<!std::same_as<return_t, return_t>>(); }
+#else
                 else { constexpr_static_assert(); }
+#endif
             }
 
             // Recurse.
